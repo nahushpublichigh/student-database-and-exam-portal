@@ -4519,6 +4519,22 @@
                 });
             });
             if(typeof applyRollMoves === 'function') applyRollMoves();
+
+            /* Deleted Archive में यदि उसी छात्र का स्थायी SID मौजूद है तो उसका Roll No भी
+               उसी नए Create Roll No से अपडेट करें। इससे पुराने Roll No का कोई stale copy
+               बाकी सूची में नहीं रहता। */
+            if(Array.isArray(droppedStudents) && Array.isArray(students)) {
+                const activeBySid = new Map();
+                students.forEach(st => { if(st && st._SID) activeBySid.set(st._SID, st['ROLL NO.']); });
+                droppedStudents.forEach(st => {
+                    if(st && st._SID && activeBySid.has(st._SID)) st['ROLL NO.'] = activeBySid.get(st._SID);
+                });
+                try {
+                    if(typeof cloudStore !== 'undefined' && cloudStore && Array.isArray(droppedStudents)) {
+                        cloudStore.setItem('NPHS_EXCEL_DROPPED_V2', JSON.stringify(droppedStudents));
+                    }
+                } catch(e) {}
+            }
         }
 
         /* रोल बदलने पर रोल-आधारित बाकी रिकॉर्ड (Result Hold, Attendance) नए रोल पर ले जाए जाते हैं (सिर्फ ADMIN) */
@@ -4557,12 +4573,14 @@
            पूरे पोर्टल में (Add Single, Excel Upload, Edit, Promote, Search-Edit आदि) हर
            जगह ROLL NO. हमेशा Create Roll No सिस्टम के हिसाब से ही सुसंगत (consistent) रहे। */
         function persistStudents() {
-            /* पहले अंक सुरक्षित SID में बाँधें, फिर रोल बदलें, फिर अंक नए रोल पर दिखाएं */
+            /* पहले स्थायी SID सुनिश्चित करें, फिर Create Roll No का नया रोल लागू करें,
+               उसके बाद ही marks को Firebase में SID के आधार पर sync करें।
+               इससे पुराना Roll No दोबारा वापस नहीं आता। */
             if(typeof ensureStudentSIDs === 'function') ensureStudentSIDs();
-            if(typeof liveMarksPush === 'function') liveMarksPush();
             reapplyRollNumbers();
             if(typeof liveMarksReproject === 'function') liveMarksReproject();
             cloudStore.setItem('NPHS_EXCEL_STUDENTS_V2', JSON.stringify(students));
+            if(typeof liveMarksPush === 'function') liveMarksPush();
         }
 
         /* ============================================================
@@ -4735,6 +4753,12 @@
             marksheetConfigDB = j('NPHS_MARKSHEET_CFG', marksheetConfigDB);
             logoDataURL = cloudStore.getItem('NPHS_SCHOOL_LOGO') || logoDataURL || '';
             watermarkDataURL = cloudStore.getItem('NPHS_SCHOOL_WATERMARK') || watermarkDataURL || '';
+
+            /* Firebase से डेटा आने के बाद Create Roll No को सबसे पहले canonical बनाएं।
+               इसके बाद सभी screens और live marks उसी नए Roll No को पढ़ेंगे। */
+            if(typeof ensureStudentSIDs === 'function' && cloudReady && activeUserRole === 'ADMIN') {
+                try { ensureStudentSIDs(); } catch(e) {}
+            }
             reapplyRollNumbers();
             if(typeof liveMarksReproject === 'function') liveMarksReproject();
             refreshImagePreviews();
@@ -9098,8 +9122,16 @@ function initPortalYear(){
 
             if(!rollConfigDB[year]) rollConfigDB[year] = {};
             rollConfigDB[year][cls] = val;
+
+            /* नया Roll No पहले config में Firebase के लिए तैयार करें, फिर students में
+               वही नया roll लगाकर तुरंत save करें। */
             cloudStore.setItem('NPHS_ROLL_CONFIG_DB', JSON.stringify(rollConfigDB));
             persistStudents();
+
+            /* 30 सेकंड की background sync के साथ-साथ Roll No बदलते ही तत्काल Firebase save */
+            if(typeof flushCloudStore === 'function' && cloudReady) {
+                flushCloudStore().catch(err => console.error('Roll No Firebase save error:', err));
+            }
 
             logActivity('रोल नंबर जनरेट किया (Create Roll No)', `Class: ${cls}, Year: ${year}, Start: ${val}, कुल छात्र: ${count}`);
 
