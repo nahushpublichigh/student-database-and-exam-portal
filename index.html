@@ -550,6 +550,11 @@
             @page{margin:5mm}
             body.csp-printing > *:not(#csp-print-area-global){display:none!important}
             body.csp-printing #csp-print-area-global{display:block!important}
+            /* सामान्य print CSS 'body * {visibility:hidden}' लगाती है, इसलिए इस print area को साफ़ दिखाना ज़रूरी है (blank page fix) */
+            body.csp-printing #csp-print-area-global, body.csp-printing #csp-print-area-global *{visibility:visible!important}
+            body.csp-printing #csp-print-area-global{position:static!important;width:100%!important;background:#fff!important}
+            body.csp-printing #csp-print-area-global table{display:table!important}
+            body.csp-printing #csp-print-area-global thead{display:table-header-group!important}
             body.csp-printing{margin:0!important;background:#fff!important}
             .csp-print-sheet{width:100%;min-height:100%;padding:0;transform-origin:top left}
         }
@@ -1616,6 +1621,11 @@
                     <i class="fa-solid fa-camera"></i>
                     <span>छात्र फोटो अपलोड (Student Photo)</span>
                 </div>
+
+                <div class="menu-item" data-perm="photo-download" onclick="switchTab('photo-download')">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <span>फोटो डाउनलोड (Photo Download)</span>
+                </div>
                 
                 <div class="menu-item" data-perm="student-db" onclick="toggleSubmenu('student-sub')">
                     <i class="fa-solid fa-user-graduate"></i>
@@ -1952,6 +1962,61 @@
                             </div>
                         </div>
                         <div id="photo-list-area" class="table-responsive" style="margin-top:15px;"></div>
+                    </div>
+                </section>
+
+                <!-- TAB: PHOTO DOWNLOAD (NEW) -->
+                <section id="tab-photo-download" class="tab-content hidden">
+                    <div class="card pd-card">
+                        <div class="pd-hero">
+                            <div class="pd-hero-glow"></div>
+                            <div class="pd-hero-icon"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                            <div>
+                                <div class="pd-hero-title">फोटो डाउनलोड <span>Photo Download</span></div>
+                                <div class="pd-hero-sub">सत्र व कक्षा चुनें · फोटो सूची देखें · पूरी कक्षा की फोटो नाम के साथ फोल्डर में सेव करें</div>
+                            </div>
+                        </div>
+
+                        <div class="pd-panel">
+                            <div class="pd-filter-grid">
+                                <div class="pd-field">
+                                    <label><i class="fa-solid fa-calendar-days"></i> सत्र (Year)</label>
+                                    <select id="pd-year">
+                                        <option value="2026-27">2026-27</option><option value="2027-28">2027-28</option>
+                                        <option value="2028-29">2028-29</option><option value="2029-30">2029-30</option>
+                                    </select>
+                                </div>
+                                <div class="pd-field">
+                                    <label><i class="fa-solid fa-school"></i> कक्षा (Class)</label>
+                                    <select id="pd-class"></select>
+                                </div>
+                                <div class="pd-field">
+                                    <label><i class="fa-solid fa-list-ol"></i> दिखाएं (Show)</label>
+                                    <select id="pd-limit">
+                                        <option value="50" selected>Show 50</option>
+                                        <option value="100">Show 100</option>
+                                        <option value="200">Show 200</option>
+                                        <option value="ALL">Show All</option>
+                                    </select>
+                                </div>
+                                <div class="pd-field pd-field-btn">
+                                    <button class="pd-btn pd-btn-show" onclick="pdShow()"><i class="fa-solid fa-eye"></i> Show</button>
+                                </div>
+                            </div>
+
+                            <div class="pd-action-row">
+                                <button class="pd-btn pd-btn-download" id="pd-download-btn" onclick="pdDownloadAll()"><i class="fa-solid fa-folder-arrow-down"></i> Download All Student Photo</button>
+                                <div class="pd-print-box">
+                                    <label><i class="fa-solid fa-print"></i> प्रिंट कक्षा</label>
+                                    <select id="pd-print-class"></select>
+                                    <button class="pd-btn pd-btn-print" onclick="pdPrint()"><i class="fa-solid fa-print"></i> Print</button>
+                                </div>
+                            </div>
+                            <div class="pd-note"><i class="fa-solid fa-circle-info"></i> Download में चुने गए सत्र व कक्षा के <b>सभी</b> छात्रों की फोटो (Show limit से स्वतंत्र) <b>नाम_रोल</b> के नाम से सेव होती है। फोल्डर चुनने का विकल्प न मिले तो ZIP फोल्डर डाउनलोड होगा।</div>
+                        </div>
+
+                        <div id="pd-stats" class="pd-stats"></div>
+                        <div id="pd-list-area" class="pd-list-area"></div>
                     </div>
                 </section>
 
@@ -3233,6 +3298,8 @@
                             <div class="filter-row" style="margin-top:8px;">
                                 <button class="btn btn-secondary" onclick="loadPatrakTable('blank'); window.print();"><i class="fa-solid fa-file"></i> खाली पत्रक प्रिंट करें (Print Blank)</button>
                                 <button class="btn btn-primary" onclick="loadPatrakTable('filled'); window.print();"><i class="fa-solid fa-print"></i> भरा हुआ पत्रक प्रिंट करें (Print Filled)</button>
+                                <button class="btn btn-secondary" style="background:#0f766e;" onclick="printPatrakLandscape('blank')"><i class="fa-solid fa-file"></i> खाली पत्रक Landscape प्रिंट (A4 Fit)</button>
+                                <button class="btn btn-primary" style="background:#0f766e;" onclick="printPatrakLandscape('filled')"><i class="fa-solid fa-print"></i> भरा पत्रक Landscape प्रिंट (A4 Fit)</button>
                             </div>
                         </div>
 
@@ -3860,6 +3927,7 @@
                                 <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:10px; background:#f8fafc; padding:15px; border-radius:6px; border:1px solid #cbd5e1;">
                                     <label><input type="checkbox" class="tch-perm-chk" value="student-db" checked> छात्र डेटाबेस (Student DB)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="student-photo" checked> छात्र फोटो अपलोड (Student Photo Upload)</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="photo-download"> फोटो डाउनलोड (Photo Download)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="add-single" checked> नया छात्र जोड़ें</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="add-bulk"> बल्क एक्सेल अपलोड</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="view-data" checked> छात्र डेटा देखें</label>
@@ -5377,6 +5445,7 @@
             if(tabId === 'dashboard') { renderDashboard(); refreshFirebaseStorageStats(); }
             if(tabId === 'firebase-storage') refreshFirebaseStorageStats();
             if(tabId === 'student-photo') loadStudentPhotoTable();
+            if(tabId === 'photo-download') pdInit();
             if(tabId === 'goshwara-report') generateGoshwaraReport();
             if(tabId === 'control-panel') { if(!controlPanelUnlocked) showControlPanelGate(); else { renderCorrectionHistoryTable(); renderDuplicateDataTable(); renderActivityHistory(); renderTeacherMarksAudit(); renderTeacherAccountsTable(); buildTeacherScopeBuilder(); } hdLock(); }
             if(tabId === 'fill-marks') applyTeacherFillScope();
@@ -7357,7 +7426,10 @@ function initPortalYear(){
                 marksHtml += `<p style="color:#dc2626; font-weight:bold;">Marks Statement for this exam has not been uploaded yet.</p></div>`;
             } else {
                 let grandTotal = 0;
+                let grandMax = 0;
                 let tableRows = '';
+                const pubIsQ = (currentActivePortalExam === 'QUARTERLY');
+                const pubIsH = (currentActivePortalExam === 'HALF YEARLY');
 
                 activeSubjects.forEach(sub => {
                     let m = studentMarksData[sub.name] || 0;
@@ -7367,10 +7439,17 @@ function initPortalYear(){
                     let totM = numM + numPrM;
                     grandTotal += totM;
 
+                    /* "विषय, अधिकतम अंक एवं प्रैक्टिकल सेट करें" में भरे Max Marks के अनुसार (परीक्षा के हिसाब से) */
+                    let subThMax = parseFloat(pubIsQ ? sub.maxQ : (pubIsH ? sub.maxH : sub.maxA)) || 0;
+                    let subPrMax = (sub.hasPractical && (!pubIsQ && !pubIsH || numPrM)) ? (parseFloat(sub.practicalMax) || 0) : 0;
+                    let subMax = subThMax + subPrMax;
+                    grandMax += subMax;
+
                     tableRows += `
                         <tr>
                             <td style="font-weight:bold;">${sub.name}</td>
                             <td style="text-align:center;">${numM} ${numPrM ? '(TH) + ' + numPrM + ' (PR)' : ''}</td>
+                            <td style="text-align:center; font-weight:bold; color:#b45309;">${subMax}</td>
                             <td style="text-align:center; font-weight:bold; color:var(--primary);">${totM}</td>
                         </tr>
                     `;
@@ -7382,6 +7461,7 @@ function initPortalYear(){
                             <tr style="background:#f1f5f9; color:#334155;">
                                 <th style="border:1px solid #cbd5e1; padding:6px;">Subject Name</th>
                                 <th style="border:1px solid #cbd5e1; padding:6px; text-align:center;">Marks Detail</th>
+                                <th style="border:1px solid #cbd5e1; padding:6px; text-align:center;">Maximum Marks</th>
                                 <th style="border:1px solid #cbd5e1; padding:6px; text-align:center;">Total Obtained</th>
                             </tr>
                         </thead>
@@ -7389,6 +7469,7 @@ function initPortalYear(){
                             ${tableRows}
                             <tr style="background:#e2e8f0; font-weight:bold;">
                                 <td colspan="2" style="border:1px solid #cbd5e1; padding:6px; text-align:right;">GRAND TOTAL:</td>
+                                <td style="border:1px solid #cbd5e1; padding:6px; text-align:center; color:#b45309; font-size:1rem;">${grandMax}</td>
                                 <td style="border:1px solid #cbd5e1; padding:6px; text-align:center; color:#16a34a; font-size:1rem;">${grandTotal}</td>
                             </tr>
                         </tbody>
@@ -8620,7 +8701,7 @@ function initPortalYear(){
             const teacher=activeUserRole==='TEACHER'?getCurrentTeacher():null;
             const allowed=teacher&&Array.isArray(teacher.classSubjectAccess)?teacher.classSubjectAccess.map(x=>String(x.class)):[];
             const classes=activeUserRole==='TEACHER'&&allowed.length?CLASS_SEQUENCE.filter(x=>allowed.some(a=>cleanString(a)===cleanString(x))):CLASS_SEQUENCE;
-            c.innerHTML=classes.map(v=>`<option value="${cspEsc(v)}">${cspEsc(v)}</option>`).join('');
+            c.innerHTML='<option value="ALL">सभी कक्षाएं (All Classes)</option>'+classes.map(v=>`<option value="${cspEsc(v)}">${cspEsc(v)}</option>`).join('');
             const sy=document.getElementById('csp-saved-year-filter'), sc=document.getElementById('csp-saved-class-filter');
             if(sy) sy.innerHTML='<option value="ALL">सभी सत्र</option>'+years.map(v=>`<option value="${v}">${v}</option>`).join('');
             if(sc) sc.innerHTML='<option value="ALL">सभी कक्षा</option>'+classes.map(v=>`<option value="${cspEsc(v)}">${cspEsc(v)}</option>`).join('');
@@ -8657,7 +8738,7 @@ function initPortalYear(){
             if(!box)return;
             const limit=document.getElementById('csp-limit')?.value||'ALL';
             const rows=limit==='ALL'?cspCurrentRows:cspCurrentRows.slice(0,Number(limit));
-            if(count)count.textContent=`कक्षा ${document.getElementById('csp-class')?.value||''} / सत्र ${document.getElementById('csp-year')?.value||''} — कुल छात्र: ${cspCurrentRows.length} | सूची में: ${rows.length} | चुने कॉलम: ${cols.length}`;
+            if(count)count.textContent=`कक्षा ${(document.getElementById('csp-class')?.value==='ALL')?'सभी कक्षाएं':(document.getElementById('csp-class')?.value||'')} / सत्र ${document.getElementById('csp-year')?.value||''} — कुल छात्र: ${cspCurrentRows.length} | सूची में: ${rows.length} | चुने कॉलम: ${cols.length}`;
             if(!cols.length){box.innerHTML='<div style="padding:20px;color:#dc2626;font-weight:700;">कम से कम एक कॉलम tick करें।</div>';return;}
             let h='<table><thead><tr>'+cols.map(c=>`<th>${cspEsc(c)}</th>`).join('')+'</tr></thead><tbody>';
             rows.forEach(st=>{h+='<tr>'+cols.map(c=>`<td>${cspEsc(getFieldValue(st,c))}</td>`).join('')+'</tr>';});
@@ -8676,7 +8757,7 @@ function initPortalYear(){
             const orient=document.getElementById('csp-orientation')?.value||'portrait';
             const font=cols.length>=14?'5.8pt':cols.length>=10?'6.5pt':cols.length>=7?'7.2pt':'8pt';
             let html=`<style id="csp-print-style">@page{size:A4 ${orient};margin:5mm}html,body{margin:0!important;padding:0!important;background:#fff!important}.csp-print-sheet{width:100%;box-sizing:border-box;padding:0;font-family:Arial,sans-serif}.csp-print-title{text-align:center;margin:0 0 4mm}.csp-print-title h1{font-size:15pt;margin:0 0 1.5mm}.csp-print-title h2{font-size:10pt;margin:0}.csp-print-title p{font-size:7.5pt;margin:1mm 0 0}.csp-print-table{width:100%;border-collapse:collapse;table-layout:fixed}.csp-print-table th,.csp-print-table td{border:1px solid #222;padding:1.5mm 1mm;font-size:${font};line-height:1.12;word-break:break-word;white-space:normal;vertical-align:top}.csp-print-table th{background:#e5e7eb;font-weight:900}.csp-print-table tr{page-break-inside:avoid;break-inside:avoid}</style>`;
-            html+=`<div class="csp-print-sheet"><div class="csp-print-title"><h1>NAHUSH PUBLIC HIGH SCHOOL MOHLA</h1><h2>छात्र डेटा सूची — ${cspEsc(cls)} / ${cspEsc(year)}</h2><p>चयनित कॉलम: ${cols.map(cspEsc).join(' • ')} | कुल छात्र: ${rows.length}</p></div><table class="csp-print-table"><thead><tr>${cols.map(c=>`<th>${cspEsc(c)}</th>`).join('')}</tr></thead><tbody>`;
+            html+=`<div class="csp-print-sheet"><div class="csp-print-title"><h1>NAHUSH PUBLIC HIGH SCHOOL MOHLA</h1><h2>छात्र डेटा सूची — ${cls==='ALL'?'सभी कक्षाएं (All Classes)':cspEsc(cls)} / ${cspEsc(year)}</h2><p>चयनित कॉलम: ${cols.map(cspEsc).join(' • ')} | कुल छात्र: ${rows.length}</p></div><table class="csp-print-table"><thead><tr>${cols.map(c=>`<th>${cspEsc(c)}</th>`).join('')}</tr></thead><tbody>`;
             rows.forEach(st=>{html+='<tr>'+cols.map(c=>`<td>${cspEsc(getFieldValue(st,c))}</td>`).join('')+'</tr>';});
             return html+'</tbody></table></div>';
         }
@@ -8688,7 +8769,7 @@ function initPortalYear(){
             document.body.classList.add('csp-printing');
             const cleanup=()=>{document.body.classList.remove('csp-printing');area.innerHTML='';window.removeEventListener('afterprint',cleanup);};
             window.addEventListener('afterprint',cleanup);
-            setTimeout(()=>{window.print();setTimeout(()=>{if(document.body.classList.contains('csp-printing'))cleanup();},1800);},100);
+            setTimeout(()=>{window.print();setTimeout(()=>{if(document.body.classList.contains('csp-printing'))cleanup();},30000);},300);
         }
         function cspExcel(){
             const cols=cspSelectedColumns(), rows=cspGetPrintRows();
@@ -10085,6 +10166,38 @@ function initPortalYear(){
             area.innerHTML = html;
         }
 
+        /* --- PRINT EXAM PATRAK: A4 LANDSCAPE, FIT TO PAGE (नया विकल्प; पुराने प्रिंट बटन जैसे थे वैसे ही हैं) --- */
+        function printPatrakLandscape(mode) {
+            loadPatrakTable(mode || 'filled');
+            const area = document.getElementById('patrak-view-area');
+            if(!area || !area.querySelector('table')) { return; }
+            const colCount = area.querySelectorAll('thead th').length;
+            const rowCount = area.querySelectorAll('tbody tr').length;
+            // कॉलम ज़्यादा हों तो फ़ॉन्ट छोटा, ताकि A4 की चौड़ाई में पूरा पत्रक फिट हो
+            let fs = colCount <= 10 ? 9.5 : colCount <= 14 ? 8.2 : colCount <= 18 ? 7 : colCount <= 24 ? 6 : 5.2;
+            let pad = rowCount > 45 ? 1.1 : rowCount > 30 ? 1.6 : 2.2;
+            const w = window.open('', '_blank', 'width=1400,height=900');
+            if(!w) { alert('Print window blocked. कृपया browser में pop-up allow करें।'); return; }
+            w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Exam Patrak - A4 Landscape</title>
+            <style>
+                @page { size: A4 landscape; margin: 6mm; }
+                *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+                html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;color:#000}
+                #pt-wrap{width:100%}
+                #pt-wrap h2{margin:0 0 2px;font-size:14pt;color:#1e3a8a;text-align:center}
+                #pt-wrap h3{margin:0 0 5px;font-size:10pt;color:#334155;text-align:center}
+                #pt-wrap > div{text-align:center;margin-bottom:5px!important}
+                table{width:100%;border-collapse:collapse;table-layout:auto;font-size:${fs}pt}
+                th,td{border:1px solid #475569;padding:${pad}px 2px;text-align:center;white-space:normal;word-break:break-word;line-height:1.15}
+                thead{display:table-header-group}
+                thead th{background:#1e3a8a!important;color:#fff!important;font-weight:700}
+                tr{page-break-inside:avoid;break-inside:avoid}
+                td:nth-child(3),td:nth-child(4){text-align:left;padding-left:3px}
+            </style></head><body><div id="pt-wrap">${area.innerHTML}</div>
+            <script>window.onload=function(){setTimeout(function(){window.print();window.onafterprint=function(){window.close();}},300)};<\/script></body></html>`);
+            w.document.close();
+        }
+
         function renderCorrectionArea() {
             const cls = document.getElementById('corr-class').value;
             const yr = document.getElementById('corr-year').value;
@@ -10217,10 +10330,29 @@ function initPortalYear(){
         }
 
         function exportToExcel() {
-            let ws = XLSX.utils.json_to_sheet(students);
+            /* क्लिक के समय का real-time डेटा: students की मौजूदा (live) सूची से, चुने गए कक्षा/सत्र के सभी छात्र (limit से स्वतंत्र) */
+            const selectedClass = document.getElementById('view-class-filter').value;
+            const selectedYear = document.getElementById('view-year-filter').value;
+            let rows = (Array.isArray(students) ? students : []).filter(item => {
+                let matchClass = (selectedClass === 'ALL') || (cleanString(item['CLASS']) === cleanString(selectedClass));
+                let matchYear = (selectedYear === 'ALL') || (cleanString(item['YEAR']) === cleanString(selectedYear));
+                if(activeUserRole === 'TEACHER' && !teacherCanClass(item['CLASS'])) return false;
+                return matchClass && matchYear;
+            });
+            rows.sort(compareStudentsForDisplay);
+            if(rows.length === 0) { alert('चुने गए कक्षा/सत्र के लिए डाउनलोड करने हेतु कोई छात्र डेटा उपलब्ध नहीं है।'); return; }
+            renderStudentTable(); // स्क्रीन की सूची भी इसी ताज़ा डेटा से अपडेट हो जाए
+            const out = rows.map((row, i) => {
+                const o = { '#': i + 1 };
+                FIXED_COLUMNS.forEach(col => { o[col] = getFieldValue(row, col); });
+                return o;
+            });
+            let ws = XLSX.utils.json_to_sheet(out);
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Students");
-            XLSX.writeFile(wb, "Student_Database.xlsx");
+            const clsTxt = selectedClass === 'ALL' ? 'All_Classes' : selectedClass;
+            const yrTxt = selectedYear === 'ALL' ? 'All_Years' : selectedYear;
+            XLSX.writeFile(wb, `Student_Database_${clsTxt}_${yrTxt}.xlsx`);
         }
 
         function exportMarksToExcel(type) {
@@ -13508,5 +13640,219 @@ table.fs-pt td.empty{text-align:center;color:#64748b;padding:8px}
 })();
 </script>
 
+
+<style id="photo-download-style">
+.pd-card{padding:0 !important;background:linear-gradient(160deg,#0b1020 0%,#111b3a 55%,#0b1020 100%) !important;border:1px solid rgba(251,191,36,.35) !important;box-shadow:0 18px 50px rgba(2,6,23,.55),0 0 0 1px rgba(251,191,36,.08) inset !important;color:#e2e8f0;border-radius:14px !important;overflow:hidden}
+.pd-hero{position:relative;display:flex;align-items:center;gap:18px;padding:26px 28px;background:linear-gradient(110deg,#1e3a8a 0%,#312e81 50%,#7c2d12 120%);overflow:hidden;border-bottom:1px solid rgba(251,191,36,.4)}
+.pd-hero-glow{position:absolute;top:-60%;left:-20%;width:60%;height:220%;background:radial-gradient(closest-side,rgba(251,191,36,.35),rgba(251,191,36,0));animation:pdGlow 7s ease-in-out infinite alternate;pointer-events:none}
+@keyframes pdGlow{0%{transform:translateX(0) scale(1);opacity:.6}100%{transform:translateX(160%) scale(1.25);opacity:1}}
+.pd-hero-icon{position:relative;z-index:1;width:62px;height:62px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:#fbbf24;background:rgba(15,23,42,.55);border:1px solid rgba(251,191,36,.6);box-shadow:0 0 24px rgba(251,191,36,.45),inset 0 0 14px rgba(251,191,36,.2);animation:pdPulse 2.6s ease-in-out infinite}
+@keyframes pdPulse{0%,100%{box-shadow:0 0 18px rgba(251,191,36,.35),inset 0 0 10px rgba(251,191,36,.15)}50%{box-shadow:0 0 34px rgba(251,191,36,.7),inset 0 0 18px rgba(251,191,36,.3)}}
+.pd-hero-title{position:relative;z-index:1;font-size:1.55rem;font-weight:800;color:#fff;letter-spacing:.3px;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.pd-hero-title span{font-size:.85rem;font-weight:600;color:#fbbf24;margin-left:8px;letter-spacing:2px;text-transform:uppercase}
+.pd-hero-sub{position:relative;z-index:1;font-size:.85rem;color:#cbd5e1;margin-top:5px}
+.pd-panel{padding:22px 28px 6px}
+.pd-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end}
+.pd-field label,.pd-print-box label{display:block;font-size:.78rem;font-weight:700;color:#fbbf24;margin-bottom:6px;letter-spacing:.4px}
+.pd-field select,.pd-print-box select{width:100%;padding:11px 12px;border-radius:9px;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.8);color:#f1f5f9;font-size:.9rem;font-weight:600;outline:none;transition:.2s}
+.pd-field select:focus,.pd-print-box select:focus{border-color:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.25)}
+.pd-btn{border:none;cursor:pointer;font-weight:700;font-size:.9rem;padding:11px 20px;border-radius:9px;display:inline-flex;align-items:center;gap:8px;transition:.25s;color:#fff;letter-spacing:.3px}
+.pd-btn:hover{transform:translateY(-2px)}
+.pd-btn:disabled{opacity:.6;cursor:wait;transform:none}
+.pd-btn-show{width:100%;justify-content:center;background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 6px 18px rgba(217,119,6,.45)}
+.pd-btn-download{background:linear-gradient(135deg,#16a34a,#047857);box-shadow:0 6px 22px rgba(22,163,74,.5);font-size:.95rem;padding:13px 24px}
+.pd-btn-download:hover{box-shadow:0 10px 30px rgba(22,163,74,.7)}
+.pd-btn-print{background:linear-gradient(135deg,#2563eb,#1e3a8a);box-shadow:0 6px 18px rgba(37,99,235,.45);white-space:nowrap}
+.pd-action-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-top:18px;padding-top:18px;border-top:1px dashed rgba(148,163,184,.3)}
+.pd-print-box{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.pd-print-box label{width:100%;margin:0 0 -4px}
+.pd-print-box select{min-width:170px;width:auto}
+.pd-note{margin:14px 0 4px;font-size:.78rem;color:#94a3b8;line-height:1.6}
+.pd-note i{color:#fbbf24;margin-right:5px}
+.pd-stats{display:flex;flex-wrap:wrap;gap:12px;padding:10px 28px 0}
+.pd-stat{flex:1;min-width:140px;padding:12px 16px;border-radius:12px;background:rgba(30,41,59,.7);border:1px solid rgba(251,191,36,.25);animation:pdRise .5s ease both}
+.pd-stat b{display:block;font-size:1.5rem;color:#fbbf24;text-shadow:0 0 14px rgba(251,191,36,.4)}
+.pd-stat small{color:#94a3b8;font-weight:600}
+@keyframes pdRise{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+.pd-list-area{padding:16px 28px 28px}
+.pd-table-wrap{max-height:65vh;overflow:auto;border-radius:12px;border:1px solid rgba(148,163,184,.25)}
+.pd-table{width:100%;border-collapse:collapse;font-size:.85rem;color:#e2e8f0}
+.pd-table th{position:sticky;top:0;z-index:5;background:#1e3a8a;color:#fde68a;padding:11px 12px;text-align:left;border:none;letter-spacing:.4px;white-space:nowrap}
+.pd-table td{padding:9px 12px;border:none;border-bottom:1px solid rgba(148,163,184,.15);white-space:nowrap;background:rgba(15,23,42,.55)}
+.pd-table tr:hover td{background:rgba(51,65,85,.7)}
+.pd-table tr{animation:pdRow .4s ease both}
+@keyframes pdRow{0%{opacity:0;transform:translateX(-12px)}100%{opacity:1;transform:none}}
+.pd-photo{width:52px;height:64px;object-fit:cover;border-radius:8px;border:2px solid rgba(251,191,36,.7);box-shadow:0 4px 12px rgba(0,0,0,.5);cursor:pointer;transition:.25s;background:#0f172a;display:block}
+.pd-photo:hover{transform:scale(1.18);box-shadow:0 0 20px rgba(251,191,36,.7)}
+.pd-nophoto{width:52px;height:64px;border-radius:8px;border:1px dashed rgba(148,163,184,.5);display:flex;align-items:center;justify-content:center;font-size:.62rem;color:#94a3b8;text-align:center}
+.pd-empty{text-align:center;padding:34px 10px;color:#fca5a5;font-weight:600}
+.pd-progress-overlay{position:fixed;inset:0;z-index:5000;background:rgba(2,6,23,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
+.pd-progress-box{width:min(440px,90vw);padding:28px;border-radius:16px;background:linear-gradient(160deg,#0f172a,#1e1b4b);border:1px solid rgba(251,191,36,.5);box-shadow:0 0 50px rgba(251,191,36,.25);text-align:center;color:#e2e8f0}
+.pd-progress-box h3{color:#fbbf24;margin-bottom:6px}
+.pd-bar{height:12px;border-radius:99px;background:rgba(148,163,184,.25);overflow:hidden;margin:16px 0 8px}
+.pd-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#fde047,#22c55e);box-shadow:0 0 14px rgba(250,204,21,.7);transition:width .15s}
+@media(max-width:700px){.pd-hero{padding:18px}.pd-panel,.pd-list-area,.pd-stats{padding-left:14px;padding-right:14px}.pd-action-row{flex-direction:column;align-items:stretch}}
+</style>
+<div id="pd-progress" class="pd-progress-overlay"><div class="pd-progress-box"><h3><i class="fa-solid fa-cloud-arrow-down"></i> फोटो डाउनलोड हो रही हैं...</h3><div id="pd-progress-text" style="font-size:.85rem;color:#cbd5e1">तैयार हो रहा है...</div><div class="pd-bar"><div id="pd-progress-fill" class="pd-bar-fill"></div></div><div id="pd-progress-count" style="font-weight:700;color:#fbbf24"></div></div></div>
+
+<script id="photo-download-script">
+/* =========== PHOTO DOWNLOAD (NEW FEATURE) — सिर्फ पढ़ता है, students डेटा में कोई बदलाव नहीं करता =========== */
+function pdEsc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pdInit(){
+    const opts = '<option value="ALL">सभी कक्षाएं (All Classes)</option>' + CLASS_SEQUENCE.map(c => `<option value="${pdEsc(c)}">${pdEsc(c)}</option>`).join('');
+    const cs = document.getElementById('pd-class'), ps = document.getElementById('pd-print-class');
+    if(cs && !cs.options.length){ cs.innerHTML = opts; cs.value = 'ALL'; }
+    if(ps && !ps.options.length){ ps.innerHTML = opts; ps.value = 'ALL'; }
+    pdShow();
+}
+function pdGetStudents(yr, cls){
+    return (students || []).filter(s => s['YEAR'] === yr && (cls === 'ALL' || s['CLASS'] === cls));
+}
+function pdSortedByClass(list){
+    const idx = c => { const i = CLASS_SEQUENCE.indexOf(c); return i < 0 ? 999 : i; };
+    return list.slice().sort((a,b) => idx(a['CLASS']) - idx(b['CLASS']) || (parseInt(a['ROLL NO.'])||0) - (parseInt(b['ROLL NO.'])||0));
+}
+function pdShow(){
+    const yr = document.getElementById('pd-year').value;
+    const cls = document.getElementById('pd-class').value;
+    const limit = document.getElementById('pd-limit').value;
+    const area = document.getElementById('pd-list-area');
+    const stats = document.getElementById('pd-stats');
+    const all = pdSortedByClass(pdGetStudents(yr, cls));
+    const withPhoto = all.filter(s => s['PHOTO']).length;
+    stats.innerHTML = `
+        <div class="pd-stat"><b>${all.length}</b><small>कुल छात्र</small></div>
+        <div class="pd-stat"><b>${withPhoto}</b><small>फोटो उपलब्ध</small></div>
+        <div class="pd-stat"><b>${all.length - withPhoto}</b><small>फोटो नहीं</small></div>`;
+    if(!all.length){ area.innerHTML = '<div class="pd-empty">चुने गए सत्र/कक्षा के लिए कोई छात्र उपलब्ध नहीं है।</div>'; return; }
+    const list = limit === 'ALL' ? all : all.slice(0, parseInt(limit));
+    const rows = list.map((st, i) => {
+        const roll = pdEsc(st['ROLL NO.']);
+        const ph = st['PHOTO']
+            ? `<img class="pd-photo" src="${pdEsc(st['PHOTO'])}" title="बड़ा देखने के लिए क्लिक करें" onclick="pdOpenPhoto('${roll}','${pdEsc(yr)}')">`
+            : '<div class="pd-nophoto">No Photo</div>';
+        return `<tr style="animation-delay:${Math.min(i,25)*0.025}s"><td>${i+1}</td><td>${ph}</td><td>${roll}</td><td><b>${pdEsc(st['NAME OF STUDENT'])}</b></td><td>${pdEsc(st['NAME OF FATHER'])}</td><td>${pdEsc(st['CLASS'])}</td></tr>`;
+    }).join('');
+    area.innerHTML = `<div style="color:#94a3b8;font-size:.8rem;margin-bottom:8px;">दिखाए जा रहे: <b style="color:#fbbf24">${list.length}</b> / ${all.length} छात्र</div>
+        <div class="pd-table-wrap"><table class="pd-table"><thead><tr><th>#</th><th>Photo</th><th>Roll No</th><th>Student Name</th><th>Father Name</th><th>Class</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function pdOpenPhoto(roll, yr){
+    const st = students.find(s => cleanString(s['ROLL NO.']) === cleanString(roll) && s['YEAR'] === yr);
+    if(st) openPhotoViewModal(roll, yr, st['NAME OF STUDENT'] || 'Student');
+}
+
+/* ---------- Download ---------- */
+function pdSafeName(s){ return String(s||'').replace(/[\\/:*?"<>|\u0000-\u001f]/g,' ').replace(/\s+/g,'_').replace(/^_+|_+$/g,'').slice(0,80) || 'Student'; }
+function pdExtFromType(t){ t = String(t||'').toLowerCase(); if(t.includes('png')) return 'png'; if(t.includes('jpeg')) return 'jpeg'; if(t.includes('jpg')) return 'jpg'; return 'jpg'; }
+async function pdPhotoToBlob(src){
+    try { const r = await fetch(src); if(r.ok){ const b = await r.blob(); if(b && b.size) return b; } } catch(e){}
+    // fallback (cross-origin URL): canvas से JPEG
+    return await new Promise((resolve, reject) => {
+        const img = new Image(); img.crossOrigin = 'anonymous';
+        img.onload = () => { try { const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img,0,0); c.toBlob(b => b ? resolve(b) : reject(new Error('blob')), 'image/jpeg', 0.95); } catch(e){ reject(e); } };
+        img.onerror = () => reject(new Error('load'));
+        img.src = src;
+    });
+}
+function pdProgress(show, text, done, total){
+    document.getElementById('pd-progress').style.display = show ? 'flex' : 'none';
+    if(text != null) document.getElementById('pd-progress-text').textContent = text;
+    if(total){ document.getElementById('pd-progress-fill').style.width = Math.round(done/total*100) + '%'; document.getElementById('pd-progress-count').textContent = `${done} / ${total}`; }
+}
+function pdLoadJSZip(){
+    return new Promise((resolve, reject) => {
+        if(window.JSZip) return resolve(window.JSZip);
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = () => window.JSZip ? resolve(window.JSZip) : reject(new Error('JSZip'));
+        s.onerror = () => reject(new Error('JSZip load failed'));
+        document.head.appendChild(s);
+    });
+}
+async function pdDownloadAll(){
+    const yr = document.getElementById('pd-year').value;
+    const cls = document.getElementById('pd-class').value;
+    const list = pdSortedByClass(pdGetStudents(yr, cls)).filter(s => s['PHOTO']);
+    if(!list.length){ alert('चुने गए सत्र/कक्षा में किसी छात्र की फोटो उपलब्ध नहीं है।'); return; }
+    const folderName = `Student_Photos_${yr}_${cls === 'ALL' ? 'All_Classes' : cls}`;
+    const btn = document.getElementById('pd-download-btn');
+    let dirHandle = null, useZip = true;
+
+    if(window.showDirectoryPicker){
+        try { const parent = await window.showDirectoryPicker({ mode: 'readwrite' }); dirHandle = await parent.getDirectoryHandle(folderName, { create: true }); useZip = false; }
+        catch(e){ if(e && e.name === 'AbortError') return; useZip = true; }
+    }
+    btn.disabled = true;
+    pdProgress(true, useZip ? 'ZIP फोल्डर बन रहा है...' : 'फोटो फोल्डर में सेव हो रही हैं...', 0, list.length);
+    let zip = null;
+    try { if(useZip){ const JSZ = await pdLoadJSZip(); zip = new JSZ(); } }
+    catch(e){ pdProgress(false); btn.disabled = false; alert('❌ ZIP लाइब्रेरी लोड नहीं हो पाई। इंटरनेट जाँचें।'); return; }
+
+    const used = {}; let ok = 0, fail = 0;
+    for(let i = 0; i < list.length; i++){
+        const st = list[i];
+        try {
+            const blob = await pdPhotoToBlob(st['PHOTO']);
+            const ext = pdExtFromType(blob.type);
+            const sub = cls === 'ALL' ? pdSafeName(st['CLASS'] || 'NO_CLASS') : '';
+            let base = `${pdSafeName(st['NAME OF STUDENT'])}_${pdSafeName(st['ROLL NO.'])}`;
+            const key = sub + '/' + base.toLowerCase();
+            if(used[key]){ used[key]++; base += '_' + used[key]; } else used[key] = 1;
+            const fname = `${base}.${ext}`;
+            if(zip){
+                zip.folder(folderName + (sub ? '/' + sub : '')).file(fname, blob);
+            } else {
+                let d = dirHandle;
+                if(sub) d = await dirHandle.getDirectoryHandle(sub, { create: true });
+                const fh = await d.getFileHandle(fname, { create: true });
+                const w = await fh.createWritable(); await w.write(blob); await w.close();
+            }
+            ok++;
+        } catch(e){ fail++; console.error('Photo download fail', st['ROLL NO.'], e); }
+        pdProgress(true, null, i + 1, list.length);
+    }
+    try {
+        if(zip){
+            pdProgress(true, 'ZIP तैयार हो रहा है...', list.length, list.length);
+            const out = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = folderName + '.zip';
+            document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        }
+    } catch(e){ console.error(e); fail = list.length; ok = 0; }
+    pdProgress(false); btn.disabled = false;
+    try { logActivity('छात्र फोटो डाउनलोड की', `${cls === 'ALL' ? 'सभी कक्षाएं' : 'कक्षा ' + cls} | सत्र ${yr} | ${ok} फोटो`); } catch(_e) {}
+    alert(`✅ फोटो डाउनलोड पूरी हुई!\n\nफोल्डर: ${folderName}${zip ? '.zip' : ''}\nसफल: ${ok}${fail ? '\nअसफल: ' + fail : ''}\nबिना फोटो वाले छात्र: ${pdGetStudents(yr, cls).length - list.length}`);
+}
+
+/* ---------- Print (class चुनने में All सहित) ---------- */
+function pdPrint(){
+    const yr = document.getElementById('pd-year').value;
+    const cls = document.getElementById('pd-print-class').value;
+    const list = pdSortedByClass(pdGetStudents(yr, cls));
+    if(!list.length){ alert('चुने गए सत्र/कक्षा के लिए कोई छात्र उपलब्ध नहीं है।'); return; }
+    const groups = {};
+    list.forEach(s => { (groups[s['CLASS'] || '-'] = groups[s['CLASS'] || '-'] || []).push(s); });
+    const blank = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='110'><rect width='90' height='110' fill='%23e2e8f0'/><text x='50%25' y='55%25' font-size='11' text-anchor='middle' fill='%2364748b'>NO PHOTO</text></svg>";
+    const sections = Object.keys(groups).map(c => `
+        <section class="grp"><div class="gh">कक्षा / Class : ${pdEsc(c)} <span>सत्र ${pdEsc(yr)} · कुल ${groups[c].length} छात्र</span></div>
+        <div class="grid">${groups[c].map(st => `
+            <div class="cd"><img src="${pdEsc(st['PHOTO'] || blank)}"><div class="nm">${pdEsc(st['NAME OF STUDENT'])}</div>
+            <div class="sm">Roll: ${pdEsc(st['ROLL NO.'])}</div><div class="sm">पिता: ${pdEsc(st['NAME OF FATHER'])}</div></div>`).join('')}</div></section>`).join('');
+    const w = window.open('', '_blank');
+    if(!w){ alert('पॉपअप ब्लॉक है। कृपया इस साइट के लिए पॉपअप की अनुमति दें।'); return; }
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Student Photo List - ${pdEsc(yr)}</title><style>
+        @page{size:A4;margin:10mm}*{box-sizing:border-box}body{font-family:'Segoe UI',Tahoma,sans-serif;margin:0;color:#111}
+        .hd{text-align:center;border-bottom:3px double #1e3a8a;padding-bottom:6px;margin-bottom:10px}.hd h1{margin:0;font-size:16pt;color:#1e3a8a}.hd p{margin:2px 0 0;font-size:9pt}
+        .grp{page-break-after:always}.grp:last-child{page-break-after:auto}
+        .gh{background:#1e3a8a;color:#fff;padding:6px 10px;font-weight:700;font-size:11pt;border-radius:4px;margin-bottom:8px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.gh span{float:right;font-weight:500;font-size:9pt;color:#fde68a}
+        .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+        .cd{border:1px solid #94a3b8;border-radius:5px;padding:5px;text-align:center;break-inside:avoid}
+        .cd img{width:24mm;height:30mm;object-fit:cover;border:1px solid #1e3a8a;border-radius:3px}
+        .nm{font-weight:700;font-size:8.5pt;margin-top:3px;line-height:1.2}.sm{font-size:7.5pt;color:#334155}
+        </style></head><body><div class="hd"><h1>NAHUSH PUBLIC HIGH SCHOOL MOHLA</h1><p>Student Photo List — ${cls === 'ALL' ? 'सभी कक्षाएं (All Classes)' : 'कक्षा ' + pdEsc(cls)} | सत्र ${pdEsc(yr)}</p></div>${sections}
+        <script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script></body></html>`);
+    w.document.close();
+}
+</script>
 </body>
 </html>
