@@ -1701,6 +1701,19 @@
                     <div class="menu-item" data-perm="attendance-holiday" onclick="switchTab('attendance-holiday')">5. अवकाश (Holiday)</div>
                 </div>
 
+                <!-- NEW MAIN MENU OPTION: PAPER -->
+                <div class="menu-item" data-perm="paper-sub" onclick="toggleSubmenu('paper-sub-menu')">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>पेपर (Paper)</span>
+                    <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+                </div>
+                <div id="paper-sub-menu" class="submenu">
+                    <div class="menu-item" data-perm="paper-upload" onclick="switchTab('paper-upload')">1. पेपर अपलोड (Upload Paper)</div>
+                    <div class="menu-item" data-perm="paper-view" onclick="switchTab('paper-view')">2. पेपर देखें (View Paper)</div>
+                    <div class="menu-item" data-perm="paper-download-all" onclick="switchTab('paper-download-all')">3. सभी पेपर डाउनलोड (All Paper Download)</div>
+                    <div class="menu-item" data-perm="paper-delete-all" onclick="switchTab('paper-delete-all')">4. सभी पेपर डिलीट (All Paper Delete)</div>
+                </div>
+
                 <!-- NEW MAIN MENU OPTION: NOTICE -->
                 <div class="menu-item" data-perm="notice-sub" onclick="toggleSubmenu('notice-sub-menu')">
                     <i class="fa-solid fa-bullhorn"></i>
@@ -1785,6 +1798,7 @@
                 <div id="marksheet-sub" class="submenu">
                     <div class="menu-item" data-perm="generate-marksheet" onclick="switchTab('generate-marksheet')">1. मार्कशीट प्रिंट करें</div>
                     <div class="menu-item" data-perm="marksheet-range" onclick="switchTab('marksheet-range')">1A. Roll No Range Marksheet</div>
+                    <div class="menu-item" data-perm="marksheet-classwise" onclick="switchTab('marksheet-classwise')">1B. कक्षा-वार मार्कशीट (10-10)</div>
                     <div class="menu-item" data-perm="correction-marksheet" onclick="switchTab('correction-marksheet')">2. मार्कशीट प्रारूप सुधार</div>
                 </div>
 
@@ -2582,6 +2596,12 @@
                         <div id="holiday-list-area" style="margin-top:15px;"></div>
                     </div>
                 </section>
+
+                <!-- TABS: PAPER MODULE -->
+                <section id="tab-paper-upload" class="tab-content hidden"><div id="pp-root-upload"></div></section>
+                <section id="tab-paper-view" class="tab-content hidden"><div id="pp-root-view"></div></section>
+                <section id="tab-paper-download-all" class="tab-content hidden"><div id="pp-root-download-all"></div></section>
+                <section id="tab-paper-delete-all" class="tab-content hidden"><div id="pp-root-delete-all"></div></section>
 
                 <!-- TAB: GENERATE TRANSFER CERTIFICATE (TC) -->
                 <section id="tab-generate-tc" class="tab-content hidden">
@@ -3821,7 +3841,7 @@
                                     </select>
                                 </div>
                                 <button class="btn btn-warning" onclick="generateMarksheets()"><i class="fa-solid fa-file-invoice"></i> मार्कशीट जनरेट करें</button>
-                                <button class="btn btn-primary" onclick="window.print()" style="margin-left:auto;"><i class="fa-solid fa-print"></i> Epson A4 Glossy Print</button>
+                                <button class="btn btn-primary" onclick="msCleanPrint('marksheet-output-container')" style="margin-left:auto;"><i class="fa-solid fa-print"></i> Epson A4 Glossy Print</button>
                             </div>
                         </div>
 
@@ -3840,10 +3860,37 @@
                                 <div class="filter-item"><label>Roll No से (From)</label><input type="number" id="msr-from" placeholder="1"></div>
                                 <div class="filter-item"><label>Roll No तक (To)</label><input type="number" id="msr-to" placeholder="30"></div>
                                 <button class="btn btn-warning" onclick="generateMarksheetsByRange()"><i class="fa-solid fa-file-invoice"></i> Show / Generate</button>
-                                <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
+                                <button class="btn btn-primary" onclick="msCleanPrint('msr-output')"><i class="fa-solid fa-print"></i> Print</button>
                             </div>
                         </div>
                         <div id="msr-output"></div>
+                    </div>
+                </section>
+
+                <!-- CLASS-WISE MARKSHEET (10-10 students per page) -->
+                <section id="tab-marksheet-classwise" class="tab-content hidden">
+                    <style>
+                        .cw-chip{display:inline-block;min-width:38px;text-align:center;padding:4px 9px;margin:3px;border:1px solid #94a3b8;border-radius:16px;background:#fff;font-size:.8rem;font-weight:700;color:#334155;cursor:pointer;}
+                        .cw-chip:hover{background:#e0f2fe;border-color:#0284c7;}
+                        .cw-chip.cw-on{background:#1e3a8a;color:#fff;border-color:#1e3a8a;}
+                    </style>
+                    <div class="card printable">
+                        <div class="card-header no-print">1B. कक्षा-वार अंकसूची — एक बार में 10 छात्र (Next / Previous)</div>
+                        <div class="filter-container no-print">
+                            <div class="filter-row">
+                                <div class="filter-item"><label>सत्र (Year)</label><select id="cw-year"><option>2026-27</option><option>2027-28</option><option>2028-29</option><option>2029-30</option></select></div>
+                                <div class="filter-item"><label>कक्षा (Class)</label><select id="cw-class"></select></div>
+                                <button class="btn btn-warning" onclick="cwGenerate()"><i class="fa-solid fa-file-invoice"></i> Generate Marksheet</button>
+                                <button class="btn btn-primary" onclick="msCleanPrint('cw-output')" style="margin-left:auto;"><i class="fa-solid fa-print"></i> Print (ये 10 मार्कशीट)</button>
+                            </div>
+                        </div>
+                        <div class="no-print" id="cw-rolls" style="padding:6px 4px;"></div>
+                        <div class="no-print" id="cw-nav" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 4px;">
+                            <button class="btn btn-secondary" id="cw-prev" onclick="cwStep(-1)"><i class="fa-solid fa-angles-left"></i> पिछले 10 (Previous)</button>
+                            <b id="cw-info" style="color:#334155;font-size:.9rem;"></b>
+                            <button class="btn btn-success" id="cw-next" onclick="cwStep(1)">अगले 10 (Next) <i class="fa-solid fa-angles-right"></i></button>
+                        </div>
+                        <div id="cw-output" style="zoom:.75;"></div>
                     </div>
                 </section>
 
@@ -3950,6 +3997,11 @@
                                     <label><input type="checkbox" class="tch-perm-chk" value="total-attendance" checked> Total Attendance</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="monthly-yearly-attendance" checked> Monthly/Yearly Attendance</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="attendance-holiday" checked> Holiday Management</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="paper-sub"> पेपर (Paper)</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="paper-upload"> Upload Paper (पेपर अपलोड)</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="paper-view"> View Paper (पेपर देखें)</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="paper-download-all"> All Paper Download</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="paper-delete-all"> All Paper Delete</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="notice-sub" checked> सूचना (Notice)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="notice-write" checked> सुचना लिखें (Write Notice)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="notice-list" checked> सुचना प्रिंट करे (Notice List & Print)</label>
@@ -3969,6 +4021,7 @@
                                     <label><input type="checkbox" class="tch-perm-chk" value="marksheet-sub" checked> मार्क्सशीट</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="generate-marksheet" checked> Print Marksheet</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="marksheet-range" checked> Roll Range Marksheet</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="marksheet-classwise" checked> Class-wise Marksheet (10-10)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="correction-marksheet"> Correction Marksheet</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="ms9-sub" checked> कक्षा नवमी मार्कशीट</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="ms9-format"> Class 9 Marksheet Format</label>
@@ -4970,8 +5023,8 @@
         }
 
         function pruneCorrectionHistory() {
-            /* करेक्शन हिस्ट्री अब अपने-आप डिलीट नहीं होती (पहले 72 घंटे बाद हट जाती थी) */
-            return;
+            /* करेक्शन हिस्ट्री + Teacher Work History: 48 घंटे बाद अपने-आप डिलीट (Firebase से भी) */
+            try { histPrune48(); } catch(e) { /* history अभी लोड नहीं हुई */ }
         }
         setInterval(pruneCorrectionHistory, 60000);
 
@@ -5427,6 +5480,7 @@
             if(tabId === 'admit-card') generateAdmitCards();
             if(tabId === 'admit-card-range') fillRangeAdmitSelects();
             if(tabId === 'marksheet-range') fillRangeMarksheetClass();
+            if(tabId === 'marksheet-classwise') cwInit();
             if(tabId === 'generate-marksheet') resetMarksheetOutputPlaceholder();
             if(tabId === 'correction-marksheet') loadMarksheetConfigForm();
             if(tabId === 'ms9-format') ms9InitFormat();
@@ -5454,6 +5508,7 @@
             if(tabId === 'view-data') applyTeacherViewScope();
             if(tabId === 'teacher-id') { buildTeacherIDClassGrid(); renderTeacherProfiles(); }
             if(tabId.indexOf('fees-') === 0 && typeof feesOnTab === 'function') feesOnTab(tabId);
+            if(tabId.indexOf('paper-') === 0 && typeof paperOnTab === 'function') paperOnTab(tabId);
             if(tabId === 'custom-student-print') cspInit();
             applyHideDataForTab(tabId);
             if(tabId === 'attendance-holiday') renderHolidayList();
@@ -5543,6 +5598,53 @@
                 ref.on('child_removed', snap => { delete histLive[kind][snap.key]; histScheduleRender(); });
             });
         }
+
+        /* --- हिस्ट्री 48 घंटे बाद auto-delete (Correction + Teacher Work) : Admin session में चलता है --- */
+        function histEntryTs(h) {
+            if(h && Number(h.ts)) return Number(h.ts);
+            const m = /(\d{1,2})\/(\d{1,2})\/(\d{4}),?\s*(\d{1,2}):(\d{2}):(\d{2})\s*([ap]m)?/i.exec(String((h && h.dateTime) || ''));
+            if(m) {
+                let hr = Number(m[4]);
+                if(m[7]) { const pm = m[7].toLowerCase() === 'pm'; if(pm && hr < 12) hr += 12; if(!pm && hr === 12) hr = 0; }
+                const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), hr, Number(m[5]), Number(m[6]));
+                if(!isNaN(d.getTime())) return d.getTime();
+            }
+            return 0;
+        }
+        function histPrune48() {
+            if(typeof activeUserRole === 'undefined' || activeUserRole !== 'ADMIN') return;
+            const cutoff = Date.now() - 48*60*60*1000;
+            let removed = false;
+            ['activity', 'correction'].forEach(kind => {
+                /* Firebase की नई (live) हिस्ट्री */
+                Object.keys(histLive[kind]).forEach(k => {
+                    const h = histLive[kind][k];
+                    const ts = histEntryTs(h);
+                    if(ts && ts < cutoff) {
+                        delete histLive[kind][k];
+                        try { db.ref(HIST_ROOT + '/' + kind + '/' + k).remove(); } catch(e) { console.error(e); }
+                        removed = true;
+                    }
+                });
+            });
+            /* पुरानी (blob वाली) हिस्ट्री */
+            if(typeof cloudReady !== 'undefined' && cloudReady) {
+                [['activity', 'NPHS_ACTIVITY_LOG_DB'], ['correction', 'NPHS_CORRECTION_HISTORY_DB']].forEach(pair => {
+                    const arr = pair[0] === 'activity' ? activityLogDB : correctionHistoryDB;
+                    if(!Array.isArray(arr)) return;
+                    const now = Date.now();
+                    let changed = false;
+                    arr.forEach(r => { if(r && !r.ts) { r.ts = histEntryTs(r) || now; changed = true; } }); // ts न मिले तो अभी से 48 घंटे गिनें
+                    const kept = arr.filter(r => !r || Number(r.ts) >= cutoff);
+                    if(changed || kept.length !== arr.length) {
+                        if(pair[0] === 'activity') activityLogDB = kept; else correctionHistoryDB = kept;
+                        cloudStore.setItem(pair[1], JSON.stringify(kept));
+                        removed = true;
+                    }
+                });
+            }
+            if(removed) histScheduleRender();
+        }
         function histScheduleRender() {
             clearTimeout(histRenderTimer);
             histRenderTimer = setTimeout(() => {
@@ -5584,6 +5686,7 @@
                 return;
             }
             histStartListener();
+            histPrune48();
             const all = histList('correction');
             if(all.length === 0) {
                 area.innerHTML = `<p style="color:#64748b; font-size:0.85rem;">अभी तक कोई करेक्शन हिस्ट्री उपलब्ध नहीं है।</p>`;
@@ -5652,6 +5755,7 @@
                 return;
             }
             histStartListener();
+            histPrune48();
 
             let nonAdmin = histList('activity').filter(h => h && h.role !== 'ADMIN'); // Admin की अपनी हिस्ट्री एडमिन को नहीं दिखेगी
 
@@ -8334,7 +8438,7 @@ function initPortalYear(){
         function applyTeacherFillScope(){if(activeUserRole!=='TEACHER')return;const sel=document.getElementById('fill-class'),t=getCurrentTeacher();if(!sel||!t||!Array.isArray(t.classSubjectAccess))return;sel.innerHTML=t.classSubjectAccess.map(r=>`<option value="${r.class}">${r.class}</option>`).join('');}
         function applyTeacherViewScope(){if(activeUserRole!=='TEACHER')return;const sel=document.getElementById('view-class-filter'),t=getCurrentTeacher();if(!sel||!t||!Array.isArray(t.classSubjectAccess))return;sel.innerHTML=t.classSubjectAccess.map(r=>`<option value="${r.class}">${r.class}</option>`).join('');}
         function showControlPanelGate(){const g=document.getElementById('control-panel-gate'),s=document.getElementById('control-panel-secure-content');if(g)g.style.display='flex';if(s)s.style.display='none';const i=document.getElementById('control-panel-pass');if(i){i.value='';setTimeout(()=>i.focus(),50);}}
-        function unlockControlPanel(){const i=document.getElementById('control-panel-pass'),e=document.getElementById('control-panel-pass-error');if(!i)return;if(i.value==='4797'){controlPanelUnlocked=true;document.getElementById('control-panel-gate').style.display='none';document.getElementById('control-panel-secure-content').style.display='block';e.textContent='';renderTeacherAccountsTable();buildTeacherScopeBuilder();renderTeacherMarksAudit();renderActivityHistory();}else{controlPanelUnlocked=false;e.textContent='गलत पासवर्ड! Control Panel नहीं खुला।';i.select();}}
+        function unlockControlPanel(){const i=document.getElementById('control-panel-pass'),e=document.getElementById('control-panel-pass-error');if(!i)return;if(i.value==='4797'){controlPanelUnlocked=true;document.getElementById('control-panel-gate').style.display='none';document.getElementById('control-panel-secure-content').style.display='block';e.textContent='';renderTeacherAccountsTable();buildTeacherScopeBuilder();renderTeacherMarksAudit();renderCorrectionHistoryTable();renderActivityHistory();}else{controlPanelUnlocked=false;e.textContent='गलत पासवर्ड! Control Panel नहीं खुला।';i.select();}}
         function cssEscapeSafe(v){return String(v||'').replace(/\\/g,'\\\\').replace(/"/g,'\\"');}
         function getClassSubjectCatalog(){const out={};CLASS_SEQUENCE.forEach(cls=>{const names={};Object.keys(subjectListDB||{}).forEach(k=>{if(!k.startsWith(cls+'_'))return;(subjectListDB[k]||[]).forEach(x=>{if(x&&x.name)names[x.name]=!!(names[x.name]||x.hasPractical);});});if(!Object.keys(names).length)DEFAULT_SUBJECTS.forEach(x=>names[x.name]=!!x.hasPractical);out[cls]=Object.entries(names).map(([name,project])=>({name,project}));});return out;}
         function buildTeacherScopeBuilder(existingRules){const box=document.getElementById('tch-class-subject-builder');if(!box)return;const cat=getClassSubjectCatalog(),rules=existingRules||[];box.innerHTML=CLASS_SEQUENCE.map(cls=>{const rule=rules.find(r=>cleanString(r.class)===cleanString(cls)),sel=!!rule,subs=cat[cls]||[];return `<div class="teacher-scope-class"><label class="teacher-scope-class-head"><input type="checkbox" class="tch-class-check" data-class="${cls}" ${sel?'checked':''} onchange="toggleTeacherScopeClass('${cls}')">${cls}<small style="margin-left:auto;color:#64748b">${subs.length} subjects</small></label><div class="teacher-scope-subjects" id="tch-subs-${cls}" style="display:${sel?'grid':'none'}">${subs.map(sub=>{const old=rule?.subjects?.find(x=>cleanString(typeof x==='string'?x:x.name)===cleanString(sub.name)),checked=!!old,project=typeof old==='object'&&!!old.project;return `<label class="teacher-scope-subject"><input type="checkbox" class="tch-subject-check" data-class="${cls}" data-subject="${sub.name}" ${checked?'checked':''} onchange="toggleTeacherSubject('${cls}','${sub.name}')">${sub.name}${sub.project?`<span class="teacher-scope-project"><input type="checkbox" class="tch-project-check" data-class="${cls}" data-subject="${sub.name}" ${project?'checked':''} ${checked?'':'disabled'}> Project</span>`:''}</label>`}).join('')}</div></div>`;}).join('');}
@@ -11003,28 +11107,25 @@ function initPortalYear(){
             if(isNaN(from)||isNaN(to)||from>to){out.innerHTML='<p style="color:#dc2626;padding:15px">कृपया सही Roll No From/To दें।</p>';return;}
             const matching=students.filter(s=>s['CLASS']===cls&&s['YEAR']===yr).filter(s=>{const r=parseInt(s['ROLL NO.'],10);return !isNaN(r)&&r>=from&&r<=to;}).sort((a,b)=>(parseInt(a['ROLL NO.'],10)||0)-(parseInt(b['ROLL NO.'],10)||0));
             if(!matching.length){out.innerHTML='<p style="color:#dc2626;padding:15px">इस Roll No range में कोई छात्र नहीं मिला।</p>';return;}
-            // Reuse the existing marksheet renderer by temporarily applying its filters.
-            const oldRoll=document.getElementById('ms-roll-search').value, oldLimit=document.getElementById('ms-limit-filter').value;
-            document.getElementById('ms-year').value=yr; document.getElementById('ms-class').value=cls;
-            document.getElementById('ms-roll-search').value='';
-            document.getElementById('ms-limit-filter').value='ALL';
-            generateMarksheets();
-            const source=document.getElementById('marksheet-output-container');
-            // Keep only the requested range from generated markup by regenerating from matching rolls.
-            const allPages=Array.from(source.querySelectorAll('.marksheet-page-wrapper'));
-            allPages.forEach(page=>{const rollText=page.textContent.match(/ROLL NO\s*:\s*([^\s]+)/i); if(!rollText || !matching.some(s=>String(s['ROLL NO.'])===String(rollText[1]))) page.remove();});
-            out.innerHTML=source.innerHTML;
-            document.getElementById('ms-roll-search').value=oldRoll; document.getElementById('ms-limit-filter').value=oldLimit;
+            try{
+                generateMarksheets({yr:yr,cls:cls,list:matching,container:out});
+            }catch(err){
+                console.error(err);
+                out.innerHTML='<p style="color:#dc2626;padding:15px">मार्कशीट बनाने में समस्या: '+histEsc(err&&err.message?err.message:err)+'</p>';
+            }
         }
 
-        function generateMarksheets() {
-            const yr = document.getElementById('ms-year').value;
-            const cls = document.getElementById('ms-class').value;
-            const rollSearch = document.getElementById('ms-roll-search').value.trim();
+        function generateMarksheets(opts) {
+            /* opts (optional): {yr, cls, list, container, noInfo} — Range / Class-wise marksheet isi function se banti hain.
+               Bina opts ke ye pehle jaise hi chalta hai. */
+            opts = opts || {};
+            const yr = opts.yr || document.getElementById('ms-year').value;
+            const cls = opts.cls || document.getElementById('ms-class').value;
+            const rollSearch = opts.list ? '' : document.getElementById('ms-roll-search').value.trim();
             const limitEl = document.getElementById('ms-limit-filter');
-            const limit = limitEl ? limitEl.value : 'ALL';
+            const limit = opts.list ? 'ALL' : (limitEl ? limitEl.value : 'ALL');
 
-            const container = document.getElementById('marksheet-output-container');
+            const container = opts.container || document.getElementById('marksheet-output-container');
             const subKey = `${cls}_${yr}`;
             const activeSubjects = subjectListDB[subKey] || DEFAULT_SUBJECTS;
 
@@ -11033,7 +11134,7 @@ function initPortalYear(){
             const msdC = msdCfg(marksheetConfigDB), msdWmSrc = msdImgFor('W', '');
 
             // चुनी गई क्लास व सत्र के छात्रों में से ही मार्कशीट बनेगी
-            let clsStudents = students.filter(s => s['CLASS'] === cls && s['YEAR'] === yr);
+            let clsStudents = opts.list ? opts.list.slice() : students.filter(s => s['CLASS'] === cls && s['YEAR'] === yr);
 
             if (rollSearch) {
                 clsStudents = clsStudents.filter(s => s['ROLL NO.'] === rollSearch);
@@ -11054,7 +11155,7 @@ function initPortalYear(){
                 कुल छात्र: ${totalMatched} &nbsp;|&nbsp; दिखाई जा रही मार्कशीट: ${displayList.length}
             </p>`;
 
-            let html = infoBar;
+            let html = opts.noInfo ? '' : infoBar;
 
             displayList.forEach(st => {
                 let roll = st['ROLL NO.'];
@@ -11278,6 +11379,114 @@ function initPortalYear(){
 
             container.innerHTML = html;
         }
+
+
+        /* ===== साफ़ (Clean) मार्कशीट प्रिंट — watermark कटे-फटे नहीं, हर मार्कशीट एक A4 पेज में Fit =====
+           मार्कशीट को अलग खाली print-window (iframe) में छापा जाता है, ताकि पोर्टल की बाकी print-CSS (hidden/absolute) का असर न पड़े */
+        function msCleanPrint(containerId) {
+            const c = document.getElementById(containerId);
+            const pages = c ? Array.from(c.querySelectorAll('.marksheet-page-wrapper')) : [];
+            if (!pages.length) { alert('पहले मार्कशीट जनरेट करें, फिर Print दबाएँ।'); return; }
+            let css = '';
+            Array.from(document.styleSheets).forEach(ss => {
+                let rules; try { rules = ss.cssRules; } catch (e) { return; }
+                Array.from(rules || []).forEach(r => { if (r.type === 1 && /marksheet-page-wrapper|\.ms-/.test(r.selectorText || '')) css += r.cssText + '\n'; });
+            });
+            const base = "*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}body{background:#fff;color:#333;}table{width:100%;border-collapse:collapse;text-align:left;font-size:.83rem;}th,td{padding:10px 12px;border:1px solid #e2e8f0;white-space:nowrap;}th{background:#f1f5f9;color:#334155;font-weight:700;position:sticky;top:0;z-index:10;}";
+            const printCss = `
+                @page{size:A4 portrait;margin:4mm;}
+                html,body{margin:0!important;padding:0!important;background:#fff!important;}
+                *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+                .marksheet-page-wrapper{margin:0!important;width:202mm!important;height:288mm!important;min-height:0!important;border-radius:0!important;border:6px double #dc2626!important;overflow:hidden!important;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid;animation:none!important;}
+                .marksheet-page-wrapper:last-child{page-break-after:auto;break-after:auto;}
+                .marksheet-page-wrapper .ms-header,.marksheet-page-wrapper .ms-title-badge{animation:none!important;}
+                .ms-content-inner{height:100%;}
+                .ms-watermark{position:absolute!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}`;
+            const old = document.getElementById('ms-clean-print-frame'); if (old) old.remove();
+            const frame = document.createElement('iframe');
+            frame.id = 'ms-clean-print-frame'; frame.setAttribute('aria-hidden', 'true');
+            frame.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
+            document.body.appendChild(frame);
+            const doc = frame.contentDocument;
+            doc.open();
+            doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Marksheet</title><style>' + base + css + printCss + '</style></head><body>' + pages.map(p => p.outerHTML).join('') + '</body></html>');
+            doc.close();
+            const fitAll = () => {
+                const win = frame.contentWindow;
+                doc.querySelectorAll('.marksheet-page-wrapper').forEach(w => {
+                    const inner = w.querySelector('.ms-content-inner'); if (!inner) return;
+                    const cs = win.getComputedStyle(w);
+                    const boxH = w.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+                    inner.style.zoom = ''; inner.style.height = 'auto';
+                    const nat = inner.offsetHeight;
+                    if (nat > boxH) { const z = Math.max(0.3, (boxH / nat) * 0.985); inner.style.zoom = z; inner.style.height = (boxH / z) + 'px'; }
+                    else inner.style.height = '100%';
+                });
+            };
+            const go = () => { try { fitAll(); } catch (e) { console.error(e); } try { frame.contentWindow.focus(); frame.contentWindow.print(); } finally { setTimeout(() => frame.remove(), 3000); } };
+            const start = () => {
+                const imgs = Array.from(doc.images || []);
+                if (!imgs.length) { setTimeout(go, 200); return; }
+                let left = imgs.length, done = false;
+                const fin = () => { if (done) return; left--; if (left <= 0) { done = true; setTimeout(go, 200); } };
+                imgs.forEach(i => { if (i.complete) fin(); else { i.onload = fin; i.onerror = fin; } });
+                setTimeout(() => { if (!done) { done = true; go(); } }, 3000);
+            };
+            frame.onload = start;
+            setTimeout(() => { if (frame.parentNode && !frame._started) { frame._started = true; start(); } }, 800);
+        }
+
+        /* ===== कक्षा-वार मार्कशीट (1B): 10-10 छात्र, Next / Previous, सभी Roll No ===== */
+        const CW_PER = 10;
+        let cwList = [], cwPage = 0, cwYr = '', cwCls = '';
+        function cwInit() {
+            const el = document.getElementById('cw-class');
+            if (el && !el.options.length) el.innerHTML = CLASS_SEQUENCE.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        function cwGenerate() {
+            cwInit();
+            cwYr = document.getElementById('cw-year').value;
+            cwCls = document.getElementById('cw-class').value;
+            const out = document.getElementById('cw-output');
+            cwList = students.filter(s => s['CLASS'] === cwCls && s['YEAR'] === cwYr).sort((a, b) => {
+                const ra = parseInt(a['ROLL NO.'], 10), rb = parseInt(b['ROLL NO.'], 10);
+                if (!isNaN(ra) && !isNaN(rb) && ra !== rb) return ra - rb;
+                return String(a['ROLL NO.']).localeCompare(String(b['ROLL NO.']), undefined, { numeric: true });
+            });
+            cwPage = 0;
+            if (!cwList.length) {
+                document.getElementById('cw-rolls').innerHTML = '';
+                document.getElementById('cw-nav').style.display = 'none';
+                out.innerHTML = '<p class="no-print" style="text-align:center;padding:30px;color:#dc2626;font-weight:600;">चुनी गई कक्षा/सत्र में कोई छात्र नहीं मिला।</p>';
+                return;
+            }
+            cwRender();
+            if (typeof logActivity === 'function') logActivity('कक्षा-वार मार्कशीट जनरेट', `${cwCls} ${cwYr}`);
+        }
+        function cwRender(scrollIdx) {
+            const out = document.getElementById('cw-output');
+            const totalPages = Math.ceil(cwList.length / CW_PER);
+            if (cwPage < 0) cwPage = 0;
+            if (cwPage > totalPages - 1) cwPage = totalPages - 1;
+            const startIdx = cwPage * CW_PER;
+            const batch = cwList.slice(startIdx, startIdx + CW_PER);
+            try { generateMarksheets({ yr: cwYr, cls: cwCls, list: batch, container: out, noInfo: true }); }
+            catch (err) { console.error(err); out.innerHTML = '<p style="color:#dc2626;padding:15px">मार्कशीट बनाने में समस्या: ' + histEsc(err && err.message ? err.message : err) + '</p>'; }
+            document.getElementById('cw-nav').style.display = 'flex';
+            document.getElementById('cw-info').textContent = `पेज ${cwPage + 1} / ${totalPages}  —  छात्र ${startIdx + 1} से ${startIdx + batch.length} (कुल ${cwList.length})`;
+            document.getElementById('cw-prev').disabled = cwPage === 0;
+            document.getElementById('cw-next').disabled = cwPage >= totalPages - 1;
+            const chips = cwList.map((s, i) => `<span class="cw-chip${(i >= startIdx && i < startIdx + batch.length) ? ' cw-on' : ''}" title="${histEsc(s['NAME OF STUDENT'])}" onclick="cwJump(${i})">${histEsc(s['ROLL NO.'])}</span>`).join('');
+            document.getElementById('cw-rolls').innerHTML = `<div style="font-size:.85rem;font-weight:700;color:#334155;margin-bottom:4px;">कक्षा ${histEsc(cwCls)} (सत्र ${histEsc(cwYr)}) के सभी Roll No — कुल ${cwList.length} <span style="font-weight:400;color:#64748b;">(किसी Roll No पर क्लिक करें तो उसकी मार्कशीट खुलेगी)</span></div>${chips}`;
+            if (typeof scrollIdx === 'number') {
+                const pg = out.querySelectorAll('.marksheet-page-wrapper')[scrollIdx % CW_PER];
+                if (pg) pg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                const nav = document.getElementById('cw-nav'); if (nav) nav.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        function cwStep(d) { cwPage += d; cwRender(); }
+        function cwJump(idx) { cwPage = Math.floor(idx / CW_PER); cwRender(idx); }
 
         /* --- MARKSHEET CONFIG & LOGO & WATERMARK FUNCTIONS --- */
         /* ===== अंकसूची डिज़ाइन: लोगो (Left/Right) + वॉटरमार्क — size / आगे-पीछे / ऊपर-नीचे =====
@@ -13854,5 +14063,425 @@ function pdPrint(){
     w.document.close();
 }
 </script>
+<!-- ============================================================
+     PAPER MODULE (पेपर: Upload / View / All Download / All Delete)
+     - PDF files  -> Firebase Storage  : examPapers/{year}/{class}/{exam}/...
+     - Subject / file info -> Firebase Realtime DB : examPapers/{year}/{class}/{exam}/subjects/{id}
+     (portalData और बाकी किसी पुराने data को छुआ नहीं गया है)
+     ============================================================ -->
+<style id="paper-module-style">
+@keyframes ppSweep{0%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes ppPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.45)}50%{box-shadow:0 0 0 10px rgba(251,191,36,0)}}
+@keyframes ppRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pp-shell{color:#e2e8f0}
+.pp-hero{position:relative;overflow:hidden;padding:24px 26px;border-radius:20px;color:#fff;margin-bottom:16px;
+  background:radial-gradient(1200px 300px at 85% -40%,rgba(251,191,36,.28),transparent 60%),linear-gradient(135deg,#050b1f,#0f2a63 55%,#0b1226);
+  border:1px solid rgba(251,191,36,.45);box-shadow:0 18px 44px rgba(2,6,23,.45)}
+.pp-hero:after{content:'';position:absolute;top:0;bottom:0;width:40%;left:0;background:linear-gradient(110deg,transparent,rgba(255,255,255,.14),transparent);animation:ppSweep 6s linear infinite;pointer-events:none}
+.pp-kicker{font-size:.7rem;letter-spacing:3px;color:#fbbf24;font-weight:800}
+.pp-hero h2{margin:6px 0 4px;font-size:1.55rem;font-weight:900;position:relative;z-index:1}
+.pp-hero p{margin:0;color:#bfdbfe;font-size:.85rem;position:relative;z-index:1}
+.pp-hero .pp-ico{position:absolute;right:22px;top:14px;font-size:3.2rem;color:rgba(251,191,36,.22);z-index:0}
+.pp-card{background:linear-gradient(160deg,#0b1430,#12234f);border:1px solid rgba(148,163,184,.25);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 10px 28px rgba(2,6,23,.35);animation:ppRise .5s ease both}
+.pp-filter{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end}
+.pp-filter label{display:block;font-size:.72rem;color:#93c5fd;font-weight:800;margin-bottom:5px;letter-spacing:.5px}
+.pp-filter select,.pp-add input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.4);background:#0a1226;color:#f1f5f9;font-weight:700;font-size:.9rem}
+.pp-filter select:focus,.pp-add input:focus{outline:none;border-color:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.2)}
+.pp-btn{border:0;cursor:pointer;padding:10px 16px;border-radius:10px;font-weight:800;font-size:.82rem;color:#fff;display:inline-flex;align-items:center;gap:7px;transition:transform .15s,box-shadow .15s,filter .15s;font-family:inherit}
+.pp-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.pp-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.pp-b-gold{background:linear-gradient(135deg,#f59e0b,#b45309);box-shadow:0 6px 16px rgba(245,158,11,.35)}
+.pp-b-show{background:linear-gradient(135deg,#f59e0b,#d97706);color:#111827;animation:ppPulse 2.4s infinite}
+.pp-b-blue{background:linear-gradient(135deg,#2563eb,#1e40af)}
+.pp-b-green{background:linear-gradient(135deg,#16a34a,#166534)}
+.pp-b-red{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
+.pp-b-slate{background:linear-gradient(135deg,#475569,#1e293b)}
+.pp-b-purple{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+.pp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.pp-chip{padding:5px 12px;border-radius:99px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);color:#fde68a;font-size:.76rem;font-weight:800}
+.pp-add{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.pp-add input{flex:1;min-width:200px}
+.pp-row{display:grid;grid-template-columns:42px minmax(150px,1.2fr) 2fr auto;gap:12px;align-items:center;padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.2);margin-bottom:10px;transition:border-color .2s,background .2s}
+.pp-row:hover{border-color:rgba(251,191,36,.55);background:rgba(255,255,255,.07)}
+.pp-no{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fbbf24,#b45309);color:#111827;font-weight:900}
+.pp-sname{font-weight:900;font-size:1rem;color:#fff}
+.pp-sub-s{font-size:.72rem;color:#94a3b8;margin-top:2px}
+.pp-mid{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.8rem}
+.pp-file-ok{color:#86efac;font-weight:700;word-break:break-all}
+.pp-file-pend{color:#fde68a;font-weight:700;word-break:break-all}
+.pp-none{color:#94a3b8}
+.pp-pick{position:relative;overflow:hidden}
+.pp-pick input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.pp-prog{flex:1 1 100%;height:10px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+.pp-prog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#fbbf24);transition:width .2s}
+.pp-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pp-empty{padding:34px;text-align:center;color:#94a3b8;border:2px dashed rgba(148,163,184,.35);border-radius:14px}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.pp-paper{position:relative;overflow:hidden;padding:16px;border-radius:16px;background:linear-gradient(160deg,#0b1430,#16306b);border:1px solid rgba(251,191,36,.35);box-shadow:0 10px 26px rgba(2,6,23,.4);transition:transform .2s,box-shadow .2s;animation:ppRise .5s ease both}
+.pp-paper:hover{transform:translateY(-4px);box-shadow:0 18px 38px rgba(251,191,36,.18)}
+.pp-paper h4{margin:0 0 4px;color:#fff;font-size:1.05rem;font-weight:900}
+.pp-paper small{display:block;color:#93c5fd;margin-bottom:12px;word-break:break-all}
+.pp-paper .pp-pi{position:absolute;right:12px;top:8px;font-size:2.4rem;color:rgba(248,113,113,.28)}
+.pp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.pp-stat{padding:12px;border-radius:12px;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.pp-stat b{display:block;font-size:1.4rem;color:#fbbf24}.pp-stat span{font-size:.72rem;color:#dbeafe}
+.pp-list{margin:0 0 14px;padding:0;list-style:none}
+.pp-list li{padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);margin-bottom:6px;font-size:.84rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pp-danger{border-color:rgba(248,113,113,.6)!important}
+.pp-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#0f172a;color:#fff;padding:12px 20px;border-radius:12px;border:1px solid #fbbf24;box-shadow:0 12px 30px rgba(0,0,0,.45);font-weight:700;font-size:.88rem;max-width:90vw;display:none}
+@media(max-width:760px){.pp-row{grid-template-columns:36px 1fr}.pp-row .pp-mid,.pp-row .pp-actions{grid-column:1/-1;justify-content:flex-start}}
+</style>
+
+<script id="paper-module-script">
+(function(){
+  'use strict';
+  const ROOT='examPapers';
+  const YEARS=['2026-27','2027-28','2028-29','2029-30'];
+  const CLASSES=['NURSERY','LKG','UKG','1ST','2ND','3RD','4TH','5TH','6TH','7TH','8TH','9TH','10TH','11TH','12TH'];
+  const EXAMS=[['QUARTERLY','Quarterly Exam'],['HALF YEARLY','Half Yearly Exam'],['PRE BOARD','Pre Board Exam'],['ANNUAL','Annual Exam']];
+  const SUBJ_HINT=['हिंदी','अंग्रेज़ी (English)','गणित','विज्ञान','सामाजिक विज्ञान','संस्कृत','कंप्यूटर','EVS','सामान्य ज्ञान (GK)','ड्राइंग','नैतिक शिक्षा','उर्दू'];
+  const PP={built:{},pend:{},cur:null,view:null,all:null,blobs:{}};
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtSize=n=>{n=Number(n)||0;if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';if(n<1073741824)return (n/1048576).toFixed(2)+' MB';return (n/1073741824).toFixed(2)+' GB';};
+  const fmtDate=t=>{try{return new Date(t).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
+  const safeName=s=>String(s||'').replace(/[\\/:*?"<>|#%\[\]\s]+/g,'_').replace(/^_+|_+$/g,'')||'paper';
+  const baseOf=sel=>`${ROOT}/${sel.year}/${sel.cls}/${sel.exam}`;
+  const stBase=sel=>`${ROOT}/${sel.year}/${sel.cls}/${sel.exam.replace(/\s+/g,'_')}`;
+
+  let toastT=null;
+  function toast(msg,ms){let t=$('pp-toast');if(!t){t=document.createElement('div');t.id='pp-toast';t.className='pp-toast';document.body.appendChild(t);}t.innerHTML=msg;t.style.display='block';clearTimeout(toastT);if(ms!==0)toastT=setTimeout(()=>t.style.display='none',ms||2600);}
+  function toastOff(){const t=$('pp-toast');if(t)t.style.display='none';}
+
+  /* ---------- selection bar ---------- */
+  function classOptions(){
+    let list=CLASSES;
+    try{ if(typeof activeUserRole!=='undefined' && activeUserRole==='TEACHER' && typeof teacherCanClass==='function') list=CLASSES.filter(c=>teacherCanClass(c)); }catch(e){}
+    return list;
+  }
+  function shell(tab,kicker,hi,sub,icon,btnTxt,btnCls,fn){
+    const yo=YEARS.map(y=>`<option value="${y}">${y}</option>`).join('');
+    const eo=EXAMS.map(e=>`<option value="${e[0]}">${e[1]}</option>`).join('');
+    return `<div class="pp-shell">
+      <div class="pp-hero"><i class="fa-solid ${icon} pp-ico"></i><div class="pp-kicker">${kicker}</div><h2>${hi}</h2><p>${sub}</p></div>
+      <div class="pp-card"><div class="pp-filter">
+        <div><label>सत्र (Year)</label><select id="pp-${tab}-year">${yo}</select></div>
+        <div><label>कक्षा (Class)</label><select id="pp-${tab}-class"></select></div>
+        <div><label>परीक्षा (Exam Name)</label><select id="pp-${tab}-exam">${eo}</select></div>
+        <div><button class="pp-btn ${btnCls}" onclick="${fn}()"><i class="fa-solid fa-magnifying-glass"></i> ${btnTxt}</button></div>
+      </div></div>
+      <div id="pp-${tab}-out"></div></div>`;
+  }
+  function fillClassSel(tab){
+    const s=$('pp-'+tab+'-class'); if(!s) return; const keep=s.value;
+    const list=classOptions();
+    s.innerHTML=list.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if(keep&&list.includes(keep)) s.value=keep;
+  }
+  function readSel(tab){
+    return {year:$('pp-'+tab+'-year').value,cls:$('pp-'+tab+'-class').value,exam:$('pp-'+tab+'-exam').value};
+  }
+  const chipsHTML=sel=>`<div class="pp-chips"><span class="pp-chip"><i class="fa-solid fa-calendar"></i> ${esc(sel.year)}</span><span class="pp-chip"><i class="fa-solid fa-school"></i> कक्षा ${esc(sel.cls)}</span><span class="pp-chip"><i class="fa-solid fa-file-pen"></i> ${esc(sel.exam)}</span></div>`;
+
+  /* ---------- Firebase helpers ---------- */
+  async function loadSubjects(sel){
+    const snap=await db.ref(baseOf(sel)+'/subjects').once('value');
+    const v=snap.val()||{};
+    return Object.keys(v).map(id=>Object.assign({id},v[id])).filter(s=>s&&s.name).sort((a,b)=>(a.order||0)-(b.order||0));
+  }
+  async function stDelete(path){
+    if(!path) return;
+    try{ await firebaseStorage.ref(path).delete(); }catch(e){ if(!(e&&e.code==='storage/object-not-found')) console.warn('storage delete',path,e); }
+  }
+
+  /* ---------- tab hook ---------- */
+  window.paperOnTab=function(tabId){
+    const tab=tabId.replace('paper-','');
+    const conf={
+      'upload':['PAPER UPLOAD','पेपर अपलोड','Year, Class और Exam चुनकर विषयवार PDF पेपर Firebase में सुरक्षित करें','fa-cloud-arrow-up','Show','pp-b-show','ppUploadShow'],
+      'view':['PAPER VIEW','पेपर देखें','अपलोड किए गए सभी पेपर देखें, PDF / Print / Word में डाउनलोड करें','fa-eye','Show','pp-b-show','ppViewShow'],
+      'download-all':['ALL PAPER DOWNLOAD','सभी पेपर डाउनलोड','पूरी कक्षा के सभी पेपर एक साथ PDF / Print / Word में पाएं','fa-download','Show','pp-b-show','ppAllShow'],
+      'delete-all':['ALL PAPER DELETE','सभी पेपर डिलीट','पूरी कक्षा के सभी पेपर एक साथ हटाएं (सावधानी से)','fa-trash-can','Show','pp-b-show','ppDelShow']
+    }[tab];
+    if(!conf) return;
+    const root=$('pp-root-'+tab); if(!root) return;
+    if(!PP.built[tab]){ root.innerHTML=shell(tab,...conf); PP.built[tab]=true; }
+    fillClassSel(tab);
+    const out=$('pp-'+tab+'-out'); if(out) out.innerHTML='';
+  };
+
+  /* ================= UPLOAD ================= */
+  window.ppUploadShow=async function(){
+    const sel=readSel('upload'); if(!sel.cls){alert('कक्षा चुनें।');return;}
+    const out=$('pp-upload-out'); out.innerHTML='<div class="pp-empty"><i class="fa-solid fa-spinner fa-spin"></i> Firebase से लोड हो रहा है...</div>';
+    try{ PP.cur={sel,subs:await loadSubjects(sel)}; PP.pend={}; renderUpload(); }
+    catch(e){ console.error(e); out.innerHTML='<div class="pp-empty">❌ लोड नहीं हो पाया: '+esc(e.message||e)+'</div>'; }
+  };
+  function renderUpload(){
+    const {sel,subs}=PP.cur; const out=$('pp-upload-out');
+    const dl='<datalist id="pp-subj-hint">'+SUBJ_HINT.map(s=>`<option value="${esc(s)}">`).join('')+'</datalist>';
+    let rows=subs.map((s,i)=>rowHTML(s,i)).join('');
+    if(!subs.length) rows='<div class="pp-empty"><i class="fa-solid fa-book-open" style="font-size:2rem"></i><br>इस कक्षा/परीक्षा में अभी कोई विषय नहीं है। ऊपर से विषय जोड़ें।</div>';
+    out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}
+      <div class="pp-add"><input id="pp-new-subj" list="pp-subj-hint" placeholder="विषय का नाम लिखें (जैसे: गणित)" onkeydown="if(event.key==='Enter')ppAddSubject()">${dl}
+      <button class="pp-btn pp-b-green" onclick="ppAddSubject()"><i class="fa-solid fa-plus"></i> विषय जोड़ें (Add Subject)</button></div>
+      <div id="pp-subj-rows">${rows}</div></div>`;
+  }
+  function rowHTML(s,i){
+    const p=PP.pend[s.id]; let mid='';
+    if(s.file&&!(p&&p.state==='uploaded')) mid+=`<span class="pp-file-ok"><i class="fa-solid fa-file-pdf"></i> ${esc(s.file.name)} (${fmtSize(s.file.size)})</span> <a class="pp-btn pp-b-slate" style="padding:5px 10px" href="${esc(s.file.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> देखें</a>`;
+    else if(!p) mid+='<span class="pp-none">कोई PDF अपलोड नहीं</span>';
+    let act='';
+    if(!p||p.state==='chosen'){
+      mid+=`<span class="pp-btn pp-b-blue pp-pick"><i class="fa-solid fa-file-arrow-up"></i> ${s.file?'PDF बदलें':'PDF चुनें'}<input type="file" accept="application/pdf,.pdf" onchange="ppPick('${s.id}',this)"></span>`;
+    }
+    if(p&&p.state==='chosen'){
+      mid+=`<span class="pp-file-pend"><i class="fa-solid fa-paperclip"></i> ${esc(p.file.name)} (${fmtSize(p.file.size)})</span>`;
+      act+=`<button class="pp-btn pp-b-gold" onclick="ppStartUpload('${s.id}')"><i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF</button>`;
+    }
+    if(p&&p.state==='uploading'){
+      mid+=`<span class="pp-file-pend"><i class="fa-solid fa-spinner fa-spin"></i> अपलोड हो रहा है: ${esc(p.file.name)} (${fmtSize(p.file.size)}) — <b id="pp-pct-${s.id}">${p.pct||0}%</b></span><div class="pp-prog"><i id="pp-bar-${s.id}" style="width:${p.pct||0}%"></i></div>`;
+      act+=`<button class="pp-btn pp-b-red" onclick="ppCancelUpload('${s.id}')"><i class="fa-solid fa-xmark"></i> रद्द</button>`;
+    }
+    if(p&&p.state==='uploaded'){
+      mid+=`<span class="pp-file-pend"><i class="fa-solid fa-circle-check"></i> Upload हो गया: ${esc(p.up.name)} (${fmtSize(p.up.size)}) — अभी Save नहीं हुआ</span>`;
+      act+=`<button class="pp-btn pp-b-green" onclick="ppSave('${s.id}')"><i class="fa-solid fa-floppy-disk"></i> Save</button><button class="pp-btn pp-b-red" onclick="ppDeletePending('${s.id}')"><i class="fa-solid fa-trash"></i> Delete</button>`;
+    } else if(s.file&&(!p||p.state==='chosen')){
+      act+=`<button class="pp-btn pp-b-red" onclick="ppDeleteSaved('${s.id}')"><i class="fa-solid fa-trash"></i> PDF Delete</button>`;
+    }
+    if(!p||p.state!=='uploading') act+=`<button class="pp-btn pp-b-slate" title="विषय हटाएं" onclick="ppDelSubject('${s.id}')"><i class="fa-solid fa-xmark"></i> विषय हटाएं</button>`;
+    return `<div class="pp-row"><div class="pp-no">${i+1}</div><div><div class="pp-sname">${esc(s.name)}</div><div class="pp-sub-s">${s.file?'✅ Saved: '+fmtDate(s.file.at):'—'}</div></div><div class="pp-mid">${mid}</div><div class="pp-actions">${act}</div></div>`;
+  }
+  const findSub=id=>PP.cur&&PP.cur.subs.find(s=>s.id===id);
+
+  window.ppAddSubject=async function(){
+    const inp=$('pp-new-subj'); const name=(inp.value||'').trim(); if(!name){alert('विषय का नाम लिखें।');return;}
+    const {sel,subs}=PP.cur;
+    if(subs.some(s=>s.name.trim().toLowerCase()===name.toLowerCase())){alert('यह विषय पहले से जुड़ा है।');return;}
+    try{
+      const id=db.ref(baseOf(sel)+'/subjects').push().key; const order=Date.now();
+      await db.ref(baseOf(sel)+'/subjects/'+id).set({name,order,createdAt:order});
+      subs.push({id,name,order,createdAt:order}); renderUpload(); const n=$('pp-new-subj'); if(n)n.focus(); toast('✅ विषय जुड़ गया');
+    }catch(e){console.error(e);alert('❌ विषय सेव नहीं हुआ: '+(e.message||e));}
+  };
+  window.ppDelSubject=async function(id){
+    const s=findSub(id); if(!s)return;
+    if(!confirm(`विषय "${s.name}" ${s.file?'और उसका अपलोड किया PDF ':''}हटाना है?`))return;
+    try{
+      if(s.file) await stDelete(s.file.path);
+      const p=PP.pend[id]; if(p&&p.up) await stDelete(p.up.path);
+      await db.ref(baseOf(PP.cur.sel)+'/subjects/'+id).remove();
+      PP.cur.subs=PP.cur.subs.filter(x=>x.id!==id); delete PP.pend[id]; renderUpload(); toast('🗑️ विषय हटा दिया गया');
+    }catch(e){console.error(e);alert('❌ हटाया नहीं जा सका: '+(e.message||e));}
+  };
+  window.ppPick=function(id,inp){
+    const f=inp.files&&inp.files[0]; if(!f)return;
+    if(!(f.type==='application/pdf'||/\.pdf$/i.test(f.name))){alert('केवल PDF फाइल चुनें।');inp.value='';return;}
+    PP.pend[id]={file:f,state:'chosen',pct:0}; renderUpload();
+  };
+  window.ppStartUpload=function(id){
+    const p=PP.pend[id], s=findSub(id); if(!p||!s)return;
+    const sel=PP.cur.sel;
+    const path=`${stBase(sel)}/${id}_${Date.now()}_${safeName(p.file.name)}`;
+    const task=firebaseStorage.ref(path).put(p.file,{contentType:'application/pdf'});
+    p.task=task; p.state='uploading'; p.pct=0; renderUpload();
+    task.on('state_changed',snap=>{
+      const pct=snap.totalBytes?Math.round(snap.bytesTransferred*100/snap.totalBytes):0; p.pct=pct;
+      const b=$('pp-bar-'+id),t=$('pp-pct-'+id); if(b)b.style.width=pct+'%'; if(t)t.textContent=pct+'%';
+    },err=>{
+      if(PP.pend[id]!==p) return;
+      if(err&&err.code==='storage/canceled'){return;}
+      console.error('Paper PDF upload failed:',err); p.state='chosen'; renderUpload(); alert('❌ PDF अपलोड नहीं हो पाया।\n\nकारण: '+(err.message||err.code||err)+'\nकोड: '+(err.code||'unknown')+'\n\nयदि 0% पर अटका है, तो Firebase Storage Rules, Storage bucket और इंटरनेट कनेक्शन जाँचें। इंटरनेट की गति/कनेक्शन के बिना किसी भी आकार की PDF को 10 सेकंड में अपलोड करने की गारंटी नहीं दी जा सकती।');
+    },async()=>{
+      try{
+        const url=await task.snapshot.ref.getDownloadURL();
+        p.up={name:p.file.name,size:p.file.size,url,path,at:Date.now()}; p.state='uploaded'; delete p.task; renderUpload();
+        toast('✅ '+esc(s.name)+' विषय का PDF Firebase पर अपलोड हो गया — अब Save दबाएं',6000);
+        alert('✅ PDF अपलोड पूरा हुआ!\n\nविषय: '+s.name+'\nफाइल: '+p.file.name+'\n\nपेपर की जानकारी Firebase में सेव करने के लिए अब Save बटन दबाएँ।');
+      }catch(e){console.error(e);p.state='chosen';renderUpload();alert('❌ Upload के बाद link नहीं मिला: '+(e.message||e));}
+    });
+  };
+  window.ppCancelUpload=function(id){
+    const p=PP.pend[id]; if(!p)return; try{p.task&&p.task.cancel();}catch(e){}
+    delete PP.pend[id]; renderUpload(); toast('Upload रद्द किया गया');
+  };
+  window.ppSave=async function(id){
+    const p=PP.pend[id], s=findSub(id); if(!p||!p.up||!s)return;
+    try{
+      const old=s.file; const rec=p.up;
+      await db.ref(baseOf(PP.cur.sel)+'/subjects/'+id+'/file').set(rec);
+      s.file=rec; delete PP.pend[id];
+      if(old&&old.path&&old.path!==rec.path) await stDelete(old.path);
+      renderUpload(); toast('✅ Firebase में Save हो गया');
+    }catch(e){console.error(e);alert('❌ Save नहीं हुआ: '+(e.message||e));}
+  };
+  window.ppDeletePending=async function(id){
+    const p=PP.pend[id]; if(!p)return;
+    if(!confirm('अभी अपलोड किया हुआ (बिना Save) PDF हटाना है?'))return;
+    try{ if(p.up) await stDelete(p.up.path); delete PP.pend[id]; renderUpload(); toast('🗑️ हटा दिया गया'); }catch(e){alert('❌ '+(e.message||e));}
+  };
+  window.ppDeleteSaved=async function(id){
+    const s=findSub(id); if(!s||!s.file)return;
+    if(!confirm(`"${s.name}" का Saved PDF हमेशा के लिए हटाना है?`))return;
+    try{ await stDelete(s.file.path); await db.ref(baseOf(PP.cur.sel)+'/subjects/'+id+'/file').remove(); delete s.file; delete PP.pend[id]; renderUpload(); toast('🗑️ PDF हटा दिया गया'); }
+    catch(e){console.error(e);alert('❌ '+(e.message||e));}
+  };
+
+  /* ================= file / blob helpers ================= */
+  async function getBlob(file){
+    if(PP.blobs[file.path]) return PP.blobs[file.path];
+    const r=await fetch(file.url); if(!r.ok) throw new Error('HTTP '+r.status);
+    const b=await r.blob(); if(Object.keys(PP.blobs).length>12) PP.blobs={}; PP.blobs[file.path]=b; return b;
+  }
+  function corsHelp(e){
+    return 'फाइल fetch नहीं हो पाई ('+(e&&e.message||e)+').\n\nअगर बार-बार ऐसा हो तो Firebase Storage bucket पर CORS चालू करना होगा (Google Cloud Shell में: gsutil cors set cors.json gs://exam-portal-b5f50.firebasestorage.app ; cors.json = [{"origin":["*"],"method":["GET"],"maxAgeSeconds":3600}] ).';
+  }
+  function saveBlob(blob,name){
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);
+  }
+  function printBlob(blob){
+    const url=URL.createObjectURL(blob);
+    const fr=document.createElement('iframe'); fr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0'; fr.src=url; document.body.appendChild(fr);
+    fr.onload=()=>{ setTimeout(()=>{ try{fr.contentWindow.focus();fr.contentWindow.print();}catch(e){window.open(url,'_blank');} },600); };
+    setTimeout(()=>{try{fr.remove();URL.revokeObjectURL(url);}catch(e){}},180000);
+  }
+  function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector('script[data-pp="'+src+'"]'))return res();const s=document.createElement('script');s.src=src;s.dataset.pp=src;s.onload=res;s.onerror=()=>rej(new Error('Library load नहीं हुई: '+src));document.head.appendChild(s);});}
+  const LIB={
+    pdfjs:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    pdfjsWorker:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+    pdflib:'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js',
+    jszip:'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'
+  };
+  async function needPdfJs(){ if(!window.pdfjsLib){await loadScript(LIB.pdfjs);} window.pdfjsLib.GlobalWorkerOptions.workerSrc=LIB.pdfjsWorker; }
+  async function needJSZip(){ if(!window.JSZip) await loadScript(LIB.jszip); }
+  async function needPdfLib(){ if(!window.PDFLib) await loadScript(LIB.pdflib); }
+
+  async function mergePdfs(items,onProg){
+    await needPdfLib(); const {PDFDocument}=window.PDFLib; const out=await PDFDocument.create();
+    for(let i=0;i<items.length;i++){
+      onProg&&onProg(i+1,items.length,items[i].title);
+      const blob=await getBlob(items[i].file); const src=await PDFDocument.load(await blob.arrayBuffer(),{ignoreEncryption:true});
+      const pages=await out.copyPages(src,src.getPageIndices()); pages.forEach(p=>out.addPage(p));
+    }
+    const bytes=await out.save(); return new Blob([bytes],{type:'application/pdf'});
+  }
+
+  /* ---- Word (.docx) : हर PDF page एक image बनकर Word में जाता है ---- */
+  const xmlEsc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+  async function buildDocx(items,onProg){
+    await needPdfJs(); await needJSZip();
+    const zip=new JSZip(); const imgs=[]; let body=''; let first=true;
+    const W=6645910, MAXH_HEAD=8700000, MAXH=9600000;
+    for(let i=0;i<items.length;i++){
+      const it=items[i]; const blob=await getBlob(it.file);
+      const pdf=await pdfjsLib.getDocument({data:await blob.arrayBuffer()}).promise;
+      for(let pg=1;pg<=pdf.numPages;pg++){
+        onProg&&onProg(i+1,items.length,it.title,pg,pdf.numPages);
+        const page=await pdf.getPage(pg); const vp=page.getViewport({scale:1.7});
+        const cv=document.createElement('canvas'); cv.width=Math.floor(vp.width); cv.height=Math.floor(vp.height);
+        const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+        await page.render({canvasContext:ctx,viewport:vp}).promise;
+        const data=cv.toDataURL('image/jpeg',0.85).split(',')[1]; const n=imgs.length+1; imgs.push(data);
+        const headed=(pg===1);
+        let cx=W, cy=Math.round(W*cv.height/cv.width); const cap=headed?MAXH_HEAD:MAXH;
+        if(cy>cap){cx=Math.round(cx*cap/cy);cy=cap;}
+        if(headed){
+          body+=`<w:p><w:pPr>${first?'':'<w:pageBreakBefore/>'}<w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/></w:rPr><w:t xml:space="preserve">${xmlEsc(it.title)}</w:t></w:r></w:p>`;
+        }
+        body+=`<w:p><w:pPr>${(!headed)?'<w:pageBreakBefore/>':''}<w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${n}" name="Picture ${n}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="${n}" name="img${n}.jpg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rIdImg${n}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+        first=false; cv.width=cv.height=0;
+      }
+    }
+    const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+    zip.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+    zip.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    let rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
+    imgs.forEach((d,i)=>{rels+=`<Relationship Id="rIdImg${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${i+1}.jpg"/>`; zip.file(`word/media/img${i+1}.jpg`,d,{base64:true});});
+    rels+='</Relationships>'; zip.file('word/_rels/document.xml.rels',rels);
+    zip.file('word/document.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${NS}><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr></w:body></w:document>`);
+    return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE'});
+  }
+
+  const itemOf=(sel,s)=>({title:`${s.name} — ${sel.cls} | ${sel.exam} | ${sel.year}`,file:s.file,name:s.name});
+  const fname=(sel,s,ext)=>`${safeName(sel.year)}_${safeName(sel.cls)}_${safeName(sel.exam)}${s?'_'+safeName(s.name):'_ALL'}.${ext}`;
+  async function guarded(fn){ try{ await fn(); }catch(e){ console.error(e); toastOff(); alert('❌ '+corsHelp(e)); } }
+
+  /* ================= VIEW ================= */
+  window.ppViewShow=async function(){
+    const sel=readSel('view'); const out=$('pp-view-out');
+    out.innerHTML='<div class="pp-empty"><i class="fa-solid fa-spinner fa-spin"></i> लोड हो रहा है...</div>';
+    try{
+      const subs=(await loadSubjects(sel)).filter(s=>s.file); PP.view={sel,subs};
+      if(!subs.length){out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-empty"><i class="fa-solid fa-folder-open" style="font-size:2rem"></i><br>इस कक्षा/परीक्षा में कोई पेपर अपलोड नहीं है।</div></div>`;return;}
+      out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-grid">`+subs.map((s,i)=>`<div class="pp-paper" style="animation-delay:${i*60}ms"><i class="fa-solid fa-file-pdf pp-pi"></i><h4>${i+1}. ${esc(s.name)}</h4><small>${esc(s.file.name)} • ${fmtSize(s.file.size)} • ${fmtDate(s.file.at)}</small>
+        <div class="pp-actions" style="justify-content:flex-start">
+        <a class="pp-btn pp-b-slate" href="${esc(s.file.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> View</a>
+        <button class="pp-btn pp-b-red" onclick="ppOnePdf('${s.id}')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+        <button class="pp-btn pp-b-blue" onclick="ppOnePrint('${s.id}')"><i class="fa-solid fa-print"></i> Print</button>
+        <button class="pp-btn pp-b-purple" onclick="ppOneWord('${s.id}')"><i class="fa-solid fa-file-word"></i> Word</button></div></div>`).join('')+'</div></div>';
+    }catch(e){console.error(e);out.innerHTML='<div class="pp-empty">❌ '+esc(e.message||e)+'</div>';}
+  };
+  const vsub=id=>PP.view&&PP.view.subs.find(s=>s.id===id);
+  window.ppOnePdf=id=>guarded(async()=>{const s=vsub(id);toast('PDF तैयार हो रहा है...',0);const b=await getBlob(s.file);toastOff();saveBlob(b,fname(PP.view.sel,s,'pdf'));});
+  window.ppOnePrint=id=>guarded(async()=>{const s=vsub(id);toast('Print के लिए तैयार हो रहा है...',0);const b=await getBlob(s.file);toastOff();printBlob(b);});
+  window.ppOneWord=id=>guarded(async()=>{const s=vsub(id);const sel=PP.view.sel;
+    const b=await buildDocx([itemOf(sel,s)],(i,n,t,pg,pn)=>toast(`Word बन रहा है... पेज ${pg}/${pn}`,0));toastOff();saveBlob(b,fname(sel,s,'docx'));toast('✅ Word डाउनलोड हो गया');});
+
+  /* ================= ALL DOWNLOAD ================= */
+  window.ppAllShow=async function(){
+    const sel=readSel('download-all'); const out=$('pp-download-all-out');
+    out.innerHTML='<div class="pp-empty"><i class="fa-solid fa-spinner fa-spin"></i> लोड हो रहा है...</div>';
+    try{
+      const subs=(await loadSubjects(sel)).filter(s=>s.file); PP.all={sel,subs};
+      if(!subs.length){out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-empty">इस कक्षा/परीक्षा में कोई पेपर अपलोड नहीं है।</div></div>`;return;}
+      const total=subs.reduce((a,s)=>a+(Number(s.file.size)||0),0);
+      out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}
+        <div class="pp-stats"><div class="pp-stat"><b>${subs.length}</b><span>कुल पेपर</span></div><div class="pp-stat"><b>${fmtSize(total)}</b><span>कुल साइज़</span></div></div>
+        <ul class="pp-list">${subs.map((s,i)=>`<li><span>${i+1}. <b>${esc(s.name)}</b></span><span>${fmtSize(s.file.size)}</span></li>`).join('')}</ul>
+        <div class="pp-actions" style="justify-content:flex-start">
+          <button class="pp-btn pp-b-red" onclick="ppAllPdf()"><i class="fa-solid fa-file-pdf"></i> Download to PDF</button>
+          <button class="pp-btn pp-b-blue" onclick="ppAllPrint()"><i class="fa-solid fa-print"></i> Print</button>
+          <button class="pp-btn pp-b-purple" onclick="ppAllWord()"><i class="fa-solid fa-file-word"></i> Download to Word</button>
+          <button class="pp-btn pp-b-slate" onclick="ppAllZip()"><i class="fa-solid fa-file-zipper"></i> ZIP (अलग-अलग PDF)</button>
+        </div></div>`;
+    }catch(e){console.error(e);out.innerHTML='<div class="pp-empty">❌ '+esc(e.message||e)+'</div>';}
+  };
+  const allItems=()=>PP.all.subs.map(s=>itemOf(PP.all.sel,s));
+  window.ppAllPdf=()=>guarded(async()=>{const b=await mergePdfs(allItems(),(i,n,t)=>toast(`PDF जुड़ रहे हैं ${i}/${n}...`,0));toastOff();saveBlob(b,fname(PP.all.sel,null,'pdf'));toast('✅ सभी पेपर PDF में डाउनलोड हो गए');});
+  window.ppAllPrint=()=>guarded(async()=>{const b=await mergePdfs(allItems(),(i,n)=>toast(`Print के लिए तैयार ${i}/${n}...`,0));toastOff();printBlob(b);});
+  window.ppAllWord=()=>guarded(async()=>{const b=await buildDocx(allItems(),(i,n,t,pg,pn)=>toast(`Word बन रहा है... पेपर ${i}/${n} • पेज ${pg}/${pn}`,0));toastOff();saveBlob(b,fname(PP.all.sel,null,'docx'));toast('✅ Word डाउनलोड हो गया');});
+  window.ppAllZip=()=>guarded(async()=>{await needJSZip();const z=new JSZip();const used={};
+    for(let i=0;i<PP.all.subs.length;i++){const s=PP.all.subs[i];toast(`ZIP बन रहा है ${i+1}/${PP.all.subs.length}...`,0);let nm=safeName(s.name)+'.pdf';if(used[nm]){nm=safeName(s.name)+'_'+(i+1)+'.pdf';}used[nm]=1;z.file(nm,await getBlob(s.file));}
+    const b=await z.generateAsync({type:'blob'});toastOff();saveBlob(b,fname(PP.all.sel,null,'zip'));toast('✅ ZIP डाउनलोड हो गया');});
+
+  /* ================= ALL DELETE ================= */
+  window.ppDelShow=async function(){
+    const sel=readSel('delete-all'); const out=$('pp-delete-all-out');
+    out.innerHTML='<div class="pp-empty"><i class="fa-solid fa-spinner fa-spin"></i> लोड हो रहा है...</div>';
+    try{
+      const subs=(await loadSubjects(sel)).filter(s=>s.file); PP.del={sel,subs};
+      if(!subs.length){out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-empty">इस कक्षा/परीक्षा में डिलीट करने लायक कोई पेपर नहीं है।</div></div>`;return;}
+      const total=subs.reduce((a,s)=>a+(Number(s.file.size)||0),0);
+      out.innerHTML=`<div class="pp-card pp-danger">${chipsHTML(sel)}
+        <div class="pp-stats"><div class="pp-stat"><b>${subs.length}</b><span>डिलीट होने वाले पेपर</span></div><div class="pp-stat"><b>${fmtSize(total)}</b><span>कुल साइज़</span></div></div>
+        <ul class="pp-list">${subs.map((s,i)=>`<li><span>${i+1}. <b>${esc(s.name)}</b> — ${esc(s.file.name)}</span><span>${fmtSize(s.file.size)}</span></li>`).join('')}</ul>
+        <p style="color:#fca5a5;font-size:.82rem;margin:0 0 12px">⚠️ यह कार्य वापस नहीं हो सकता। PDF फाइलें Firebase से हमेशा के लिए हट जाएंगी (विषयों के नाम बने रहेंगे)।</p>
+        <button class="pp-btn pp-b-red" onclick="ppDelAll()"><i class="fa-solid fa-trash-can"></i> इस कक्षा के सभी पेपर डिलीट करें</button></div>`;
+    }catch(e){console.error(e);out.innerHTML='<div class="pp-empty">❌ '+esc(e.message||e)+'</div>';}
+  };
+  window.ppDelAll=async function(){
+    const d=PP.del; if(!d||!d.subs.length)return;
+    const ans=prompt(`कक्षा ${d.sel.cls} | ${d.sel.exam} | ${d.sel.year} के ${d.subs.length} पेपर डिलीट होंगे।\n\nपुष्टि के लिए DELETE लिखें:`);
+    if(ans===null)return; if(ans.trim().toUpperCase()!=='DELETE'){alert('पुष्टि सही नहीं थी — कुछ डिलीट नहीं हुआ।');return;}
+    try{
+      for(let i=0;i<d.subs.length;i++){toast(`डिलीट हो रहा है ${i+1}/${d.subs.length}...`,0);const s=d.subs[i];await stDelete(s.file.path);await db.ref(baseOf(d.sel)+'/subjects/'+s.id+'/file').remove();}
+      toast('🗑️ सभी पेपर डिलीट हो गए'); await window.ppDelShow();
+      const o=$('pp-delete-all-out'); if(o&&!d.subs.length)o.innerHTML='';
+    }catch(e){console.error(e);toastOff();alert('❌ कुछ पेपर डिलीट नहीं हो पाए: '+(e.message||e));window.ppDelShow();}
+  };
+})();
+</script>
+
 </body>
 </html>
