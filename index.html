@@ -1042,6 +1042,9 @@
         #header-user-badge .hub-text { text-align: left; line-height: 1.15; }
         #header-user-badge .hub-name { font-weight: 900; font-size: 0.92rem; letter-spacing: 0.5px; color: #fbbf24; text-transform: uppercase; }
         #header-user-badge .hub-id { font-size: 0.72rem; color: #e2e8f0; letter-spacing: 0.4px; }
+        #firebase-manual-refresh { width:28px;height:28px;flex:0 0 28px;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;border:1px solid rgba(251,191,36,.85);border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#0f172a);color:#fbbf24;cursor:pointer;font-size:.78rem;box-shadow:0 0 8px rgba(251,191,36,.18);transition:transform .2s,box-shadow .2s; }
+        #firebase-manual-refresh:hover { transform:rotate(25deg) scale(1.08);box-shadow:0 0 12px rgba(251,191,36,.45); }
+        #firebase-manual-refresh:disabled { opacity:.55;cursor:wait; }
 
         /* --- TEACHER ID CARD (CINEMATIC) --- */
         @keyframes cardShine {
@@ -1367,6 +1370,20 @@
 @media(max-width:1100px){.cert-paper-wrap{overflow:auto}}
 
 @media print{body.lh-print-only{background:#fff!important}.lh-print-only *{visibility:hidden!important}.lh-print-only #lh-print-page,.lh-print-only #lh-print-page *{visibility:visible!important}.lh-print-only #lh-print-page{position:absolute;left:0;top:0;width:210mm!important;min-height:297mm!important;margin:0!important;box-shadow:none!important}.lh-print-only #lh-print-page::before,.lh-print-only #lh-print-page::after{display:block}.lh-print-only .lh-body-editor{overflow:visible!important}.lh-print-only .lh-body-editor:empty::before{display:none!important}}
+
+        /* Added exam attendance sheet styling */
+        .ea-sheet{background:#fff;color:#111;padding:7mm;font-family:Arial,sans-serif}
+        .ea-heading{text-align:center;margin:0 0 5mm;border-bottom:2px double #1e3a8a;padding-bottom:3mm}
+        .ea-heading h1{font-size:16pt;font-weight:900;margin:0 0 2mm}
+        .ea-heading h2{font-size:10pt;margin:1mm 0}
+        .ea-heading h3{display:inline-block;margin:2mm 0 0;padding:2mm 8mm;border:2px solid #1e3a8a;border-radius:4px;background:#eff6ff;color:#1e3a8a;font-size:12pt;letter-spacing:1px}
+        .ea-table{width:100%;border-collapse:collapse;table-layout:auto;font-size:8pt}
+        .ea-table th,.ea-table td{border:1px solid #333;padding:2mm 1.5mm;text-align:center;white-space:normal;overflow-wrap:anywhere}
+        .ea-table th{background:#dbeafe;color:#111;font-weight:800}
+        .ea-photo{width:13mm;height:16mm;object-fit:cover}.ea-no-photo{color:#777}
+        .ea-name{text-align:left!important;min-width:30mm;font-weight:700}
+        .ea-name small{display:block;font-weight:400;font-size:7pt;margin-top:1mm}
+        .ea-att-cell{min-width:10mm;height:12mm}
 </style>
 <style id="ms9-style">
 /* ===== कक्षा नवमी मार्कशीट (MS9) - sheet design (A4, same CSS used for screen + print) ===== */
@@ -1457,6 +1474,78 @@
 .ms9-chip{display:inline-block;background:#e0f2fe;color:#075985;border-radius:12px;padding:2px 9px;margin:2px;font-size:.75rem;font-weight:700;}
 @media (max-width:1100px){.ms9-fgrid{grid-template-columns:1fr;}.ms9-sticky{position:static;}}
 
+</style>
+<style id="sigx-style">
+/* ===== SIGX: प्रिंसिपल / हेडमास्टर हस्ताक्षर — Cinematic look (नया, सिर्फ़ इसी सेक्शन के लिए) ===== */
+.sigx-wrap{display:flex;flex-direction:column;gap:16px;font-family:inherit}
+.sigx-hero{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;padding:20px 24px;border-radius:16px;color:#fff;
+  background:radial-gradient(1200px 300px at 0% 0%,rgba(251,191,36,.28),transparent 60%),linear-gradient(135deg,#0b1226 0%,#1e3a8a 55%,#0f172a 100%);
+  box-shadow:0 14px 34px rgba(15,23,42,.35),inset 0 0 0 1px rgba(251,191,36,.35)}
+.sigx-hero:after{content:'';position:absolute;inset:-60%;background:linear-gradient(110deg,transparent 45%,rgba(255,255,255,.14),transparent 55%);animation:sigxSweep 7s linear infinite;pointer-events:none}
+@keyframes sigxSweep{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+.sigx-ico{width:62px;height:62px;flex:0 0 62px;border-radius:50%;display:grid;place-items:center;font-size:1.7rem;color:#fbbf24;background:rgba(255,255,255,.08);
+  border:2px solid rgba(251,191,36,.75);box-shadow:0 0 24px rgba(251,191,36,.45);animation:sigxPulse 3s ease-in-out infinite}
+@keyframes sigxPulse{50%{box-shadow:0 0 38px rgba(251,191,36,.8)}}
+.sigx-ht{position:relative;z-index:1;flex:1}
+.sigx-ht h2{margin:0;font-size:1.45rem;font-weight:900;letter-spacing:.3px;color:#fde68a}
+.sigx-ht h2 small{font-size:.8rem;font-weight:700;color:#bfdbfe}
+.sigx-ht p{margin:5px 0 0;font-size:.82rem;color:#dbeafe;line-height:1.5}
+.sigx-chip{position:relative;z-index:1;padding:7px 14px;border-radius:99px;font-size:.76rem;font-weight:800;background:rgba(255,255,255,.12);color:#e2e8f0;border:1px solid rgba(255,255,255,.25);white-space:nowrap}
+.sigx-chip.ok{background:rgba(34,197,94,.2);color:#bbf7d0;border-color:rgba(34,197,94,.6)}
+.sigx-chip.warn{background:rgba(245,158,11,.22);color:#fde68a;border-color:rgba(245,158,11,.7);animation:sigxPulse 1.6s infinite}
+.sigx-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:16px}
+.sigx-card{background:linear-gradient(180deg,#ffffff,#f8fafc);border:1px solid #dbe4f3;border-radius:14px;padding:18px 20px;box-shadow:0 8px 22px rgba(30,58,138,.09);animation:sigxIn .55s cubic-bezier(.22,.9,.32,1.2) both}
+@keyframes sigxIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.sigx-h{display:flex;align-items:center;gap:10px;font-weight:900;color:#1e3a8a;font-size:1.02rem;margin-bottom:14px;border-bottom:2px solid #e2e8f0;padding-bottom:10px;flex-wrap:wrap}
+.sigx-h span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fbbf24;font-size:.85rem}
+.sigx-h em{font-size:.72rem;color:#64748b;font-weight:700;font-style:normal}
+.sigx-drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:26px 14px;border-radius:14px;cursor:pointer;
+  border:2px dashed #93a8d8;background:linear-gradient(135deg,#eff6ff,#fffbeb);transition:.25s}
+.sigx-drop:hover,.sigx-drop.hot{border-color:#f59e0b;transform:translateY(-2px);box-shadow:0 10px 24px rgba(245,158,11,.25)}
+.sigx-drop i{font-size:2rem;color:#1e3a8a}.sigx-drop b{color:#0f172a;font-size:.92rem}.sigx-drop em{font-style:normal;font-size:.74rem;color:#64748b}
+.sigx-drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.sigx-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sigx-btn{border:0;border-radius:9px;padding:9px 16px;font-weight:800;font-size:.82rem;cursor:pointer;color:#fff;background:linear-gradient(135deg,#1e3a8a,#2563eb);box-shadow:0 4px 12px rgba(30,58,138,.3);transition:.2s;display:inline-flex;align-items:center;gap:7px}
+.sigx-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.sigx-btn.red{background:linear-gradient(135deg,#b91c1c,#ef4444)}
+.sigx-btn.gold{background:linear-gradient(135deg,#d97706,#fbbf24);color:#1f1300}
+.sigx-btn.big{padding:13px 26px;font-size:.95rem}
+.sigx-opt{display:flex;gap:8px;align-items:flex-start;font-size:.8rem;font-weight:700;color:#334155;margin-top:10px;line-height:1.4;cursor:pointer}
+.sigx-opt input{margin-top:3px;accent-color:#1e3a8a}
+.sigx-prev{background:repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 8px,#e8eef7 8px,#e8eef7 16px);border:1px solid #cbd5e1;border-radius:12px;padding:10px;overflow:auto;min-height:120px}
+.sigx-pg{background:#fff;border:1px solid #cbd5e1;border-radius:6px;margin-bottom:8px;box-shadow:0 3px 10px rgba(15,23,42,.08)}
+.sigx-pl{font-size:.7rem;font-weight:800;color:#475569;margin:2px 2px 4px}
+.sigx-empty{display:grid;place-items:center;gap:6px;height:110px;color:#64748b;font-weight:700;font-size:.85rem}.sigx-empty i{font-size:1.8rem}
+.sigx-pvsel{margin-top:8px;font-size:.76rem;font-weight:800;color:#475569;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sigx-pvsel button{border:1px solid #93a8d8;background:#fff;color:#1e3a8a;border-radius:7px;padding:4px 12px;font-weight:800;cursor:pointer}
+.sigx-pvsel button.on{background:#1e3a8a;color:#fbbf24;border-color:#1e3a8a}
+.sigx-ctl{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:20px}
+.sigx-sl label,.sigx-pos>label{display:block;font-size:.8rem;font-weight:800;color:#334155;margin-bottom:6px}
+.sigx-sl label b{color:#b45309}
+.sigx-sl input[type=range]{width:100%;accent-color:#d97706}
+.sigx-pm{display:flex;gap:6px;align-items:center;margin-top:8px}
+.sigx-pm button,.sigx-pad button{width:34px;height:34px;border-radius:9px;border:1px solid #93a8d8;background:#fff;color:#1e3a8a;font-weight:900;font-size:1rem;cursor:pointer;transition:.15s}
+.sigx-pm button:hover,.sigx-pad button:hover{background:#1e3a8a;color:#fbbf24;transform:scale(1.08)}
+.sigx-pm input,.sigx-xy input,.sigx-xy select{width:74px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:8px;font-weight:800;text-align:center}
+.sigx-pad{display:grid;grid-template-columns:repeat(3,38px);gap:5px;justify-content:start}
+.sigx-pad button.ctr{background:#fef3c7;color:#b45309}
+.sigx-xy{display:flex;flex-direction:column;gap:7px;margin-top:10px}.sigx-xy label{font-size:.76rem;font-weight:800;color:#475569;display:flex;gap:8px;align-items:center}
+.sigx-opts{margin-top:12px;border-top:1px dashed #cbd5e1;padding-top:6px}
+.sigx-mini{margin-left:auto;display:flex;gap:6px}.sigx-mini button{border:1px solid #93a8d8;background:#fff;color:#1e3a8a;border-radius:7px;padding:4px 11px;font-size:.74rem;font-weight:800;cursor:pointer}
+.sigx-tw{overflow:auto}.sigx-tbl{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:.84rem}
+.sigx-tbl th{background:#1e3a8a;color:#fff;padding:9px 10px;text-align:left;font-size:.76rem}.sigx-tbl th:first-child{border-radius:9px 0 0 9px}.sigx-tbl th:last-child{border-radius:0 9px 9px 0}
+.sigx-tbl td{padding:9px 10px;background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;font-weight:700;color:#1e293b}
+.sigx-tbl td:first-child{border-left:1px solid #e2e8f0;border-radius:9px 0 0 9px;text-align:center;width:64px}.sigx-tbl td:last-child{border-right:1px solid #e2e8f0;border-radius:0 9px 9px 0}
+.sigx-tbl tr.on td{background:linear-gradient(90deg,#fffbeb,#eff6ff);border-color:#f3c76b}
+.sigx-tbl select{padding:6px 8px;border:1px solid #cbd5e1;border-radius:8px;font-weight:700;max-width:260px;background:#fff}
+.sigx-tbl td.z{font-size:.78rem;color:#b45309;white-space:nowrap}
+.sigx-switch{position:relative;display:inline-block;width:44px;height:24px;cursor:pointer}.sigx-switch input{opacity:0;width:0;height:0;position:absolute}
+.sigx-switch i{position:absolute;inset:0;background:#cbd5e1;border-radius:99px;transition:.25s}
+.sigx-switch i:before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 2px 5px rgba(0,0,0,.3)}
+.sigx-switch input:checked+i{background:linear-gradient(135deg,#16a34a,#22c55e)}.sigx-switch input:checked+i:before{transform:translateX(20px)}
+.sigx-note{margin:8px 2px 0;font-size:.76rem;color:#64748b;line-height:1.55}
+.sigx-act{display:flex;gap:12px;flex-wrap:wrap}
+@media(max-width:900px){.sigx-grid,.sigx-ctl{grid-template-columns:1fr}.sigx-hero{flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -1575,6 +1664,7 @@
                     <div class="hub-name" id="hub-name"></div>
                     <div class="hub-id" id="hub-id"></div>
                 </div>
+                <button id="firebase-manual-refresh" type="button" onclick="manualRefreshFirebase(event)" aria-label="" title="" style="display:none"><i class="fa-solid fa-rotate"></i></button>
             </div>
             <div class="header-live-clock">
                 <div id="header-current-date">--/--/----</div>
@@ -1776,6 +1866,10 @@
                     <i class="fa-solid fa-calendar-days"></i>
                     <span>3. परीक्षा समय सारणी (Time Table)</span>
                 </div>
+                <div class="menu-item" data-perm="exam-attendance" onclick="switchTab('exam-attendance')">
+                    <i class="fa-solid fa-clipboard-user"></i>
+                    <span>2. उपस्तिथि पत्रक (Exam Attendance)</span>
+                </div>
                 <div class="menu-item" data-perm="admit-card" onclick="switchTab('admit-card')">
                     <i class="fa-solid fa-id-card"></i>
                     <span>4. प्रवेश पत्र (Admit Card)</span>
@@ -1813,6 +1907,17 @@
                     <div class="menu-item" data-perm="ms9-create" onclick="switchTab('ms9-create')">2. Create Marksheet</div>
                 </div>
 
+
+                <!-- NEW MAIN MENU OPTION: प्रिंसिपल हस्ताक्षर (Principal / Headmaster Signature) -->
+                <div class="menu-item" data-perm="sig-principal" onclick="toggleSubmenu('sig-sub-menu')">
+                    <i class="fa-solid fa-signature"></i>
+                    <span>प्रिंसिपल हस्ताक्षर</span>
+                    <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+                </div>
+                <div id="sig-sub-menu" class="submenu">
+                    <div class="menu-item" data-perm="sig-principal" onclick="switchTab('sig-principal')">1. Principal Signature</div>
+                    <div class="menu-item" data-perm="sig-headmaster" data-admin-only="true" onclick="switchTab('sig-headmaster')">2. Headmaster Signature</div>
+                </div>
 
                 <div class="menu-category">सिस्टम सेटिंग्स</div>
                 <div class="menu-item admin-only-menu" data-admin-only="true" data-perm="control-panel" onclick="switchTab('control-panel')">
@@ -3626,6 +3731,38 @@
                     </div>
                 </section>
 
+                <!-- EXAM ATTENDANCE SHEET: added without changing existing timetable features -->
+                <section id="tab-exam-attendance" class="tab-content hidden">
+                    <div class="custom-print-hero">
+                        <div class="custom-print-glow"></div>
+                        <div class="custom-print-kicker">EXAMINATION • ATTENDANCE REGISTER</div>
+                        <h2><i class="fa-solid fa-clipboard-user"></i> 2. उपस्तिथि पत्रक</h2>
+                        <p>चुने गए सत्र, कक्षा और परीक्षा की समय सारणी के अनुसार छात्र उपस्थिति पत्रक बनाएं।</p>
+                    </div>
+                    <div class="card custom-print-card">
+                        <div class="filter-container">
+                            <div class="filter-row">
+                                <div class="filter-item"><label>सत्र (Year)</label>
+                                    <select id="ea-year"><option>2026-27</option><option>2027-28</option><option>2028-29</option><option>2029-30</option></select></div>
+                                <div class="filter-item"><label>कक्षा (Class)</label>
+                                    <select id="ea-class"><option>NURSERY</option><option>LKG</option><option>UKG</option><option>1ST</option><option>2ND</option><option>3RD</option><option>4TH</option><option>5TH</option><option>6TH</option><option>7TH</option><option>8TH</option><option>9TH</option><option>10TH</option><option>11TH</option><option>12TH</option></select></div>
+                                <div class="filter-item"><label>परीक्षा (Exam Name)</label>
+                                    <select id="ea-exam"><option value="QUARTERLY">Quarterly</option><option value="HALF YEARLY">Half Yearly</option><option value="PRE BOARD">Pre Board</option><option value="ANNUAL">Annual</option></select></div>
+                                <div class="filter-item"><label>प्रति सूची छात्र</label>
+                                    <select id="ea-limit"><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option><option value="ALL">All</option></select></div>
+                                <button class="btn btn-warning" onclick="showExamAttendance()"><i class="fa-solid fa-list"></i> Show List</button>
+                            </div>
+                            <div class="filter-row" style="margin-top:12px">
+                                <div class="filter-item"><label>प्रिंट पेज</label><select id="ea-orientation"><option value="portrait">A4 Portrait</option><option value="landscape">A4 Landscape</option></select></div>
+                                <button class="btn btn-primary" onclick="printExamAttendance()"><i class="fa-solid fa-print"></i> Print</button>
+                                <button class="btn btn-success" onclick="downloadExamAttendancePDF()"><i class="fa-solid fa-file-pdf"></i> Save / Download PDF</button>
+                                <button class="btn btn-success" onclick="downloadExamAttendanceExcel()"><i class="fa-solid fa-file-excel"></i> Download Excel</button>
+                            </div>
+                        </div>
+                        <div id="ea-preview" class="table-responsive"><p style="text-align:center;color:#64748b;padding:20px">सत्र, कक्षा और परीक्षा चुनकर Show List दबाएं।</p></div>
+                    </div>
+                </section>
+
                 <!-- ADMIT CARD SECTION -->
                 <section id="tab-admit-card" class="tab-content hidden">
                     <div class="card printable">
@@ -4013,6 +4150,8 @@
                                     <label><input type="checkbox" class="tch-perm-chk" value="tc-sub" checked> Transfer Certificate (TC)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="generate-tc" checked> Generate TC</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="tc-list" checked> TC Saved & Print List</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="exam-attendance"> 2. उपस्तिथि पत्रक (Exam Attendance)</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="sig-principal"> प्रिंसिपल हस्ताक्षर</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="exam-timetable" checked> परीक्षा समय सारणी</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="admit-card" checked> प्रवेश पत्र (Admit Card)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="admit-card-range" checked> Roll Range Admit Card</label>
@@ -4267,6 +4406,12 @@
                     </div>
                                     </div>
                 </section>
+
+
+                <!-- TAB: PRINCIPAL SIGNATURE -->
+                <section id="tab-sig-principal" class="tab-content hidden"></section>
+                <!-- TAB: HEADMASTER SIGNATURE -->
+                <section id="tab-sig-headmaster" class="tab-content hidden"></section>
 
             </main>
         </div>
@@ -5246,9 +5391,45 @@
             document.getElementById('hub-id').innerText = 'ID: ' + id + ' | ' + (role === 'ADMIN' ? 'Administrator' : 'Teacher');
             icon.className = role === 'ADMIN' ? 'fa-solid fa-user-shield' : 'fa-solid fa-chalkboard-user';
             badge.style.display = 'flex';
+            const refreshBtn = document.getElementById('firebase-manual-refresh');
+            if(refreshBtn) refreshBtn.style.display = (role === 'ADMIN' || role === 'TEACHER') ? 'inline-flex' : 'none';
         }
 
-
+        async function manualRefreshFirebase(event) {
+            if(event) { event.preventDefault(); event.stopPropagation(); }
+            if(activeUserRole !== 'ADMIN' && activeUserRole !== 'TEACHER') return;
+            const btn = document.getElementById('firebase-manual-refresh');
+            if(!btn || btn.disabled) return;
+            const icon = btn.querySelector('i');
+            btn.disabled = true;
+            if(icon) icon.classList.add('fa-spin');
+            try {
+                // पहले स्थानीय लंबित बदलाव Firebase में सेव करें, ताकि refresh में वे न खोएँ।
+                if(!cloudReady) {
+                    if(cloudHydratePromise) await cloudHydratePromise;
+                    if(!cloudReady) throw new Error('Firebase अभी उपलब्ध नहीं है।');
+                }
+                await flushCloudStore();
+                if(cloudStore._dirty.size) throw new Error('कुछ बदलाव अभी सेव नहीं हुए। इंटरनेट जाँचकर दोबारा प्रयास करें।');
+                const snap = await db.ref('portalData').once('value');
+                const data = snap.val() || {};
+                Object.keys(cloudStore._cache).forEach(k => { if(!Object.prototype.hasOwnProperty.call(data,k)) delete cloudStore._cache[k]; });
+                Object.keys(data).forEach(k => { cloudStore._cache[k] = String(data[k]); });
+                loadCloudStateIntoVariables();
+                if(typeof startLiveSync === 'function') { try { await startLiveSync(); } catch(e) { console.error('Firebase live sync refresh',e); } }
+                lastFirebaseSaveAt = Date.now();
+                updateHeaderSaveTime();
+                setCloudSyncStatus('success');
+                if(typeof renderDashboard === 'function') renderDashboard();
+                if(typeof refreshCurrentTab === 'function') refreshCurrentTab();
+            } catch(err) {
+                console.error('Manual Firebase refresh failed',err);
+                setCloudSyncStatus('error',err && err.message ? err.message : String(err));
+            } finally {
+                btn.disabled = false;
+                if(icon) icon.classList.remove('fa-spin');
+            }
+        }
 
         function startCinematicClock() {
             function tick() {
@@ -5452,8 +5633,7 @@
             let box = sec.querySelector(':scope > .hd-notice');
             if(rec){
                 if(!box){ box = document.createElement('div'); box.className = 'hd-notice'; sec.insertBefore(box, sec.firstChild); }
-                box.innerHTML = '<i class="fa-solid fa-eye-slash"></i><h3>यह डेटा अभी छिपा हुआ है (Data Hidden)</h3>' +
-                    '<div class="hd-notice-text">' + hdEsc(rec.note || 'एडमिन द्वारा यह डेटा hide किया गया है।') + '</div>';
+                box.innerHTML = '<div class="hd-notice-text">' + hdEsc(rec.note || '') + '</div>';
                 sec.classList.add('hd-active');
             } else {
                 if(box) box.remove();
@@ -5648,7 +5828,7 @@
         function histScheduleRender() {
             clearTimeout(histRenderTimer);
             histRenderTimer = setTimeout(() => {
-                if(activeUserRole !== 'ADMIN') return;
+                if(activeUserRole !== 'ADMIN' && activeUserRole !== 'TEACHER') return;
                 const tab = document.getElementById('tab-control-panel');
                 if(!tab || tab.classList.contains('hidden') || !controlPanelUnlocked) return;
                 renderCorrectionHistoryTable();
@@ -10541,6 +10721,86 @@ function initPortalYear(){
             XLSX.writeFile(wb, fileName);
         }
 
+        /* --- EXAM ATTENDANCE SHEET --- */
+        let examAttendanceRows = [];
+        let examAttendanceSubjects = [];
+        let examAttendanceMeta = {};
+        function eaEscape(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function showExamAttendance() {
+            const yr = document.getElementById('ea-year').value;
+            const cls = document.getElementById('ea-class').value;
+            const ex = document.getElementById('ea-exam').value;
+            const key = `${cls}_${yr}_${ex}`;
+            const timetable = timeTableDB[key] || [];
+            const limit = document.getElementById('ea-limit').value;
+            const allStudents = (students || []).filter(st => String(st.YEAR || '') === yr && String(st.CLASS || '').toUpperCase() === cls);
+            allStudents.sort((a,b) => String(a['ROLL NO.'] || '').localeCompare(String(b['ROLL NO.'] || ''), undefined, {numeric:true}) || String(a['NAME OF STUDENT'] || '').localeCompare(String(b['NAME OF STUDENT'] || '')));
+            examAttendanceRows = limit === 'ALL' ? allStudents : allStudents.slice(0, Number(limit));
+            examAttendanceSubjects = timetable.map(t => ({date:t.date || '', subject:t.subject || '', day:t.day || ''}));
+            examAttendanceMeta = {yr, cls, ex, school:(marksheetConfigDB && marksheetConfigDB.schoolName) || 'NAHUSH PUBLIC HIGH SCHOOL MOHLA'};
+            const preview = document.getElementById('ea-preview');
+            if (!allStudents.length) {
+                preview.innerHTML = '<p style="padding:22px;text-align:center;color:#b91c1c">चुने गए सत्र और कक्षा में कोई छात्र रिकॉर्ड नहीं मिला।</p>';
+                return;
+            }
+            if (!timetable.length) {
+                preview.innerHTML = '<p style="padding:22px;text-align:center;color:#b91c1c">इस कक्षा, सत्र और परीक्षा की समय सारणी नहीं मिली। पहले परीक्षा समय सारणी में इसे सेव करें।</p>';
+                return;
+            }
+            preview.innerHTML = eaBuildMarkup(false) + `<p class="csp-count">दिखाए गए छात्र: ${examAttendanceRows.length} / कुल ${allStudents.length}</p>`;
+        }
+        function eaBuildMarkup(forPrint) {
+            const m = examAttendanceMeta;
+            const headers = examAttendanceSubjects.map(t => `<th>${eaEscape(t.date)}${t.day ? '<br>'+eaEscape(t.day) : ''}<br>${eaEscape(t.subject)}</th>`).join('');
+            const rows = examAttendanceRows.map((st,i) => {
+                const photo = st.PHOTO ? `<img class="ea-photo" src="${st.PHOTO}" alt="Student">` : '<span class="ea-no-photo">—</span>';
+                return `<tr><td>${i+1}</td><td>${photo}</td><td>${eaEscape(st['ROLL NO.'] || '')}</td><td class="ea-name">${eaEscape(st['NAME OF STUDENT'] || '')}<small>पिता: ${eaEscape(st['NAME OF FATHER'] || '')}</small></td>${examAttendanceSubjects.map(()=>'<td class="ea-att-cell"></td>').join('')}</tr>`;
+            }).join('');
+            return `<div id="${forPrint?'ea-print-content':'ea-preview-content'}" class="ea-sheet">
+                <div class="ea-heading"><h1>${eaEscape(m.school || 'NAHUSH PUBLIC HIGH SCHOOL MOHLA')}</h1>
+                <h2>${eaEscape(m.ex)} | सत्र: ${eaEscape(m.yr)} | कक्षा: ${eaEscape(m.cls)}</h2>
+                <h3>STUDENT ATTENDANCE FOR EXAM</h3></div>
+                <table class="ea-table"><thead><tr><th>S. No.</th><th>छात्र फोटो</th><th>Roll No.</th><th>छात्र का नाम / पिता का नाम</th>${headers}</tr></thead><tbody>${rows}</tbody></table></div>`;
+        }
+        function eaStyles() {
+            return `.ea-sheet{background:#fff;color:#111;padding:7mm;font-family:Arial,sans-serif}.ea-heading{text-align:center;margin:0 0 5mm;border-bottom:2px double #1e3a8a;padding-bottom:3mm}.ea-heading h1{font-size:16pt;font-weight:900;margin:0 0 2mm}.ea-heading h2{font-size:10pt;margin:1mm 0}.ea-heading h3{display:inline-block;margin:2mm 0 0;padding:2mm 8mm;border:2px solid #1e3a8a;border-radius:4px;background:#eff6ff;color:#1e3a8a;font-size:12pt;letter-spacing:1px}.ea-table{width:100%;border-collapse:collapse;table-layout:auto;font-size:8pt}.ea-table th,.ea-table td{border:1px solid #333;padding:2mm 1.5mm;text-align:center;white-space:normal;overflow-wrap:anywhere}.ea-table th{background:#dbeafe;color:#111;font-weight:800}.ea-photo{width:13mm;height:16mm;object-fit:cover}.ea-no-photo{color:#777}.ea-name{text-align:left!important;min-width:30mm;font-weight:700}.ea-name small{display:block;font-weight:400;font-size:7pt;margin-top:1mm}.ea-att-cell{min-width:10mm;height:12mm}@page{size:A4 ${document.getElementById('ea-orientation')?.value || 'portrait'};margin:5mm}@media print{body{margin:0}.ea-sheet{padding:0}}`;
+        }
+        function eaOpenPrintWindow() {
+            if (!examAttendanceRows.length || !examAttendanceSubjects.length) { alert('पहले Year, Class और Exam चुनकर Show List दबाएं।'); return null; }
+            const w = window.open('', '_blank');
+            if (!w) { alert('Print window खुल नहीं सकी। कृपया browser में pop-ups allow करें।'); return null; }
+            w.document.write(`<!DOCTYPE html><html lang="hi"><head><meta charset="UTF-8"><title>Student Attendance</title><style>${eaStyles()}</style></head><body>${eaBuildMarkup(true)}</body></html>`);
+            w.document.close();
+            return w;
+        }
+        function printExamAttendance() {
+            const w = eaOpenPrintWindow(); if (!w) return;
+            w.onload = () => { w.focus(); w.print(); };
+            setTimeout(()=>{try{w.focus();w.print();}catch(e){}},500);
+        }
+        function downloadExamAttendancePDF() {
+            if (!examAttendanceRows.length || !examAttendanceSubjects.length) { alert('पहले Show List दबाएं।'); return; }
+            const holder = document.createElement('div');
+            holder.innerHTML = `<style>${eaStyles()}</style>${eaBuildMarkup(true)}`;
+            holder.style.position='fixed'; holder.style.left='-10000px'; holder.style.top='0'; holder.style.width=document.getElementById('ea-orientation').value==='landscape'?'277mm':'200mm';
+            document.body.appendChild(holder);
+            const opt = {margin:5, filename:`Student_Attendance_${examAttendanceMeta.cls}_${examAttendanceMeta.yr}_${examAttendanceMeta.ex}.pdf`, image:{type:'jpeg',quality:.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:document.getElementById('ea-orientation').value}, pagebreak:{mode:['css','legacy']}};
+            html2pdf().set(opt).from(holder.querySelector('.ea-sheet')).save().then(()=>holder.remove()).catch(()=>holder.remove());
+        }
+        function downloadExamAttendanceExcel() {
+            if (!examAttendanceRows.length || !examAttendanceSubjects.length) { alert('पहले Show List दबाएं।'); return; }
+            const out = examAttendanceRows.map((st,i) => {
+                const r = {'S. No.':i+1,'Student Photo':st.PHOTO ? 'Photo saved in portal' : '', 'Roll No.':st['ROLL NO.'] || '', 'Student Name':st['NAME OF STUDENT'] || '', "Father's Name":st['NAME OF FATHER'] || ''};
+                examAttendanceSubjects.forEach(t => { r[`${t.date}${t.day ? ' '+t.day : ''} - ${t.subject}`] = ''; });
+                return r;
+            });
+            const wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(out);
+            XLSX.utils.book_append_sheet(wb,ws,'Exam Attendance');
+            XLSX.writeFile(wb,`Student_Attendance_${examAttendanceMeta.cls}_${examAttendanceMeta.yr}_${examAttendanceMeta.ex}.xlsx`);
+        }
+
         /* --- TIME TABLE LOGIC --- */
         function loadTimeTableForm() {
             const cls = document.getElementById('tt-class').value;
@@ -14065,7 +14325,7 @@ function pdPrint(){
 </script>
 <!-- ============================================================
      PAPER MODULE (पेपर: Upload / View / All Download / All Delete)
-     - PDF files  -> Firebase Storage  : examPapers/{year}/{class}/{exam}/...
+     - Excel / Word files (और पुराने PDF) -> Firebase Storage  : examPapers/{year}/{class}/{exam}/...  |  Google Drive Link -> सिर्फ Realtime DB (type:'link')
      - Subject / file info -> Firebase Realtime DB : examPapers/{year}/{class}/{exam}/subjects/{id}
      (portalData और बाकी किसी पुराने data को छुआ नहीं गया है)
      ============================================================ -->
@@ -14129,6 +14389,24 @@ function pdPrint(){
 .pp-list li{padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);margin-bottom:6px;font-size:.84rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .pp-danger{border-color:rgba(248,113,113,.6)!important}
 .pp-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#0f172a;color:#fff;padding:12px 20px;border-radius:12px;border:1px solid #fbbf24;box-shadow:0 12px 30px rgba(0,0,0,.45);font-weight:700;font-size:.88rem;max-width:90vw;display:none}
+.pp-opts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1 1 100%}
+.pp-linkbox{display:inline-flex;gap:6px;flex:1 1 280px;min-width:220px}
+.pp-link-in{flex:1;min-width:120px;padding:9px 11px;border-radius:10px;border:1px solid rgba(148,163,184,.4);background:#0a1226;color:#f1f5f9;font-weight:700;font-size:.82rem;font-family:inherit}
+.pp-link-in:focus{outline:none;border-color:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.2)}
+.pp-tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;font-size:.66rem;font-weight:800;background:rgba(147,197,253,.15);border:1px solid rgba(147,197,253,.4);color:#bfdbfe}
+.pp-vw{position:fixed;inset:0;z-index:99990;background:rgba(2,6,23,.84);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:14px}
+.pp-vw.on{display:flex}
+.pp-vw-box{width:min(1200px,100%);height:min(92vh,100%);display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:#0b1430;border:1px solid rgba(251,191,36,.5);box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.pp-vw-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,#050b1f,#0f2a63);color:#fff;flex-wrap:wrap}
+.pp-vw-t{font-weight:900;font-size:.95rem;word-break:break-all;flex:1 1 220px}
+.pp-vw-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;background:#0f1d42}
+.pp-vw-body{flex:1;overflow:auto;background:#fff;color:#0f172a}
+.pp-vw-body iframe{width:100%;height:100%;min-height:70vh;border:0;display:block}
+.pp-xl{padding:10px;overflow:auto}
+.pp-xl table{border-collapse:collapse;font-size:.82rem;color:#0f172a;background:#fff}
+.pp-xl td,.pp-xl th{border:1px solid #cbd5e1;padding:4px 9px;white-space:pre-wrap;vertical-align:top}
+.pp-doc{max-width:860px;margin:0 auto;padding:22px;line-height:1.65;font-size:.95rem;color:#0f172a}
+.pp-doc table{border-collapse:collapse;max-width:100%}.pp-doc td,.pp-doc th{border:1px solid #cbd5e1;padding:5px 8px}.pp-doc img{max-width:100%;height:auto}
 @media(max-width:760px){.pp-row{grid-template-columns:36px 1fr}.pp-row .pp-mid,.pp-row .pp-actions{grid-column:1/-1;justify-content:flex-start}}
 </style>
 
@@ -14148,6 +14426,43 @@ function pdPrint(){
   const safeName=s=>String(s||'').replace(/[\\/:*?"<>|#%\[\]\s]+/g,'_').replace(/^_+|_+$/g,'')||'paper';
   const baseOf=sel=>`${ROOT}/${sel.year}/${sel.cls}/${sel.exam}`;
   const stBase=sel=>`${ROOT}/${sel.year}/${sel.cls}/${sel.exam.replace(/\s+/g,'_')}`;
+
+  /* ---- file kinds: excel / word / link (नए) ; pdf = पहले से सेव पुराने पेपर ---- */
+  const KIND={
+    excel:{label:'Excel',icon:'fa-file-excel',ext:/\.(xlsx|xls|xlsm|csv)$/i,accept:'.xlsx,.xls,.xlsm,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv',hint:'Excel (.xlsx, .xls, .csv)'},
+    word:{label:'Word',icon:'fa-file-word',ext:/\.(docx|doc)$/i,accept:'.docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',hint:'Word (.docx, .doc)'},
+    link:{label:'Google Drive Link',icon:'fa-link'},
+    pdf:{label:'PDF',icon:'fa-file-pdf'}
+  };
+  const CT={xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',xls:'application/vnd.ms-excel',xlsm:'application/vnd.ms-excel.sheet.macroEnabled.12',csv:'text/csv',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',doc:'application/msword',pdf:'application/pdf'};
+  const ctOf=n=>{const m=/\.([a-z0-9]+)$/i.exec(n||'');return (m&&CT[m[1].toLowerCase()])||'application/octet-stream';};
+  const kindOf=f=>(f&&f.type&&KIND[f.type])?f.type:'pdf';
+  const isPdf=s=>!!(s&&s.file&&kindOf(s.file)==='pdf');
+  const sizeTxt=f=>kindOf(f)==='link'?'Link':fmtSize(f.size);
+  const fileLabel=f=>kindOf(f)==='link'?'':esc(f.name)+' ('+fmtSize(f.size)+')';
+  function driveFileId(url){
+    try{const u=new URL(url);return u.searchParams.get('id')||(u.pathname.match(/\/file\/d\/([^/]+)/)||u.pathname.match(/\/document\/d\/([^/]+)/)||u.pathname.match(/\/spreadsheets\/d\/([^/]+)/)||u.pathname.match(/\/presentation\/d\/([^/]+)/)||[])[1]||'';}catch(e){return '';}
+  }
+  window.openPaperLink=function(id,mode){
+    const s=vsub(id)|| (PP.cur&&PP.cur.subs.find(x=>x.id===id)) || (PP.all&&PP.all.subs.find(x=>x.id===id));
+    if(!s||!s.file||!s.file.url){alert('लिंक उपलब्ध नहीं है।');return;}
+    const url=s.file.url, fid=driveFileId(url);
+    if(fid && mode==='download'){
+      let exportUrl='https://drive.google.com/uc?export=download&id='+encodeURIComponent(fid);
+      if(/\/document\/d\//i.test(url)) exportUrl='https://docs.google.com/document/d/'+encodeURIComponent(fid)+'/export?format=pdf';
+      else if(/\/spreadsheets\/d\//i.test(url)) exportUrl='https://docs.google.com/spreadsheets/d/'+encodeURIComponent(fid)+'/export?format=pdf';
+      else if(/\/presentation\/d\//i.test(url)) exportUrl='https://docs.google.com/presentation/d/'+encodeURIComponent(fid)+'/export/pdf';
+      window.open(exportUrl,'_blank','noopener');return;
+    }
+    if(fid && mode==='print' && /\/(document|spreadsheets|presentation)\/d\//i.test(url)){
+      let printUrl=url;
+      if(/\/document\/d\//i.test(url)) printUrl='https://docs.google.com/document/d/'+encodeURIComponent(fid)+'/export?format=pdf';
+      else if(/\/spreadsheets\/d\//i.test(url)) printUrl='https://docs.google.com/spreadsheets/d/'+encodeURIComponent(fid)+'/export?format=pdf';
+      else printUrl='https://docs.google.com/presentation/d/'+encodeURIComponent(fid)+'/export/pdf';
+      window.open(printUrl,'_blank','noopener');return;
+    }
+    window.open(url,'_blank','noopener');
+  }
 
   let toastT=null;
   function toast(msg,ms){let t=$('pp-toast');if(!t){t=document.createElement('div');t.id='pp-toast';t.className='pp-toast';document.body.appendChild(t);}t.innerHTML=msg;t.style.display='block';clearTimeout(toastT);if(ms!==0)toastT=setTimeout(()=>t.style.display='none',ms||2600);}
@@ -14198,8 +14513,8 @@ function pdPrint(){
   window.paperOnTab=function(tabId){
     const tab=tabId.replace('paper-','');
     const conf={
-      'upload':['PAPER UPLOAD','पेपर अपलोड','Year, Class और Exam चुनकर विषयवार PDF पेपर Firebase में सुरक्षित करें','fa-cloud-arrow-up','Show','pp-b-show','ppUploadShow'],
-      'view':['PAPER VIEW','पेपर देखें','अपलोड किए गए सभी पेपर देखें, PDF / Print / Word में डाउनलोड करें','fa-eye','Show','pp-b-show','ppViewShow'],
+      'upload':['PAPER UPLOAD','पेपर अपलोड','Year, Class और Exam चुनकर विषयवार Excel / Word फाइल या Google Drive Link Firebase में सुरक्षित करें','fa-cloud-arrow-up','Show','pp-b-show','ppUploadShow'],
+      'view':['PAPER VIEW','पेपर देखें','अपलोड किए गए सभी पेपर (Excel / Word / Link / PDF) देखें और डाउनलोड करें','fa-eye','Show','pp-b-show','ppViewShow'],
       'download-all':['ALL PAPER DOWNLOAD','सभी पेपर डाउनलोड','पूरी कक्षा के सभी पेपर एक साथ PDF / Print / Word में पाएं','fa-download','Show','pp-b-show','ppAllShow'],
       'delete-all':['ALL PAPER DELETE','सभी पेपर डिलीट','पूरी कक्षा के सभी पेपर एक साथ हटाएं (सावधानी से)','fa-trash-can','Show','pp-b-show','ppDelShow']
     }[tab];
@@ -14219,6 +14534,7 @@ function pdPrint(){
   };
   function renderUpload(){
     const {sel,subs}=PP.cur; const out=$('pp-upload-out');
+    const keep={}; out.querySelectorAll('.pp-link-in').forEach(i=>{ if(i.value) keep[i.id]=i.value; });
     const dl='<datalist id="pp-subj-hint">'+SUBJ_HINT.map(s=>`<option value="${esc(s)}">`).join('')+'</datalist>';
     let rows=subs.map((s,i)=>rowHTML(s,i)).join('');
     if(!subs.length) rows='<div class="pp-empty"><i class="fa-solid fa-book-open" style="font-size:2rem"></i><br>इस कक्षा/परीक्षा में अभी कोई विषय नहीं है। ऊपर से विषय जोड़ें।</div>';
@@ -14226,18 +14542,32 @@ function pdPrint(){
       <div class="pp-add"><input id="pp-new-subj" list="pp-subj-hint" placeholder="विषय का नाम लिखें (जैसे: गणित)" onkeydown="if(event.key==='Enter')ppAddSubject()">${dl}
       <button class="pp-btn pp-b-green" onclick="ppAddSubject()"><i class="fa-solid fa-plus"></i> विषय जोड़ें (Add Subject)</button></div>
       <div id="pp-subj-rows">${rows}</div></div>`;
+    Object.keys(keep).forEach(k=>{const e=$(k); if(e) e.value=keep[k];});
+  }
+  /* देखें बटन: Excel/Word -> पेज के अंदर viewer ; Link/PDF -> सीधे नए tab में खुलता है */
+  function openBtn(src,s,style,label){
+    const f=s.file, k=kindOf(f), lb=label||'देखें';
+    if(k==='excel'||k==='word') return `<button class="pp-btn pp-b-slate" style="${style}" onclick="ppViewFile('${src}','${s.id}')"><i class="fa-solid fa-eye"></i> ${lb}</button>`;
+    return `<a class="pp-btn pp-b-slate" style="${style}" href="${esc(f.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> ${lb}</a>`;
+  }
+  function pickBtn(id,kind){
+    const K=KIND[kind];
+    return `<span class="pp-btn ${kind==='excel'?'pp-b-green':'pp-b-blue'} pp-pick"><i class="fa-solid ${K.icon}"></i> ${K.label} चुनें<input type="file" accept="${K.accept}" onchange="ppPick('${id}','${kind}',this)"></span>`;
   }
   function rowHTML(s,i){
     const p=PP.pend[s.id]; let mid='';
-    if(s.file&&!(p&&p.state==='uploaded')) mid+=`<span class="pp-file-ok"><i class="fa-solid fa-file-pdf"></i> ${esc(s.file.name)} (${fmtSize(s.file.size)})</span> <a class="pp-btn pp-b-slate" style="padding:5px 10px" href="${esc(s.file.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> देखें</a>`;
-    else if(!p) mid+='<span class="pp-none">कोई PDF अपलोड नहीं</span>';
+    if(s.file&&!(p&&p.state==='uploaded')){
+      const K=KIND[kindOf(s.file)];
+      mid+=`<span class="pp-file-ok"><i class="fa-solid ${K.icon}"></i> ${fileLabel(s.file)}</span> ${openBtn('cur',s,'padding:5px 10px')}`;
+    }
+    else if(!p) mid+='<span class="pp-none">अभी कुछ अपलोड/सेव नहीं है</span>';
     let act='';
     if(!p||p.state==='chosen'){
-      mid+=`<span class="pp-btn pp-b-blue pp-pick"><i class="fa-solid fa-file-arrow-up"></i> ${s.file?'PDF बदलें':'PDF चुनें'}<input type="file" accept="application/pdf,.pdf" onchange="ppPick('${s.id}',this)"></span>`;
+      mid+=`<div class="pp-opts">${pickBtn(s.id,'excel')}${pickBtn(s.id,'word')}<span class="pp-linkbox"><input class="pp-link-in" id="pp-link-${s.id}" placeholder="Google Drive Link यहाँ पेस्ट करें" onkeydown="if(event.key==='Enter')ppLinkSave('${s.id}')"><button class="pp-btn pp-b-purple" onclick="ppLinkSave('${s.id}')"><i class="fa-solid fa-link"></i> Link Save</button></span></div>`;
     }
     if(p&&p.state==='chosen'){
       mid+=`<span class="pp-file-pend"><i class="fa-solid fa-paperclip"></i> ${esc(p.file.name)} (${fmtSize(p.file.size)})</span>`;
-      act+=`<button class="pp-btn pp-b-gold" onclick="ppStartUpload('${s.id}')"><i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF</button>`;
+      act+=`<button class="pp-btn pp-b-gold" onclick="ppStartUpload('${s.id}')"><i class="fa-solid fa-cloud-arrow-up"></i> Upload ${KIND[p.kind].label}</button><button class="pp-btn pp-b-slate" onclick="ppCancelUpload('${s.id}')"><i class="fa-solid fa-xmark"></i> हटाएं</button>`;
     }
     if(p&&p.state==='uploading'){
       mid+=`<span class="pp-file-pend"><i class="fa-solid fa-spinner fa-spin"></i> अपलोड हो रहा है: ${esc(p.file.name)} (${fmtSize(p.file.size)}) — <b id="pp-pct-${s.id}">${p.pct||0}%</b></span><div class="pp-prog"><i id="pp-bar-${s.id}" style="width:${p.pct||0}%"></i></div>`;
@@ -14247,10 +14577,10 @@ function pdPrint(){
       mid+=`<span class="pp-file-pend"><i class="fa-solid fa-circle-check"></i> Upload हो गया: ${esc(p.up.name)} (${fmtSize(p.up.size)}) — अभी Save नहीं हुआ</span>`;
       act+=`<button class="pp-btn pp-b-green" onclick="ppSave('${s.id}')"><i class="fa-solid fa-floppy-disk"></i> Save</button><button class="pp-btn pp-b-red" onclick="ppDeletePending('${s.id}')"><i class="fa-solid fa-trash"></i> Delete</button>`;
     } else if(s.file&&(!p||p.state==='chosen')){
-      act+=`<button class="pp-btn pp-b-red" onclick="ppDeleteSaved('${s.id}')"><i class="fa-solid fa-trash"></i> PDF Delete</button>`;
+      act+=`<button class="pp-btn pp-b-red" onclick="ppDeleteSaved('${s.id}')"><i class="fa-solid fa-trash"></i> ${kindOf(s.file)==='link'?'Link':'फाइल'} Delete</button>`;
     }
     if(!p||p.state!=='uploading') act+=`<button class="pp-btn pp-b-slate" title="विषय हटाएं" onclick="ppDelSubject('${s.id}')"><i class="fa-solid fa-xmark"></i> विषय हटाएं</button>`;
-    return `<div class="pp-row"><div class="pp-no">${i+1}</div><div><div class="pp-sname">${esc(s.name)}</div><div class="pp-sub-s">${s.file?'✅ Saved: '+fmtDate(s.file.at):'—'}</div></div><div class="pp-mid">${mid}</div><div class="pp-actions">${act}</div></div>`;
+    return `<div class="pp-row"><div class="pp-no">${i+1}</div><div><div class="pp-sname">${esc(s.name)}</div><div class="pp-sub-s">${s.file?'✅ Saved ('+KIND[kindOf(s.file)].label+'): '+fmtDate(s.file.at):'—'}</div></div><div class="pp-mid">${mid}</div><div class="pp-actions">${act}</div></div>`;
   }
   const findSub=id=>PP.cur&&PP.cur.subs.find(s=>s.id===id);
 
@@ -14266,7 +14596,7 @@ function pdPrint(){
   };
   window.ppDelSubject=async function(id){
     const s=findSub(id); if(!s)return;
-    if(!confirm(`विषय "${s.name}" ${s.file?'और उसका अपलोड किया PDF ':''}हटाना है?`))return;
+    if(!confirm(`विषय "${s.name}" ${s.file?'और उसकी फाइल/लिंक ':''}हटाना है?`))return;
     try{
       if(s.file) await stDelete(s.file.path);
       const p=PP.pend[id]; if(p&&p.up) await stDelete(p.up.path);
@@ -14274,16 +14604,17 @@ function pdPrint(){
       PP.cur.subs=PP.cur.subs.filter(x=>x.id!==id); delete PP.pend[id]; renderUpload(); toast('🗑️ विषय हटा दिया गया');
     }catch(e){console.error(e);alert('❌ हटाया नहीं जा सका: '+(e.message||e));}
   };
-  window.ppPick=function(id,inp){
+  window.ppPick=function(id,kind,inp){
     const f=inp.files&&inp.files[0]; if(!f)return;
-    if(!(f.type==='application/pdf'||/\.pdf$/i.test(f.name))){alert('केवल PDF फाइल चुनें।');inp.value='';return;}
-    PP.pend[id]={file:f,state:'chosen',pct:0}; renderUpload();
+    const K=KIND[kind];
+    if(!K||!K.ext||!K.ext.test(f.name)){alert('केवल '+(K&&K.hint||'सही')+' फाइल चुनें।');inp.value='';return;}
+    PP.pend[id]={file:f,kind,state:'chosen',pct:0}; renderUpload();
   };
   window.ppStartUpload=function(id){
     const p=PP.pend[id], s=findSub(id); if(!p||!s)return;
     const sel=PP.cur.sel;
     const path=`${stBase(sel)}/${id}_${Date.now()}_${safeName(p.file.name)}`;
-    const task=firebaseStorage.ref(path).put(p.file,{contentType:'application/pdf'});
+    const task=firebaseStorage.ref(path).put(p.file,{contentType:p.file.type||ctOf(p.file.name)});
     p.task=task; p.state='uploading'; p.pct=0; renderUpload();
     task.on('state_changed',snap=>{
       const pct=snap.totalBytes?Math.round(snap.bytesTransferred*100/snap.totalBytes):0; p.pct=pct;
@@ -14291,19 +14622,40 @@ function pdPrint(){
     },err=>{
       if(PP.pend[id]!==p) return;
       if(err&&err.code==='storage/canceled'){return;}
-      console.error('Paper PDF upload failed:',err); p.state='chosen'; renderUpload(); alert('❌ PDF अपलोड नहीं हो पाया।\n\nकारण: '+(err.message||err.code||err)+'\nकोड: '+(err.code||'unknown')+'\n\nयदि 0% पर अटका है, तो Firebase Storage Rules, Storage bucket और इंटरनेट कनेक्शन जाँचें। इंटरनेट की गति/कनेक्शन के बिना किसी भी आकार की PDF को 10 सेकंड में अपलोड करने की गारंटी नहीं दी जा सकती।');
+      console.error('Paper file upload failed:',err); p.state='chosen'; renderUpload(); alert('❌ फाइल अपलोड नहीं हो पाई।\n\nकारण: '+(err.message||err.code||err)+'\nकोड: '+(err.code||'unknown')+'\n\nयदि 0% पर अटका है, तो Firebase Storage Rules, Storage bucket और इंटरनेट कनेक्शन जाँचें।');
     },async()=>{
       try{
         const url=await task.snapshot.ref.getDownloadURL();
-        p.up={name:p.file.name,size:p.file.size,url,path,at:Date.now()}; p.state='uploaded'; delete p.task; renderUpload();
-        toast('✅ '+esc(s.name)+' विषय का PDF Firebase पर अपलोड हो गया — अब Save दबाएं',6000);
-        alert('✅ PDF अपलोड पूरा हुआ!\n\nविषय: '+s.name+'\nफाइल: '+p.file.name+'\n\nपेपर की जानकारी Firebase में सेव करने के लिए अब Save बटन दबाएँ।');
+        p.up={type:p.kind,name:p.file.name,size:p.file.size,url,path,at:Date.now()}; p.state='uploaded'; delete p.task; renderUpload();
+        toast('✅ '+esc(s.name)+' विषय की '+KIND[p.kind].label+' फाइल Firebase पर अपलोड हो गई — अब Save दबाएं',6000);
+        alert('✅ फाइल अपलोड पूरी हुई!\n\nविषय: '+s.name+'\nफाइल: '+p.file.name+'\n\nजानकारी Firebase में सेव करने के लिए अब Save बटन दबाएँ।');
       }catch(e){console.error(e);p.state='chosen';renderUpload();alert('❌ Upload के बाद link नहीं मिला: '+(e.message||e));}
     });
   };
   window.ppCancelUpload=function(id){
     const p=PP.pend[id]; if(!p)return; try{p.task&&p.task.cancel();}catch(e){}
     delete PP.pend[id]; renderUpload(); toast('Upload रद्द किया गया');
+  };
+
+  /* Google Drive Link: सीधे Firebase Realtime DB में सेव (file के बराबर ही record, type:'link') */
+  window.ppLinkSave=async function(id){
+    const s=findSub(id); if(!s)return;
+    const inp=$('pp-link-'+id); let u=((inp&&inp.value)||'').trim();
+    if(!u){alert('पहले Google Drive का link पेस्ट करें।');return;}
+    if(!/^https?:\/\//i.test(u)){
+      if(/^(drive|docs)\.google\.com/i.test(u)) u='https://'+u;
+      else {alert('सही link डालें (https:// से शुरू होने वाला Google Drive link).');return;}
+    }
+    let host=''; try{ host=new URL(u).hostname.toLowerCase(); }catch(e){ alert('यह link सही नहीं है।'); return; }
+    if(!/(^|\.)(google\.com|googleusercontent\.com|goo\.gl)$/.test(host) && !confirm('यह Google Drive का link नहीं लगता।\n\nफिर भी Save करें?')) return;
+    if(s.file && !confirm('इस विषय में पहले से '+KIND[kindOf(s.file)].label+' सेव है। नया Link Save करने पर पुराना बदल जाएगा।\n\nजारी रखें?')) return;
+    try{
+      const old=s.file; const rec={type:'link',name:'Google Drive Link',size:0,url:u,path:'',at:Date.now()};
+      await db.ref(baseOf(PP.cur.sel)+'/subjects/'+id+'/file').set(rec);
+      s.file=rec; delete PP.pend[id];
+      if(old&&old.path) await stDelete(old.path);
+      renderUpload(); toast('✅ Google Drive Link Firebase में Save हो गया');
+    }catch(e){console.error(e);alert('❌ Link Save नहीं हुआ: '+(e.message||e));}
   };
   window.ppSave=async function(id){
     const p=PP.pend[id], s=findSub(id); if(!p||!p.up||!s)return;
@@ -14317,12 +14669,12 @@ function pdPrint(){
   };
   window.ppDeletePending=async function(id){
     const p=PP.pend[id]; if(!p)return;
-    if(!confirm('अभी अपलोड किया हुआ (बिना Save) PDF हटाना है?'))return;
+    if(!confirm('अभी अपलोड किया हुआ (बिना Save) फाइल हटाना है?'))return;
     try{ if(p.up) await stDelete(p.up.path); delete PP.pend[id]; renderUpload(); toast('🗑️ हटा दिया गया'); }catch(e){alert('❌ '+(e.message||e));}
   };
   window.ppDeleteSaved=async function(id){
     const s=findSub(id); if(!s||!s.file)return;
-    if(!confirm(`"${s.name}" का Saved PDF हमेशा के लिए हटाना है?`))return;
+    if(!confirm(`"${s.name}" की Saved फाइल/लिंक हमेशा के लिए हटाना है?`))return;
     try{ await stDelete(s.file.path); await db.ref(baseOf(PP.cur.sel)+'/subjects/'+id+'/file').remove(); delete s.file; delete PP.pend[id]; renderUpload(); toast('🗑️ PDF हटा दिया गया'); }
     catch(e){console.error(e);alert('❌ '+(e.message||e));}
   };
@@ -14414,12 +14766,21 @@ function pdPrint(){
     try{
       const subs=(await loadSubjects(sel)).filter(s=>s.file); PP.view={sel,subs};
       if(!subs.length){out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-empty"><i class="fa-solid fa-folder-open" style="font-size:2rem"></i><br>इस कक्षा/परीक्षा में कोई पेपर अपलोड नहीं है।</div></div>`;return;}
-      out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-grid">`+subs.map((s,i)=>`<div class="pp-paper" style="animation-delay:${i*60}ms"><i class="fa-solid fa-file-pdf pp-pi"></i><h4>${i+1}. ${esc(s.name)}</h4><small>${esc(s.file.name)} • ${fmtSize(s.file.size)} • ${fmtDate(s.file.at)}</small>
-        <div class="pp-actions" style="justify-content:flex-start">
-        <a class="pp-btn pp-b-slate" href="${esc(s.file.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> View</a>
-        <button class="pp-btn pp-b-red" onclick="ppOnePdf('${s.id}')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-        <button class="pp-btn pp-b-blue" onclick="ppOnePrint('${s.id}')"><i class="fa-solid fa-print"></i> Print</button>
-        <button class="pp-btn pp-b-purple" onclick="ppOneWord('${s.id}')"><i class="fa-solid fa-file-word"></i> Word</button></div></div>`).join('')+'</div></div>';
+      out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-grid">`+subs.map((s,i)=>{
+        const k=kindOf(s.file), K=KIND[k]; let acts;
+        if(k==='pdf') acts=`<a class="pp-btn pp-b-slate" href="${esc(s.file.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> View</a>
+          <button class="pp-btn pp-b-red" onclick="ppOnePdf('${s.id}')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+          <button class="pp-btn pp-b-blue" onclick="ppOnePrint('${s.id}')"><i class="fa-solid fa-print"></i> Print</button>
+          <button class="pp-btn pp-b-purple" onclick="ppOneWord('${s.id}')"><i class="fa-solid fa-file-word"></i> Word</button>`;
+        else if(k==='link') acts=`<button class="pp-btn pp-b-show" onclick="openPaperLink('${s.id}','view')"><i class="fa-solid fa-eye"></i> View</button>
+          <button class="pp-btn pp-b-blue" onclick="openPaperLink('${s.id}','print')"><i class="fa-solid fa-print"></i> Print</button>
+          <button class="pp-btn pp-b-red" onclick="openPaperLink('${s.id}','download')"><i class="fa-solid fa-download"></i> Download PDF</button>`;
+        else acts=`<button class="pp-btn pp-b-show" onclick="ppViewFile('view','${s.id}')"><i class="fa-solid fa-eye"></i> View</button>
+          <button class="pp-btn pp-b-blue" onclick="ppOneDl('${s.id}')"><i class="fa-solid fa-download"></i> Download</button>`;
+        const sm=(k==='link'?'':esc(s.file.name)+' • '+fmtSize(s.file.size))+' • '+fmtDate(s.file.at);
+        return `<div class="pp-paper" style="animation-delay:${i*60}ms"><i class="fa-solid ${K.icon} pp-pi"></i><h4>${i+1}. ${esc(s.name)}${k==='link'?'':`<span class="pp-tag">${K.label}</span>`}</h4><small>${sm}</small>
+        <div class="pp-actions" style="justify-content:flex-start">${acts}</div></div>`;
+      }).join('')+'</div></div>';
     }catch(e){console.error(e);out.innerHTML='<div class="pp-empty">❌ '+esc(e.message||e)+'</div>';}
   };
   const vsub=id=>PP.view&&PP.view.subs.find(s=>s.id===id);
@@ -14427,6 +14788,60 @@ function pdPrint(){
   window.ppOnePrint=id=>guarded(async()=>{const s=vsub(id);toast('Print के लिए तैयार हो रहा है...',0);const b=await getBlob(s.file);toastOff();printBlob(b);});
   window.ppOneWord=id=>guarded(async()=>{const s=vsub(id);const sel=PP.view.sel;
     const b=await buildDocx([itemOf(sel,s)],(i,n,t,pg,pn)=>toast(`Word बन रहा है... पेज ${pg}/${pn}`,0));toastOff();saveBlob(b,fname(sel,s,'docx'));toast('✅ Word डाउनलोड हो गया');});
+  window.ppOneDl=id=>guarded(async()=>{const s=vsub(id);toast('फाइल तैयार हो रही है...',0);const b=await getBlob(s.file);toastOff();saveBlob(b,s.file.name||fname(PP.view.sel,s,'bin'));});
+
+  /* ---- Excel / Word को पेज के अंदर दिखाने वाला Viewer ---- */
+  const LIB2={
+    xlsx:['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'],
+    mammoth:['https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js','https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js']
+  };
+  async function needLib(g,srcs){
+    if(window[g]) return; let last;
+    for(const u of srcs){ try{ await loadScript(u); if(window[g]) return; }catch(e){ last=e; } }
+    throw last||new Error('Library load नहीं हुई');
+  }
+  let VW=null, VWTOK=0;
+  function vwEnsure(){
+    if(VW) return VW;
+    const d=document.createElement('div'); d.className='pp-vw'; d.id='pp-vw';
+    d.innerHTML='<div class="pp-vw-box"><div class="pp-vw-hd"><div class="pp-vw-t" id="pp-vw-t"></div><div class="pp-actions"><button class="pp-btn pp-b-blue" id="pp-vw-dl"><i class="fa-solid fa-download"></i> Download</button><button class="pp-btn pp-b-red" onclick="ppVwClose()"><i class="fa-solid fa-xmark"></i> बंद करें</button></div></div><div class="pp-vw-tabs" id="pp-vw-tabs" style="display:none"></div><div class="pp-vw-body" id="pp-vw-body"></div></div>';
+    d.addEventListener('click',e=>{ if(e.target===d) window.ppVwClose(); });
+    document.body.appendChild(d); VW=d; return d;
+  }
+  window.ppVwClose=function(){ VWTOK++; if(VW){ VW.classList.remove('on'); const b=$('pp-vw-body'); if(b) b.innerHTML=''; } };
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&VW&&VW.classList.contains('on')) window.ppVwClose(); });
+  window.ppViewFile=async function(src,id){
+    const list=src==='view'?(PP.view&&PP.view.subs):(PP.cur&&PP.cur.subs);
+    const s=list&&list.find(x=>x.id===id); if(!s||!s.file) return;
+    const f=s.file, k=kindOf(f); const d=vwEnsure();
+    $('pp-vw-t').textContent=s.name+' — '+(f.name||'');
+    const body=$('pp-vw-body'), tabs=$('pp-vw-tabs'); tabs.style.display='none'; tabs.innerHTML='';
+    $('pp-vw-dl').onclick=()=>guarded(async()=>{ const b=await getBlob(f); saveBlob(b,f.name||'file'); });
+    d.classList.add('on');
+    body.innerHTML='<div class="pp-empty" style="margin:20px;color:#475569"><i class="fa-solid fa-spinner fa-spin"></i> फाइल खुल रही है...</div>';
+    const token=++VWTOK;
+    const officeView=why=>{ if(token!==VWTOK) return; if(why) console.warn('In-page preview नहीं बना, Office viewer से खोल रहे हैं:',why); body.innerHTML='<iframe allowfullscreen src="https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(f.url)+'"></iframe>'; };
+    try{
+      if(k==='word'&&/\.doc$/i.test(f.name||'')){ officeView('legacy .doc'); return; }
+      const blob=await getBlob(f); const buf=await blob.arrayBuffer(); if(token!==VWTOK) return;
+      if(k==='excel'){
+        await needLib('XLSX',LIB2.xlsx); if(token!==VWTOK) return;
+        const wb=XLSX.read(buf,/\.csv$/i.test(f.name||'')?{type:'array',codepage:65001}:{type:'array'});
+        const names=wb.SheetNames||[]; if(!names.length) throw new Error('खाली Excel फाइल');
+        const show=i=>{ body.innerHTML='<div class="pp-xl">'+XLSX.utils.sheet_to_html(wb.Sheets[names[i]],{header:'',footer:''})+'</div>'; };
+        if(names.length>1){
+          tabs.style.display='flex';
+          tabs.innerHTML=names.map((n,i)=>`<button class="pp-btn pp-b-slate" style="padding:6px 12px" data-i="${i}">${esc(n)}</button>`).join('');
+          tabs.onclick=e=>{ const bt=e.target.closest('button'); if(bt) show(+bt.dataset.i); };
+        }
+        show(0);
+      } else {
+        await needLib('mammoth',LIB2.mammoth); if(token!==VWTOK) return;
+        const r=await mammoth.convertToHtml({arrayBuffer:buf}); if(token!==VWTOK) return;
+        body.innerHTML='<div class="pp-doc">'+(r.value||'<p>(खाली दस्तावेज़)</p>')+'</div>';
+      }
+    }catch(e){ console.error(e); officeView(e); }
+  };
 
   /* ================= ALL DOWNLOAD ================= */
   window.ppAllShow=async function(){
@@ -14436,23 +14851,31 @@ function pdPrint(){
       const subs=(await loadSubjects(sel)).filter(s=>s.file); PP.all={sel,subs};
       if(!subs.length){out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}<div class="pp-empty">इस कक्षा/परीक्षा में कोई पेपर अपलोड नहीं है।</div></div>`;return;}
       const total=subs.reduce((a,s)=>a+(Number(s.file.size)||0),0);
+      const pdfN=subs.filter(isPdf).length, other=subs.length-pdfN, dis=pdfN?'':' disabled';
       out.innerHTML=`<div class="pp-card">${chipsHTML(sel)}
         <div class="pp-stats"><div class="pp-stat"><b>${subs.length}</b><span>कुल पेपर</span></div><div class="pp-stat"><b>${fmtSize(total)}</b><span>कुल साइज़</span></div></div>
-        <ul class="pp-list">${subs.map((s,i)=>`<li><span>${i+1}. <b>${esc(s.name)}</b></span><span>${fmtSize(s.file.size)}</span></li>`).join('')}</ul>
+        <ul class="pp-list">${subs.map((s,i)=>`<li><span>${i+1}. <b>${esc(s.name)}</b>${kindOf(s.file)==='link'?'':`<span class="pp-tag">${KIND[kindOf(s.file)].label}</span>`}</span><span>${sizeTxt(s.file)}${kindOf(s.file)==='link'?` <button class="pp-btn pp-b-show" onclick="openPaperLink('${s.id}','view')">View</button> <button class="pp-btn pp-b-blue" onclick="openPaperLink('${s.id}','print')">Print</button> <button class="pp-btn pp-b-red" onclick="openPaperLink('${s.id}','download')">Download PDF</button>`:''}</span></li>`).join('')}</ul>
+        ${other?'<p style="color:#fde68a;font-size:.8rem;margin:0 0 12px">Excel/Word और बाहरी लिंक को PDF में बदलने के लिए उनकी मूल फाइल/लिंक खुलने पर उपलब्ध Print या Download विकल्प का उपयोग करें।</p>':''}
         <div class="pp-actions" style="justify-content:flex-start">
-          <button class="pp-btn pp-b-red" onclick="ppAllPdf()"><i class="fa-solid fa-file-pdf"></i> Download to PDF</button>
-          <button class="pp-btn pp-b-blue" onclick="ppAllPrint()"><i class="fa-solid fa-print"></i> Print</button>
-          <button class="pp-btn pp-b-purple" onclick="ppAllWord()"><i class="fa-solid fa-file-word"></i> Download to Word</button>
-          <button class="pp-btn pp-b-slate" onclick="ppAllZip()"><i class="fa-solid fa-file-zipper"></i> ZIP (अलग-अलग PDF)</button>
+          <button class="pp-btn pp-b-red"${dis} onclick="ppAllPdf()"><i class="fa-solid fa-file-pdf"></i> Download to PDF</button>
+          <button class="pp-btn pp-b-blue"${dis} onclick="ppAllPrint()"><i class="fa-solid fa-print"></i> Print</button>
+          <button class="pp-btn pp-b-purple"${dis} onclick="ppAllWord()"><i class="fa-solid fa-file-word"></i> Download to Word</button>
+          <button class="pp-btn pp-b-slate" onclick="ppAllZip()"><i class="fa-solid fa-file-zipper"></i> ZIP (अलग-अलग फाइल)</button>
         </div></div>`;
     }catch(e){console.error(e);out.innerHTML='<div class="pp-empty">❌ '+esc(e.message||e)+'</div>';}
   };
-  const allItems=()=>PP.all.subs.map(s=>itemOf(PP.all.sel,s));
+  const allItems=()=>PP.all.subs.filter(isPdf).map(s=>itemOf(PP.all.sel,s));
   window.ppAllPdf=()=>guarded(async()=>{const b=await mergePdfs(allItems(),(i,n,t)=>toast(`PDF जुड़ रहे हैं ${i}/${n}...`,0));toastOff();saveBlob(b,fname(PP.all.sel,null,'pdf'));toast('✅ सभी पेपर PDF में डाउनलोड हो गए');});
   window.ppAllPrint=()=>guarded(async()=>{const b=await mergePdfs(allItems(),(i,n)=>toast(`Print के लिए तैयार ${i}/${n}...`,0));toastOff();printBlob(b);});
   window.ppAllWord=()=>guarded(async()=>{const b=await buildDocx(allItems(),(i,n,t,pg,pn)=>toast(`Word बन रहा है... पेपर ${i}/${n} • पेज ${pg}/${pn}`,0));toastOff();saveBlob(b,fname(PP.all.sel,null,'docx'));toast('✅ Word डाउनलोड हो गया');});
-  window.ppAllZip=()=>guarded(async()=>{await needJSZip();const z=new JSZip();const used={};
-    for(let i=0;i<PP.all.subs.length;i++){const s=PP.all.subs[i];toast(`ZIP बन रहा है ${i+1}/${PP.all.subs.length}...`,0);let nm=safeName(s.name)+'.pdf';if(used[nm]){nm=safeName(s.name)+'_'+(i+1)+'.pdf';}used[nm]=1;z.file(nm,await getBlob(s.file));}
+  window.ppAllZip=()=>guarded(async()=>{await needJSZip();const z=new JSZip();const used={};const links=[];
+    for(let i=0;i<PP.all.subs.length;i++){
+      const s=PP.all.subs[i];toast(`ZIP बन रहा है ${i+1}/${PP.all.subs.length}...`,0);
+      if(kindOf(s.file)==='link'){links.push(s.name+'\n'+s.file.url+'\n');continue;}
+      const m=/\.([a-z0-9]+)$/i.exec(s.file.name||''); const ext=m?m[1].toLowerCase():'pdf';
+      let nm=safeName(s.name)+'.'+ext;if(used[nm]){nm=safeName(s.name)+'_'+(i+1)+'.'+ext;}used[nm]=1;z.file(nm,await getBlob(s.file));
+    }
+    if(links.length) z.file('Google_Drive_Links.txt',links.join('\n'));
     const b=await z.generateAsync({type:'blob'});toastOff();saveBlob(b,fname(PP.all.sel,null,'zip'));toast('✅ ZIP डाउनलोड हो गया');});
 
   /* ================= ALL DELETE ================= */
@@ -14465,8 +14888,8 @@ function pdPrint(){
       const total=subs.reduce((a,s)=>a+(Number(s.file.size)||0),0);
       out.innerHTML=`<div class="pp-card pp-danger">${chipsHTML(sel)}
         <div class="pp-stats"><div class="pp-stat"><b>${subs.length}</b><span>डिलीट होने वाले पेपर</span></div><div class="pp-stat"><b>${fmtSize(total)}</b><span>कुल साइज़</span></div></div>
-        <ul class="pp-list">${subs.map((s,i)=>`<li><span>${i+1}. <b>${esc(s.name)}</b> — ${esc(s.file.name)}</span><span>${fmtSize(s.file.size)}</span></li>`).join('')}</ul>
-        <p style="color:#fca5a5;font-size:.82rem;margin:0 0 12px">⚠️ यह कार्य वापस नहीं हो सकता। PDF फाइलें Firebase से हमेशा के लिए हट जाएंगी (विषयों के नाम बने रहेंगे)।</p>
+        <ul class="pp-list">${subs.map((s,i)=>`<li><span>${i+1}. <b>${esc(s.name)}</b> — ${esc(s.file.name)}</span><span>${sizeTxt(s.file)}</span></li>`).join('')}</ul>
+        <p style="color:#fca5a5;font-size:.82rem;margin:0 0 12px">⚠️ यह कार्य वापस नहीं हो सकता। फाइलें / Link Firebase से हमेशा के लिए हट जाएंगी (विषयों के नाम बने रहेंगे)।</p>
         <button class="pp-btn pp-b-red" onclick="ppDelAll()"><i class="fa-solid fa-trash-can"></i> इस कक्षा के सभी पेपर डिलीट करें</button></div>`;
     }catch(e){console.error(e);out.innerHTML='<div class="pp-empty">❌ '+esc(e.message||e)+'</div>';}
   };
@@ -14480,6 +14903,444 @@ function pdPrint(){
       const o=$('pp-delete-all-out'); if(o&&!d.subs.length)o.innerHTML='';
     }catch(e){console.error(e);toastOff();alert('❌ कुछ पेपर डिलीट नहीं हो पाए: '+(e.message||e));window.ppDelShow();}
   };
+})();
+</script>
+
+<script id="sigx-script">
+/* =====================================================================
+   प्रिंसिपल / हेडमास्टर हस्ताक्षर मॉड्यूल  (SIGX)  — सिर्फ़ जोड़ा गया नया कोड
+   - पुराना कोई function / data बदला नहीं गया; सिर्फ़ wrapper लगे हैं
+   - सारा डेटा (फ़ोटो + साइज़ + पोज़िशन + टिक) Firebase में cloudStore के ज़रिए सेव होता है
+   ===================================================================== */
+(function(){
+'use strict';
+if(window.__SIGX_LOADED) return; window.__SIGX_LOADED = true;
+
+var KEY = 'NPHS_SIGNATURE_DB_V1';
+var ROLES = {
+  principal:  { hi:'प्रिंसिपल हस्ताक्षर',  en:'Principal Signature',  cap:'PRINCIPAL'  },
+  headmaster: { hi:'हेडमास्टर हस्ताक्षर', en:'Headmaster Signature', cap:'HEADMASTER' }
+};
+var ROLE_KEYS = ['principal','headmaster'];
+
+/* kind: 'flow' = रिपोर्ट के अंत में | 'slot' = Class Teacher / PRINCIPAL वाली जगह पर
+   cap = उस पेज पर signature की अधिकतम ऊँचाई (mm) — Auto Fit चालू हो तो इतने में अपने-आप सेट होती है */
+var MODS = [
+  { k:'goshwara',  t:'छात्र गोशवारा रिपोर्ट (Student Goshwara Report)',                       kind:'flow', cap:18, sel:'#goshwara-report-area' },
+  { k:'printdb',   t:'छात्र डेटाबेस प्रिंट करें (Print Database - A4 Landscape)',               kind:'flow', cap:16, sel:'#print-db-area' },
+  { k:'patrak',    t:'परीक्षा पत्रक प्रिंट (Print Exam Patrak)',                              kind:'flow', cap:16, sel:'#patrak-view-area' },
+  { k:'tc',        t:'Transfer Certificate (TC) Generator',                                  kind:'slot', cap:18, sel:'#tc-preview-area',  slot:'.tc-sign-box', slotRe:/^PRINCIPAL$/i, page:'.tc-page-wrapper', keepLabel:true, slotTxt:'PRINCIPAL लाइन के ऊपर' },
+  { k:'admit',     t:'छात्र प्रवेश पत्र (Student Admit Card Generator)',                       kind:'slot', cap:9,  sel:null,                slot:'.ac-sign-box', slotRe:/class\s*teacher/i, page:'.admit-card-box', lab:function(r){return r.join(' / ')+' Sign';}, slotTxt:'Class Teacher Sign की जगह' },
+  { k:'tcnew',     t:'TC पैनल (नया फॉर्मेट) — Transfer Certificate (New Design)',              kind:'slot', cap:20, sel:'#tcn-preview-area', slot:'.tcn-principal', slotRe:/^PRINCIPAL$/i, page:'.tcn-page-wrapper', keepLabel:true, slotTxt:'PRINCIPAL लाइन के ऊपर' },
+  { k:'marksheet', t:'छात्र अंकसूची जनरेटर (Print Student Marksheet)',                         kind:'slot', cap:15, sel:'#marksheet-output-container', slot:'.ms-footer-sign > div', slotRe:/class\s*teacher/i, page:'.marksheet-page-wrapper', lab:function(r){return 'SIGNATURE<br>'+r.join(' / ');}, slotTxt:'Class Teacher Sign की जगह' },
+  { k:'ms9',       t:'कक्षा- नवमी मार्कशीट — Create Marksheet',                                kind:'slot', cap:12, sel:null,                slot:'.ms9-sign > div', slotRe:/class\s*teacher/i, page:'.ms9-sheet', lab:function(r){return 'SIGNATURE OF '+r.join(' / ');}, slotTxt:'Class Teacher Sign की जगह' }
+];
+var MOD = {}; MODS.forEach(function(m){ MOD[m.k] = m; });
+
+/* ---------------- data (Firebase / cloudStore) ---------------- */
+var _raw = null, _obj = null;
+function db(){
+  var raw = null;
+  try { raw = cloudStore.getItem(KEY); } catch(e) {}
+  if(raw === _raw && _obj) return _obj;
+  var o = {};
+  try { o = raw ? JSON.parse(raw) : {}; } catch(e) { o = {}; }
+  if(!o || typeof o !== 'object') o = {};
+  _raw = raw; _obj = o; return o;
+}
+function defMods(){ var m = {}; MODS.forEach(function(x){ m[x.k] = { on:false, place: x.kind==='flow' ? 'right' : 'auto' }; }); return m; }
+function norm(s){
+  var d = { img:'', nw:0, nh:0, w:36, h:14, lock:true, dx:0, dy:0, fit:true, cap:true, pv:'right', mods:defMods() };
+  if(!s) return d;
+  Object.keys(s).forEach(function(k){ if(k!=='mods') d[k] = s[k]; });
+  if(s.mods) MODS.forEach(function(x){ if(s.mods[x.k]) d.mods[x.k] = { on:!!s.mods[x.k].on, place:s.mods[x.k].place || d.mods[x.k].place }; });
+  return d;
+}
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function num(v, d){ v = parseFloat(v); return isNaN(v) ? d : v; }
+function r1(v){ return Math.round(v*10)/10; }
+
+/* ---------------- signature को पेज में लगाने वाला इंजन ---------------- */
+function enabledFor(key){
+  var d = db(), out = [];
+  ROLE_KEYS.forEach(function(r){
+    var s = d[r]; if(!s || !s.img || !s.mods) return;
+    var m = s.mods[key]; if(!m || !m.on) return;
+    var p = m.place || 'auto';
+    if(MOD[key].kind === 'flow' && p === 'auto') p = 'right';
+    out.push({ role:r, s:s, place:p });
+  });
+  return out;
+}
+function eff(s, cap){
+  var w = num(s.w, 36), h = num(s.h, 14);
+  if(s.fit !== false && h > cap){ var f = cap / h; w *= f; h *= f; }
+  return { w:w, h:h };
+}
+function imgTag(s, e){
+  return '<img data-sigx="1" alt="" src="' + s.img + '" style="width:' + e.w.toFixed(2) + 'mm;height:' + e.h.toFixed(2) +
+    'mm;object-fit:contain;display:block;position:relative;left:' + num(s.dx,0) + 'mm;top:' + num(s.dy,0) +
+    'mm;max-width:none;max-height:none;margin:0;padding:0;border:0;mix-blend-mode:multiply;">';
+}
+function capLine(role, e){
+  return '<span style="display:block;border-top:1px solid #000;margin-top:1mm;padding-top:.8mm;font:700 8.5pt Arial,sans-serif;color:#000;text-align:center;min-width:' +
+    Math.max(e.w, 30).toFixed(1) + 'mm;">' + ROLES[role].cap + '</span>';
+}
+function blockHTML(items, mod, abs){
+  var cells = { left:[], center:[], right:[] };
+  items.forEach(function(it){ (cells[it.place] || cells.right).push(it); });
+  function one(it){
+    var e = eff(it.s, mod.cap);
+    return '<span style="display:flex;flex-direction:column;align-items:center;">' + imgTag(it.s, e) + (it.s.cap !== false ? capLine(it.role, e) : '') + '</span>';
+  }
+  function cell(p, j){ return '<span style="flex:1 1 0;display:flex;justify-content:' + j + ';align-items:flex-end;gap:5mm;">' + cells[p].map(one).join('') + '</span>'; }
+  var st = abs
+    ? 'position:absolute;left:8mm;right:8mm;bottom:7mm;display:flex;pointer-events:none;z-index:5;'
+    : 'display:flex;width:100%;margin-top:10mm;padding:0 6mm;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;';
+  return '<span data-sigx="1" style="' + st + '">' + cell('left','flex-start') + cell('center','center') + cell('right','flex-end') + '</span>';
+}
+function sigClean(root){
+  root.querySelectorAll('[data-sigx]').forEach(function(n){ if(n.parentNode) n.parentNode.removeChild(n); });
+  root.querySelectorAll('[data-sigx-orig]').forEach(function(el){
+    try { el.innerHTML = decodeURIComponent(el.getAttribute('data-sigx-orig')); } catch(e) {}
+    el.removeAttribute('data-sigx-orig');
+  });
+}
+function decorateSlot(root, mod, list){
+  var slots = [].slice.call(root.querySelectorAll(mod.slot)).filter(function(el){
+    return mod.slotRe.test((el.textContent || '').replace(/\s+/g, ' ').trim());
+  });
+  slots.forEach(function(el){
+    el.setAttribute('data-sigx-orig', encodeURIComponent(el.innerHTML));
+    var roles = list.map(function(i){ return ROLES[i.role].cap; });
+    var inner = mod.keepLabel ? el.innerHTML : (mod.lab ? mod.lab(roles) : el.innerHTML);
+    var imgs = list.map(function(i){ return imgTag(i.s, eff(i.s, mod.cap)); }).join('');
+    el.style.position = 'relative';
+    el.innerHTML = '<span data-sigx="1" style="position:absolute;left:0;right:0;bottom:100%;margin-bottom:1.2mm;display:flex;justify-content:center;align-items:flex-end;gap:3mm;pointer-events:none;">' + imgs + '</span>' + inner;
+  });
+  return slots.length;
+}
+function decorate(root, key){
+  if(!root) return;
+  var mod = MOD[key]; if(!mod) return;
+  sigClean(root);
+  var list = enabledFor(key); if(!list.length) return;
+  if(mod.kind === 'flow'){
+    if(!root.querySelector('table')) return;               /* खाली / संदेश वाले output पर नहीं */
+    root.insertAdjacentHTML('beforeend', blockHTML(list, mod, false));
+    return;
+  }
+  var slotItems = list.filter(function(i){ return i.place === 'auto'; });
+  var pageItems = list.filter(function(i){ return i.place !== 'auto'; });
+  if(slotItems.length && !decorateSlot(root, mod, slotItems)){
+    pageItems = pageItems.concat(slotItems.map(function(i){ return { role:i.role, s:i.s, place:'right' }; }));
+  }
+  if(pageItems.length){
+    [].slice.call(root.querySelectorAll(mod.page)).forEach(function(pg){ pg.insertAdjacentHTML('beforeend', blockHTML(pageItems, mod, true)); });
+  }
+}
+function decorateSel(key, sel){
+  var el = document.querySelector(sel);
+  if(el && el.children.length) decorate(el, key);
+}
+function refreshAll(){
+  MODS.forEach(function(m){ if(m.sel) decorateSel(m.k, m.sel); });
+  decorateSel('marksheet', '#msr-output');
+  decorateSel('marksheet', '#cw-output');
+}
+
+/* ---------------- पुराने functions पर wrapper (उनका अपना काम जस का तस) ---------------- */
+function wrapAfter(name, fn){
+  var o = window[name];
+  if(typeof o !== 'function' || o.__sigx) return;
+  var w = function(){
+    var r = o.apply(this, arguments);
+    try { fn.apply(this, arguments); } catch(e) { console.error('SIGX', name, e); }
+    return r;
+  };
+  w.__sigx = true; window[name] = w;
+}
+function wrapStr(name, key){
+  var o = window[name];
+  if(typeof o !== 'function' || o.__sigx) return;
+  var w = function(){
+    var html = o.apply(this, arguments);
+    try {
+      if(typeof html !== 'string' || !enabledFor(key).length) return html;
+      var t = document.createElement('div'); t.innerHTML = html;
+      decorate(t, key); return t.innerHTML;
+    } catch(e) { console.error('SIGX', name, e); return html; }
+  };
+  w.__sigx = true; window[name] = w;
+}
+function install(){
+  wrapAfter('generateGoshwaraReport',  function(){ decorateSel('goshwara', '#goshwara-report-area'); });
+  wrapAfter('renderPrintDatabaseTable', function(){ decorateSel('printdb', '#print-db-area'); });
+  wrapAfter('loadPatrakTable',          function(){ decorateSel('patrak', '#patrak-view-area'); });
+  wrapAfter('renderTCCertificate',      function(){ decorateSel('tc', '#tc-preview-area'); });
+  wrapAfter('renderTCNewCertificate',   function(){ decorateSel('tcnew', '#tcn-preview-area'); });
+  wrapAfter('generateMarksheets',       function(opts){
+    var c = (opts && opts.container) || document.getElementById('marksheet-output-container');
+    if(c && c.children.length) decorate(c, 'marksheet');
+  });
+  wrapStr('buildSingleAdmitCardHTML', 'admit');
+  wrapStr('ms9Sheet', 'ms9');
+  wrapAfter('switchTab', function(tabId){
+    if(tabId === 'sig-principal') open('principal');
+    if(tabId === 'sig-headmaster') open('headmaster');
+  });
+}
+install();
+window.addEventListener('load', install);
+window.addEventListener('beforeprint', function(){ try { refreshAll(); } catch(e) {} });
+
+/* ---------------- फ़ोटो प्रोसेस: कोई भी format / कोई भी साइज़ ---------------- */
+function processFile(role, file, removeBg){
+  if(!file) return;
+  if(!/^image\//i.test(file.type || '') && !/\.(png|jpe?g|gif|bmp|webp|svg|avif|jfif)$/i.test(file.name || '')){
+    alert('कृपया फ़ोटो (PNG / JPG / JPEG आदि) चुनें।'); return;
+  }
+  var url = URL.createObjectURL(file), im = new Image();
+  im.onload = function(){
+    try {
+      var nw = im.naturalWidth || im.width, nh = im.naturalHeight || im.height;
+      var MAXP = 1000, sc = Math.min(1, MAXP / Math.max(nw, nh));
+      var w = Math.max(1, Math.round(nw * sc)), h = Math.max(1, Math.round(nh * sc));
+      var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      var cx = cv.getContext('2d', { willReadFrequently:true });
+      cx.drawImage(im, 0, 0, w, h);
+      var id = cx.getImageData(0, 0, w, h), a = id.data, i, n = w * h;
+      var transp = 0;
+      for(i = 3; i < a.length; i += 4){ if(a[i] < 250) transp++; }
+      var already = transp / n > 0.03;
+      if(removeBg && !already){
+        var hist = new Uint32Array(256);
+        for(i = 0; i < a.length; i += 4){ hist[Math.round(.299*a[i] + .587*a[i+1] + .114*a[i+2])]++; }
+        var acc = 0, bg = 255, target = n * 0.85;
+        for(i = 0; i < 256; i++){ acc += hist[i]; if(acc >= target){ bg = i; break; } }
+        var hi = bg - 14, lo = bg * 0.55;
+        if(hi - lo < 25){ hi = 235; lo = 140; }
+        for(i = 0; i < a.length; i += 4){
+          var lum = .299*a[i] + .587*a[i+1] + .114*a[i+2];
+          var t = (hi - lum) / (hi - lo); t = t < 0 ? 0 : (t > 1 ? 1 : t);
+          a[i+3] = Math.round(a[i+3] * t);
+        }
+        cx.putImageData(id, 0, 0);
+      }
+      /* खाली किनारे अपने-आप कटें (auto trim) */
+      var x0 = w, y0 = h, x1 = -1, y1 = -1, x, y;
+      for(y = 0; y < h; y++){ for(x = 0; x < w; x++){ if(a[(y*w + x)*4 + 3] > 24){ if(x < x0) x0 = x; if(x > x1) x1 = x; if(y < y0) y0 = y; if(y > y1) y1 = y; } } }
+      var out = cv, ow = w, oh = h;
+      if(x1 >= x0 && y1 >= y0){
+        var pad = Math.round(Math.max(x1 - x0, y1 - y0) * 0.03) + 1;
+        x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(w - 1, x1 + pad); y1 = Math.min(h - 1, y1 + pad);
+        ow = x1 - x0 + 1; oh = y1 - y0 + 1;
+        out = document.createElement('canvas'); out.width = ow; out.height = oh;
+        out.getContext('2d').drawImage(cv, x0, y0, ow, oh, 0, 0, ow, oh);
+      }
+      var d = draft[role];
+      d.img = out.toDataURL('image/png'); d.nw = ow; d.nh = oh;
+      autoSizeCalc(d);
+      refresh(role, true);
+    } catch(err) {
+      console.error(err); alert('फ़ोटो प्रोसेस नहीं हो पाई: ' + (err && err.message ? err.message : err));
+    }
+    URL.revokeObjectURL(url);
+  };
+  im.onerror = function(){ URL.revokeObjectURL(url); alert('यह फ़ोटो पढ़ी नहीं जा सकी। कृपया PNG / JPG फ़ोटो चुनें।'); };
+  im.src = url;
+}
+function autoSizeCalc(d){
+  var asp = (d.nw && d.nh) ? d.nw / d.nh : 2.5;
+  var h = 12, w = h * asp;
+  if(w > 45){ w = 45; h = w / asp; }
+  d.w = r1(w); d.h = r1(h); d.lock = true;
+}
+
+/* ---------------- UI (Tab) ---------------- */
+var draft = {};
+function open(role){
+  draft[role] = norm(clone(db()[role] || null));
+  render(role);
+}
+function $(id){ return document.getElementById(id); }
+function dirty(role){ return JSON.stringify(draft[role]) !== JSON.stringify(norm(db()[role] || null)); }
+
+function render(role){
+  var host = $('tab-sig-' + role); if(!host) return;
+  var R = ROLES[role], s = draft[role];
+  var rows = MODS.map(function(m){
+    var mm = s.mods[m.k];
+    var opts = m.kind === 'flow'
+      ? [['right','पेज के नीचे — दाएँ (Right)'],['center','पेज के नीचे — बीच में (Center)'],['left','पेज के नीचे — बाएँ (Left)']]
+      : [['auto', m.slotTxt + ' (Auto)'],['right','पेज के नीचे — दाएँ (Right)'],['center','पेज के नीचे — बीच में (Center)'],['left','पेज के नीचे — बाएँ (Left)']];
+    var sel = opts.map(function(o){ return '<option value="' + o[0] + '"' + (mm.place === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+    return '<tr id="sigx-row-' + role + '-' + m.k + '" class="' + (mm.on ? 'on' : '') + '">' +
+      '<td class="c"><label class="sigx-switch"><input type="checkbox" ' + (mm.on ? 'checked' : '') + ' onchange="SIGX.mod(\'' + role + '\',\'' + m.k + '\',this.checked)"><i></i></label></td>' +
+      '<td class="n">' + m.t + '</td>' +
+      '<td><select onchange="SIGX.place(\'' + role + '\',\'' + m.k + '\',this.value)">' + sel + '</select></td>' +
+      '<td class="z" id="sigx-eff-' + role + '-' + m.k + '"></td></tr>';
+  }).join('');
+
+  host.innerHTML =
+  '<div class="sigx-wrap">' +
+    '<div class="sigx-hero"><div class="sigx-ico"><i class="fa-solid fa-signature"></i></div>' +
+      '<div class="sigx-ht"><h2>' + R.hi + ' <small>(' + R.en + ')</small></h2>' +
+      '<p>फ़ोटो एक बार अपलोड करें, जिस-जिस प्रिंट में चाहिए उसके आगे टिक लगाएँ — साइज़ व जगह खुद सेट हो जाएगी, चाहें तो अपने हिसाब से बदलें।</p></div>' +
+      '<span class="sigx-chip" id="sigx-chip-' + role + '"></span></div>' +
+
+    '<div class="sigx-grid">' +
+      '<div class="sigx-card"><div class="sigx-h"><span>1</span> फ़ोटो अपलोड करें</div>' +
+        '<label class="sigx-drop" id="sigx-drop-' + role + '"><i class="fa-solid fa-cloud-arrow-up"></i><b>यहाँ क्लिक करें या फ़ोटो खींचकर छोड़ें</b>' +
+        '<em>PNG, JPG, JPEG, WEBP… कोई भी format, कोई भी साइज़</em>' +
+        '<input type="file" accept="image/*" onchange="SIGX.pick(\'' + role + '\',this)"></label>' +
+        '<label class="sigx-opt"><input type="checkbox" id="sigx-bg-' + role + '" checked> सफ़ेद बैकग्राउंड अपने-आप हटाएँ (Transparent) — अगली अपलोड पर लागू</label>' +
+        '<div class="sigx-row"><button class="sigx-btn red" onclick="SIGX.removeImg(\'' + role + '\')"><i class="fa-solid fa-trash"></i> फ़ोटो हटाएँ</button>' +
+        '<button class="sigx-btn" onclick="SIGX.autoSize(\'' + role + '\')"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto Size</button></div>' +
+      '</div>' +
+      '<div class="sigx-card"><div class="sigx-h"><span>2</span> लाइव प्रीव्यू <em>(असली साइज़, mm में)</em></div>' +
+        '<div class="sigx-prev" id="sigx-prev-' + role + '"></div>' +
+        '<div class="sigx-pvsel">पेज के नीचे प्रीव्यू: ' +
+          '<button onclick="SIGX.pv(\'' + role + '\',\'left\')" id="sigx-pv-' + role + '-left">बाएँ</button>' +
+          '<button onclick="SIGX.pv(\'' + role + '\',\'center\')" id="sigx-pv-' + role + '-center">बीच</button>' +
+          '<button onclick="SIGX.pv(\'' + role + '\',\'right\')" id="sigx-pv-' + role + '-right">दाएँ</button></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="sigx-card"><div class="sigx-h"><span>3</span> साइज़ व पोज़िशन</div>' +
+      '<div class="sigx-ctl">' +
+        '<div class="sigx-sl"><label>चौड़ाई / लंबाई (Width) <b id="sigx-wv-' + role + '"></b> mm</label>' +
+          '<input type="range" id="sigx-w-' + role + '" min="5" max="100" step="0.5" oninput="SIGX.size(\'' + role + '\',\'w\',this.value)">' +
+          '<div class="sigx-pm"><button onclick="SIGX.step(\'' + role + '\',\'w\',-1)">−</button><input type="number" id="sigx-wn-' + role + '" step="0.5" min="3" max="200" onchange="SIGX.size(\'' + role + '\',\'w\',this.value)"><button onclick="SIGX.step(\'' + role + '\',\'w\',1)">+</button></div></div>' +
+        '<div class="sigx-sl"><label>ऊँचाई (Height) <b id="sigx-hv-' + role + '"></b> mm</label>' +
+          '<input type="range" id="sigx-h-' + role + '" min="3" max="60" step="0.5" oninput="SIGX.size(\'' + role + '\',\'h\',this.value)">' +
+          '<div class="sigx-pm"><button onclick="SIGX.step(\'' + role + '\',\'h\',-1)">−</button><input type="number" id="sigx-hn-' + role + '" step="0.5" min="2" max="120" onchange="SIGX.size(\'' + role + '\',\'h\',this.value)"><button onclick="SIGX.step(\'' + role + '\',\'h\',1)">+</button></div></div>' +
+        '<div class="sigx-pos"><label>जगह खिसकाएँ (ऊपर / नीचे / दाएँ / बाएँ)</label>' +
+          '<div class="sigx-pad"><span></span><button onclick="SIGX.nudge(\'' + role + '\',0,-1)" title="ऊपर"><i class="fa-solid fa-arrow-up"></i></button><span></span>' +
+          '<button onclick="SIGX.nudge(\'' + role + '\',-1,0)" title="बाएँ"><i class="fa-solid fa-arrow-left"></i></button>' +
+          '<button class="ctr" onclick="SIGX.resetPos(\'' + role + '\')" title="Reset"><i class="fa-solid fa-crosshairs"></i></button>' +
+          '<button onclick="SIGX.nudge(\'' + role + '\',1,0)" title="दाएँ"><i class="fa-solid fa-arrow-right"></i></button>' +
+          '<span></span><button onclick="SIGX.nudge(\'' + role + '\',0,1)" title="नीचे"><i class="fa-solid fa-arrow-down"></i></button><span></span></div>' +
+          '<div class="sigx-xy"><label>एक बार में <select id="sigx-stp-' + role + '"><option value="0.5">0.5</option><option value="1" selected>1</option><option value="2">2</option><option value="5">5</option></select> mm</label>' +
+          '<label>दाएँ(+)/बाएँ(−) <input type="number" step="0.5" id="sigx-dx-' + role + '" onchange="SIGX.off(\'' + role + '\',\'dx\',this.value)"></label>' +
+          '<label>नीचे(+)/ऊपर(−) <input type="number" step="0.5" id="sigx-dy-' + role + '" onchange="SIGX.off(\'' + role + '\',\'dy\',this.value)"></label></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sigx-opts">' +
+        '<label class="sigx-opt"><input type="checkbox" id="sigx-lock-' + role + '" onchange="SIGX.opt(\'' + role + '\',\'lock\',this.checked)"> चौड़ाई-ऊँचाई का अनुपात लॉक रखें (फ़ोटो खिंचेगी नहीं)</label>' +
+        '<label class="sigx-opt"><input type="checkbox" id="sigx-fit-' + role + '" onchange="SIGX.opt(\'' + role + '\',\'fit\',this.checked)"> Auto Fit — हर प्रिंट की जगह के हिसाब से साइज़ अपने-आप सही सेट हो</label>' +
+        '<label class="sigx-opt"><input type="checkbox" id="sigx-cap-' + role + '" onchange="SIGX.opt(\'' + role + '\',\'cap\',this.checked)"> रिपोर्ट / पेज के नीचे वाले प्रिंट में नाम की लाइन (' + R.cap + ') दिखाएँ</label>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="sigx-card"><div class="sigx-h"><span>4</span> किस-किस प्रिंट में लगाना है? (टिक करें)' +
+      '<div class="sigx-mini"><button onclick="SIGX.all(\'' + role + '\',true)">सभी चुनें</button><button onclick="SIGX.all(\'' + role + '\',false)">सभी हटाएँ</button></div></div>' +
+      '<div class="sigx-tw"><table class="sigx-tbl"><thead><tr><th>टिक</th><th>प्रिंट / विकल्प</th><th>कहाँ लगे</th><th>प्रिंट में साइज़</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p class="sigx-note">जिस प्रिंट में <b>Class Teacher Sign</b> है वहाँ टिक करने पर उसकी जगह यह हस्ताक्षर आ जाएगा। जिन प्रिंट में वह जगह नहीं है, वहाँ पेज के नीचे आएगा। चाहें तो हर प्रिंट के लिए "कहाँ लगे" में बाएँ / बीच / दाएँ चुनें।</p>' +
+    '</div>' +
+
+    '<div class="sigx-act"><button class="sigx-btn gold big" onclick="SIGX.save(\'' + role + '\')"><i class="fa-solid fa-cloud-arrow-up"></i> Firebase में सेव करें</button>' +
+    '<button class="sigx-btn big" onclick="SIGX.undo(\'' + role + '\')"><i class="fa-solid fa-rotate-left"></i> बदलाव रद्द करें</button></div>' +
+  '</div>';
+
+  /* drag & drop */
+  var dz = $('sigx-drop-' + role);
+  if(dz){
+    ['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('hot'); }); });
+    ['dragleave','drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('hot'); }); });
+    dz.addEventListener('drop', function(e){ var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) processFile(role, f, $('sigx-bg-' + role).checked); });
+  }
+  refresh(role, true);
+}
+
+function previewHTML(role){
+  var s = draft[role];
+  if(!s.img) return '<div class="sigx-empty"><i class="fa-regular fa-image"></i> अभी फ़ोटो अपलोड नहीं है</div>';
+  var e = { w:num(s.w,36), h:num(s.h,14) };
+  var pv = s.pv || 'right';
+  function cell(p, j){ return '<span style="flex:1 1 0;display:flex;justify-content:' + j + ';align-items:flex-end;">' +
+    (p === pv ? '<span style="display:flex;flex-direction:column;align-items:center;">' + imgTag(s, e) + (s.cap !== false ? capLine(role, e) : '') + '</span>' : '') + '</span>'; }
+  var slot = '<span style="position:relative;display:inline-block;width:' + Math.max(46, e.w + 6) + 'mm;text-align:center;border-top:1px dashed #475569;padding-top:1mm;font:700 8pt Arial,sans-serif;color:#0f172a;margin-top:' + (e.h + 3) + 'mm;">' +
+    '<span style="position:absolute;left:0;right:0;bottom:100%;margin-bottom:1.2mm;display:flex;justify-content:center;align-items:flex-end;">' + imgTag(s, e) + '</span>' + ROLES[role].cap + ' SIGN</span>';
+  return '<div class="sigx-pl">Class Teacher Sign की जगह वाला नमूना</div><div class="sigx-pg" style="text-align:center;padding:3mm 4mm 3mm;">' + slot + '</div>' +
+    '<div class="sigx-pl">पेज के नीचे वाला नमूना</div><div class="sigx-pg" style="display:flex;padding:3mm 6mm 3mm;min-height:' + (e.h + 12) + 'mm;align-items:flex-end;">' + cell('left','flex-start') + cell('center','center') + cell('right','flex-end') + '</div>';
+}
+
+function refresh(role, full){
+  var s = draft[role], v;
+  var pv = $('sigx-prev-' + role); if(pv) pv.innerHTML = previewHTML(role);
+  ['left','center','right'].forEach(function(p){ var b = $('sigx-pv-' + role + '-' + p); if(b) b.className = (s.pv || 'right') === p ? 'on' : ''; });
+  v = $('sigx-w-' + role); if(v) v.value = s.w;
+  v = $('sigx-wn-' + role); if(v && document.activeElement !== v) v.value = s.w;
+  v = $('sigx-h-' + role); if(v) v.value = s.h;
+  v = $('sigx-hn-' + role); if(v && document.activeElement !== v) v.value = s.h;
+  v = $('sigx-wv-' + role); if(v) v.textContent = r1(s.w);
+  v = $('sigx-hv-' + role); if(v) v.textContent = r1(s.h);
+  v = $('sigx-dx-' + role); if(v && document.activeElement !== v) v.value = s.dx;
+  v = $('sigx-dy-' + role); if(v && document.activeElement !== v) v.value = s.dy;
+  $('sigx-lock-' + role).checked = !!s.lock; $('sigx-fit-' + role).checked = s.fit !== false; $('sigx-cap-' + role).checked = s.cap !== false;
+  MODS.forEach(function(m){
+    var c = $('sigx-eff-' + role + '-' + m.k); if(!c) return;
+    var e = eff(s, m.cap);
+    c.innerHTML = s.img ? (r1(e.w) + ' × ' + r1(e.h) + ' mm' + (s.fit !== false && num(s.h,14) > m.cap ? ' <small>(Auto Fit)</small>' : '')) : '—';
+    var row = $('sigx-row-' + role + '-' + m.k); if(row) row.className = s.mods[m.k].on ? 'on' : '';
+  });
+  var chip = $('sigx-chip-' + role);
+  if(chip){
+    var d = dirty(role), saved = !!(db()[role] && db()[role].img);
+    chip.className = 'sigx-chip ' + (d ? 'warn' : (saved ? 'ok' : ''));
+    chip.innerHTML = d ? '<i class="fa-solid fa-circle-exclamation"></i> सेव बाकी' : (saved ? '<i class="fa-solid fa-cloud-circle-check"></i> Firebase में सेव है' : '<i class="fa-regular fa-circle"></i> अभी कुछ सेव नहीं');
+  }
+}
+
+/* ---------------- handlers ---------------- */
+function clampN(v, a, b){ return Math.min(b, Math.max(a, v)); }
+var API = {
+  pick: function(role, input){ var f = input.files && input.files[0]; if(f) processFile(role, f, $('sigx-bg-' + role).checked); input.value = ''; },
+  size: function(role, k, val){
+    var s = draft[role], v = clampN(num(val, s[k]), k === 'w' ? 3 : 2, k === 'w' ? 200 : 120);
+    var asp = (s.nw && s.nh) ? s.nw / s.nh : (s.w / s.h || 2.5);
+    if(k === 'w'){ s.w = r1(v); if(s.lock) s.h = r1(clampN(s.w / asp, 2, 120)); }
+    else { s.h = r1(v); if(s.lock) s.w = r1(clampN(s.h * asp, 3, 200)); }
+    refresh(role);
+  },
+  step: function(role, k, dir){ var s = draft[role]; API.size(role, k, num(s[k], 10) + dir * 0.5); },
+  nudge: function(role, x, y){
+    var s = draft[role], st = num(($('sigx-stp-' + role) || {}).value, 1);
+    s.dx = r1(num(s.dx, 0) + x * st); s.dy = r1(num(s.dy, 0) + y * st); refresh(role);
+  },
+  off: function(role, k, val){ draft[role][k] = r1(num(val, 0)); refresh(role); },
+  resetPos: function(role){ draft[role].dx = 0; draft[role].dy = 0; refresh(role); },
+  autoSize: function(role){ var s = draft[role]; if(!s.img){ alert('पहले फ़ोटो अपलोड करें।'); return; } autoSizeCalc(s); s.dx = 0; s.dy = 0; refresh(role); },
+  opt: function(role, k, val){ draft[role][k] = !!val; if(k === 'lock' && val){ var s = draft[role]; if(s.nw && s.nh) s.h = r1(clampN(s.w / (s.nw / s.nh), 2, 120)); } refresh(role); },
+  pv: function(role, p){ draft[role].pv = p; refresh(role); },
+  mod: function(role, k, on){ draft[role].mods[k].on = !!on; refresh(role); },
+  place: function(role, k, p){ draft[role].mods[k].place = p; refresh(role); },
+  all: function(role, on){ MODS.forEach(function(m){ draft[role].mods[m.k].on = !!on; });
+    MODS.forEach(function(m){ var row = $('sigx-row-' + role + '-' + m.k); if(row){ var c = row.querySelector('input[type=checkbox]'); if(c) c.checked = !!on; } }); refresh(role); },
+  removeImg: function(role){
+    if(!draft[role].img){ return; }
+    if(!confirm('यह फ़ोटो हटानी है? (Firebase में बदलाव "सेव" दबाने पर ही लागू होगा)')) return;
+    draft[role].img = ''; draft[role].nw = 0; draft[role].nh = 0; refresh(role);
+  },
+  undo: function(role){ open(role); },
+  save: function(role){
+    var s = draft[role];
+    var anyOn = MODS.some(function(m){ return s.mods[m.k].on; });
+    if(anyOn && !s.img){ alert('टिक लगाए हैं पर फ़ोटो अपलोड नहीं है। पहले हस्ताक्षर की फ़ोटो अपलोड करें।'); return; }
+    var all = clone(db()); all[role] = clone(s); all.updatedAt = Date.now();
+    try {
+      cloudStore.setItem(KEY, JSON.stringify(all));
+      if(typeof flushCloudStore === 'function' && typeof cloudReady !== 'undefined' && cloudReady) flushCloudStore();
+    } catch(e) { alert('सेव में समस्या: ' + e.message); return; }
+    if(typeof logActivity === 'function'){ try { logActivity(ROLES[role].hi + ' अपडेट', 'Firebase में सेव'); } catch(e) {} }
+    refreshAll();
+    refresh(role);
+    var chip = $('sigx-chip-' + role); if(chip){ chip.className = 'sigx-chip ok'; chip.innerHTML = '<i class="fa-solid fa-cloud-circle-check"></i> Firebase में सेव हो गया ✓'; }
+  }
+};
+window.SIGX = API;
+window.SIGX_refreshAll = refreshAll;
 })();
 </script>
 
