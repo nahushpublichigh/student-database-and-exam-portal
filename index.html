@@ -1475,6 +1475,33 @@
 @media (max-width:1100px){.ms9-fgrid{grid-template-columns:1fr;}.ms9-sticky{position:static;}}
 
 </style>
+<style id="ac-a6-style">
+/* ===== ADMIT CARD — A6 SIZE (A4 पर 4 कार्ड, 2x2) — सिर्फ़ नया जोड़ा गया ===== */
+.admit-page-wrapper.admit-a6{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:3mm;width:202mm;max-width:100%;margin-left:auto;margin-right:auto;}
+@media print{.admit-page-wrapper.admit-a6{width:100%;}}
+.admit-a6 .admit-card-box{--k:1;flex:none;min-width:0;min-height:0;height:100%;padding:2.2mm 2.8mm;font-size:calc(var(--k) * 10px);border-radius:7px;box-shadow:0 2px 8px rgba(30,58,138,.18);}
+.admit-a6 .admit-card-box::before{inset:2px;border-radius:5px;}
+.admit-a6 .ac-corner-bloom{font-size:.8em;}
+.admit-a6 .ac-header{padding:.35em .5em;margin-bottom:.4em;gap:.4em;}
+.admit-a6 .ac-header img{width:3.6em;height:3.6em;}
+.admit-a6 .ac-title h2{font-size:1.05em;line-height:1.15;}
+.admit-a6 .ac-title p{font-size:.72em;}
+.admit-a6 .ac-badge{font-size:.66em;padding:.12em .6em;line-height:1.3;}
+.admit-a6 .ac-student-grid{padding:.4em .5em;gap:.6em;margin-bottom:.4em;}
+.admit-a6 .ac-student-photo{width:4.4em;height:5.5em;}
+.admit-a6 .ac-student-grid{flex-direction:row-reverse;justify-content:space-between;}
+.admit-a6 .ac-student-photo{box-shadow:0 2px 6px rgba(30,58,138,.28);}
+.admit-a6 .ac-info-grid{grid-template-columns:1fr;gap:.18em;font-size:.95em;line-height:1.25;}
+.admit-a6 .ac-info-grid div{white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word;}
+.admit-a6 .ac-table{margin-bottom:.4em;}
+.admit-a6 .ac-table th,.admit-a6 .ac-table td{padding:.14em .25em !important;font-size:.82em !important;line-height:1.2;}
+.admit-a6 .ac-note-box{display:block !important;padding:.25em .45em;font-size:.68em;margin-bottom:.4em;line-height:1.3;}
+.admit-a6 .ac-footer{font-size:.78em;min-height:11mm;padding-top:.3em;}
+/* हस्ताक्षर — "कहाँ लगे" में X% / Y% वाले छोटे box */
+.sigx-fxy{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+.sigx-fxy label{font-size:.72rem;font-weight:700;display:flex;align-items:center;gap:3px;}
+.sigx-fxy input{width:56px;padding:3px 5px;border:1px solid #94a3b8;border-radius:6px;font-size:.78rem;}
+</style>
 <style id="sigx-style">
 /* ===== SIGX: प्रिंसिपल / हेडमास्टर हस्ताक्षर — Cinematic look (नया, सिर्फ़ इसी सेक्शन के लिए) ===== */
 .sigx-wrap{display:flex;flex-direction:column;gap:16px;font-family:inherit}
@@ -3822,6 +3849,7 @@
                                             <option value="3">3 Per Page</option>
                                             <option value="4">4 Per Page</option>
                                             <option value="5">5 Per Page</option>
+                                            <option value="A6">A6 Size — A4 पर 4 कार्ड (Fit to Page)</option>
                                         </select>
                                     </div>
                                     <div class="filter-item">
@@ -11176,9 +11204,11 @@ function initPortalYear(){
 
         function buildAdmitCardsPagesHTML(list, perPage, cls, yr, ex, timeTableList, logoImgSrc) {
             let html = '';
-            for(let i = 0; i < list.length; i += perPage) {
-                html += `<div class="admit-page-wrapper" data-count="${perPage}">`;
-                for(let j = i; j < i + perPage && j < list.length; j++) {
+            const isA6 = (perPage === 'A6');
+            const perN = isA6 ? 4 : perPage;
+            for(let i = 0; i < list.length; i += perN) {
+                html += `<div class="admit-page-wrapper${isA6 ? ' admit-a6' : ''}" data-count="${isA6 ? 'A6' : perPage}">`;
+                for(let j = i; j < i + perN && j < list.length; j++) {
                     html += buildSingleAdmitCardHTML(list[j], cls, yr, ex, timeTableList, logoImgSrc);
                 }
                 html += `</div>`;
@@ -11219,7 +11249,7 @@ function initPortalYear(){
             const rollFrom = rollFromEl ? rollFromEl.value.trim() : '';
             const rollTo = rollToEl ? rollToEl.value.trim() : '';
             const perPageSel = document.getElementById('ac-per-page');
-            const perPage = perPageSel ? (parseInt(perPageSel.value, 10) || 2) : 2;
+            const perPage = perPageSel ? (perPageSel.value === 'A6' ? 'A6' : (parseInt(perPageSel.value, 10) || 2)) : 2;
             const showCountSel = document.getElementById('ac-show-count');
             const showCountVal = showCountSel ? showCountSel.value : '10';
 
@@ -14906,6 +14936,31 @@ function pdPrint(){
 })();
 </script>
 
+<script id="ac-a6-script">
+/* A6 एडमिट कार्ड: हर कार्ड अपने-आप पेज में फ़िट (कोई कॉलम / लाइन कटेगी नहीं) — सिर्फ़ नया जोड़ा गया */
+(function(){
+  function fit(root){
+    var cards = (root || document).querySelectorAll('.admit-page-wrapper.admit-a6 .admit-card-box');
+    for(var i = 0; i < cards.length; i++){
+      var c = cards[i];
+      if(!c.clientHeight) continue;
+      var k = 1, g = 0;
+      c.style.setProperty('--k', k);
+      while((c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1) && k > 0.4 && g++ < 60){
+        k = Math.round((k - 0.02) * 100) / 100;
+        c.style.setProperty('--k', k);
+      }
+    }
+  }
+  window.acFitA6Cards = fit;
+  function watch(id){
+    var el = document.getElementById(id); if(!el || !window.MutationObserver) return;
+    new MutationObserver(function(){ requestAnimationFrame(function(){ fit(el); }); }).observe(el, { childList:true });
+  }
+  watch('admit-cards-container'); watch('acr-output');
+  window.addEventListener('beforeprint', function(){ try { fit(document); } catch(e) {} });
+})();
+</script>
 <script id="sigx-script">
 /* =====================================================================
    प्रिंसिपल / हेडमास्टर हस्ताक्षर मॉड्यूल  (SIGX)  — सिर्फ़ जोड़ा गया नया कोड
@@ -14930,10 +14985,13 @@ var MODS = [
   { k:'printdb',   t:'छात्र डेटाबेस प्रिंट करें (Print Database - A4 Landscape)',               kind:'flow', cap:16, sel:'#print-db-area' },
   { k:'patrak',    t:'परीक्षा पत्रक प्रिंट (Print Exam Patrak)',                              kind:'flow', cap:16, sel:'#patrak-view-area' },
   { k:'tc',        t:'Transfer Certificate (TC) Generator',                                  kind:'slot', cap:18, sel:'#tc-preview-area',  slot:'.tc-sign-box', slotRe:/^PRINCIPAL$/i, page:'.tc-page-wrapper', keepLabel:true, slotTxt:'PRINCIPAL लाइन के ऊपर' },
-  { k:'admit',     t:'छात्र प्रवेश पत्र (Student Admit Card Generator)',                       kind:'slot', cap:9,  sel:null,                slot:'.ac-sign-box', slotRe:/class\s*teacher/i, page:'.admit-card-box', lab:function(r){return r.join(' / ')+' Sign';}, slotTxt:'Class Teacher Sign की जगह' },
+  { k:'admit',     t:'छात्र प्रवेश पत्र (Student Admit Card Generator)',                       kind:'slot', cap:9,  sel:null,                slot:'.ac-sign-box', slotRe:/class\s*teacher/i, page:'.admit-card-box', lab:function(r){return r.join(' / ')+' Sign';}, slotTxt:'Class Teacher Sign की जगह', slot2:'.ac-sign-box', slot2Re:/student\s*sign/i, slot2Txt:'Student Signature की जगह' },
   { k:'tcnew',     t:'TC पैनल (नया फॉर्मेट) — Transfer Certificate (New Design)',              kind:'slot', cap:20, sel:'#tcn-preview-area', slot:'.tcn-principal', slotRe:/^PRINCIPAL$/i, page:'.tcn-page-wrapper', keepLabel:true, slotTxt:'PRINCIPAL लाइन के ऊपर' },
   { k:'marksheet', t:'छात्र अंकसूची जनरेटर (Print Student Marksheet)',                         kind:'slot', cap:15, sel:'#marksheet-output-container', slot:'.ms-footer-sign > div', slotRe:/class\s*teacher/i, page:'.marksheet-page-wrapper', lab:function(r){return 'SIGNATURE<br>'+r.join(' / ');}, slotTxt:'Class Teacher Sign की जगह' },
-  { k:'ms9',       t:'कक्षा- नवमी मार्कशीट — Create Marksheet',                                kind:'slot', cap:12, sel:null,                slot:'.ms9-sign > div', slotRe:/class\s*teacher/i, page:'.ms9-sheet', lab:function(r){return 'SIGNATURE OF '+r.join(' / ');}, slotTxt:'Class Teacher Sign की जगह' }
+  { k:'ms9',       t:'कक्षा- नवमी मार्कशीट — Create Marksheet',                                kind:'slot', cap:12, sel:null,                slot:'.ms9-sign > div', slotRe:/class\s*teacher/i, page:'.ms9-sheet', lab:function(r){return 'SIGNATURE OF '+r.join(' / ');}, slotTxt:'Class Teacher Sign की जगह' },
+  { k:'letter',    t:'लैटर हेड (Letter Head)',                                               kind:'slot', cap:22, sel:null, slot:'.sigx-none', slotRe:/^$/, page:'.lh-paper', slotTxt:'पेज के नीचे — दाएँ' },
+  { k:'attend',    t:'उपस्तिथि पत्रक (Exam Attendance)',                                      kind:'flow', cap:18, sel:null, flowIn:'.ea-sheet' },
+  { k:'fees',      t:'फीस स्ट्रक्चर (Print Fees Structure)',                                  kind:'slot', cap:12, sel:'#fs-print-area', slot:'.fs-sfoot span', slotRe:/^Principal$/i, page:'.fs-frame', pageRel:true, keepLabel:true, slotTxt:'Principal लाइन के ऊपर' }
 ];
 var MOD = {}; MODS.forEach(function(m){ MOD[m.k] = m; });
 
@@ -14948,12 +15006,12 @@ function db(){
   if(!o || typeof o !== 'object') o = {};
   _raw = raw; _obj = o; return o;
 }
-function defMods(){ var m = {}; MODS.forEach(function(x){ m[x.k] = { on:false, place: x.kind==='flow' ? 'right' : 'auto' }; }); return m; }
+function defMods(){ var m = {}; MODS.forEach(function(x){ m[x.k] = { on:false, place: x.kind==='flow' ? 'right' : 'auto', fx:75, fy:90 }; }); return m; }
 function norm(s){
   var d = { img:'', nw:0, nh:0, w:36, h:14, lock:true, dx:0, dy:0, fit:true, cap:true, pv:'right', mods:defMods() };
   if(!s) return d;
   Object.keys(s).forEach(function(k){ if(k!=='mods') d[k] = s[k]; });
-  if(s.mods) MODS.forEach(function(x){ if(s.mods[x.k]) d.mods[x.k] = { on:!!s.mods[x.k].on, place:s.mods[x.k].place || d.mods[x.k].place }; });
+  if(s.mods) MODS.forEach(function(x){ if(s.mods[x.k]) d.mods[x.k] = { on:!!s.mods[x.k].on, place:s.mods[x.k].place || d.mods[x.k].place, fx:num(s.mods[x.k].fx, 75), fy:num(s.mods[x.k].fy, 90) }; });
   return d;
 }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -14967,8 +15025,9 @@ function enabledFor(key){
     var s = d[r]; if(!s || !s.img || !s.mods) return;
     var m = s.mods[key]; if(!m || !m.on) return;
     var p = m.place || 'auto';
-    if(MOD[key].kind === 'flow' && p === 'auto') p = 'right';
-    out.push({ role:r, s:s, place:p });
+    if(MOD[key].kind === 'flow' && (p === 'auto' || p === 'free' || p === 'stud')) p = 'right';
+    if(p === 'stud' && !MOD[key].slot2) p = 'auto';
+    out.push({ role:r, s:s, place:p, fx:num(m.fx, 75), fy:num(m.fy, 90) });
   });
   return out;
 }
@@ -14999,6 +15058,13 @@ function blockHTML(items, mod, abs){
     : 'display:flex;width:100%;margin-top:10mm;padding:0 6mm;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;';
   return '<span data-sigx="1" style="' + st + '">' + cell('left','flex-start') + cell('center','center') + cell('right','flex-end') + '</span>';
 }
+function freeHTML(items, mod){
+  return items.map(function(it){
+    var e = eff(it.s, mod.cap);
+    return '<span data-sigx="1" style="position:absolute;left:' + it.fx + '%;top:' + it.fy + '%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;z-index:6;pointer-events:none;">' +
+      imgTag(it.s, e) + (it.s.cap !== false ? capLine(it.role, e) : '') + '</span>';
+  }).join('');
+}
 function sigClean(root){
   root.querySelectorAll('[data-sigx]').forEach(function(n){ if(n.parentNode) n.parentNode.removeChild(n); });
   root.querySelectorAll('[data-sigx-orig]').forEach(function(el){
@@ -15006,9 +15072,9 @@ function sigClean(root){
     el.removeAttribute('data-sigx-orig');
   });
 }
-function decorateSlot(root, mod, list){
-  var slots = [].slice.call(root.querySelectorAll(mod.slot)).filter(function(el){
-    return mod.slotRe.test((el.textContent || '').replace(/\s+/g, ' ').trim());
+function decorateSlot(root, mod, list, selOv, reOv){
+  var slots = [].slice.call(root.querySelectorAll(selOv || mod.slot)).filter(function(el){
+    return (reOv || mod.slotRe).test((el.textContent || '').replace(/\s+/g, ' ').trim());
   });
   slots.forEach(function(el){
     el.setAttribute('data-sigx-orig', encodeURIComponent(el.innerHTML));
@@ -15027,16 +15093,27 @@ function decorate(root, key){
   var list = enabledFor(key); if(!list.length) return;
   if(mod.kind === 'flow'){
     if(!root.querySelector('table')) return;               /* खाली / संदेश वाले output पर नहीं */
-    root.insertAdjacentHTML('beforeend', blockHTML(list, mod, false));
+    var fhost = mod.flowIn ? root.querySelector(mod.flowIn) : null;
+    (fhost || root).insertAdjacentHTML('beforeend', blockHTML(list, mod, false));
     return;
   }
   var slotItems = list.filter(function(i){ return i.place === 'auto'; });
-  var pageItems = list.filter(function(i){ return i.place !== 'auto'; });
+  var studItems = list.filter(function(i){ return i.place === 'stud'; });
+  var freeItems = list.filter(function(i){ return i.place === 'free'; });
+  var pageItems = list.filter(function(i){ return i.place !== 'auto' && i.place !== 'stud' && i.place !== 'free'; });
+  /* प्रवेश पत्र: एक ही Sign वाली जगह पर दोनों नहीं — सिर्फ़ एक (पहला: Principal) आएगा; दूसरे के लिए "पेज पर कहीं भी" से जगह खुद चुनें */
+  if(mod.k === 'admit'){ slotItems = slotItems.slice(0, 1); studItems = studItems.slice(0, 1); }
   if(slotItems.length && !decorateSlot(root, mod, slotItems)){
     pageItems = pageItems.concat(slotItems.map(function(i){ return { role:i.role, s:i.s, place:'right' }; }));
   }
+  if(studItems.length && !decorateSlot(root, mod, studItems, mod.slot2, mod.slot2Re)){
+    pageItems = pageItems.concat(studItems.map(function(i){ return { role:i.role, s:i.s, place:'right' }; }));
+  }
   if(pageItems.length){
-    [].slice.call(root.querySelectorAll(mod.page)).forEach(function(pg){ pg.insertAdjacentHTML('beforeend', blockHTML(pageItems, mod, true)); });
+    [].slice.call(root.querySelectorAll(mod.page)).forEach(function(pg){ if(mod.pageRel) pg.style.position = 'relative'; pg.insertAdjacentHTML('beforeend', blockHTML(pageItems, mod, true)); });
+  }
+  if(freeItems.length){
+    [].slice.call(root.querySelectorAll(mod.page)).forEach(function(pg){ if(mod.pageRel) pg.style.position = 'relative'; pg.insertAdjacentHTML('beforeend', freeHTML(freeItems, mod)); });
   }
 }
 function decorateSel(key, sel){
@@ -15073,7 +15150,21 @@ function wrapStr(name, key){
   };
   w.__sigx = true; window[name] = w;
 }
+function wrapAround(name, key, hostFn){
+  var o = window[name];
+  if(typeof o !== 'function' || o.__sigx) return;
+  var w = function(){
+    var host = null;
+    try { host = hostFn(); if(host && enabledFor(key).length) decorate(host, key); } catch(e) { console.error('SIGX', name, e); }
+    var r = o.apply(this, arguments);
+    try { if(host) sigClean(host); } catch(e) {}
+    return r;
+  };
+  w.__sigx = true; window[name] = w;
+}
 function install(){
+  wrapAround('lhPrintLetter', 'letter', function(){ var p = document.getElementById('lh-paper'); return p ? p.parentNode : null; });
+  wrapStr('eaBuildMarkup', 'attend');
   wrapAfter('generateGoshwaraReport',  function(){ decorateSel('goshwara', '#goshwara-report-area'); });
   wrapAfter('renderPrintDatabaseTable', function(){ decorateSel('printdb', '#print-db-area'); });
   wrapAfter('loadPatrakTable',          function(){ decorateSel('patrak', '#patrak-view-area'); });
@@ -15173,12 +15264,16 @@ function render(role){
     var mm = s.mods[m.k];
     var opts = m.kind === 'flow'
       ? [['right','पेज के नीचे — दाएँ (Right)'],['center','पेज के नीचे — बीच में (Center)'],['left','पेज के नीचे — बाएँ (Left)']]
-      : [['auto', m.slotTxt + ' (Auto)'],['right','पेज के नीचे — दाएँ (Right)'],['center','पेज के नीचे — बीच में (Center)'],['left','पेज के नीचे — बाएँ (Left)']];
+      : [['auto', m.slotTxt + ' (Auto)'],['right','पेज के नीचे — दाएँ (Right)'],['center','पेज के नीचे — बीच में (Center)'],['left','पेज के नीचे — बाएँ (Left)']]
+        .concat(m.slot2 ? [['stud', m.slot2Txt]] : []).concat([['free','पेज पर कहीं भी — खुद जगह चुनें (X% / Y%)']]);
     var sel = opts.map(function(o){ return '<option value="' + o[0] + '"' + (mm.place === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+    var xy = '<span class="sigx-fxy" id="sigx-fxy-' + role + '-' + m.k + '" style="' + (mm.place === 'free' ? '' : 'display:none;') + '">' +
+      '<label>बाएँ से X% <input type="number" min="0" max="100" step="1" value="' + num(mm.fx, 75) + '" onchange="SIGX.fxy(\'' + role + '\',\'' + m.k + '\',\'fx\',this.value)"></label>' +
+      '<label>ऊपर से Y% <input type="number" min="0" max="100" step="1" value="' + num(mm.fy, 90) + '" onchange="SIGX.fxy(\'' + role + '\',\'' + m.k + '\',\'fy\',this.value)"></label></span>';
     return '<tr id="sigx-row-' + role + '-' + m.k + '" class="' + (mm.on ? 'on' : '') + '">' +
       '<td class="c"><label class="sigx-switch"><input type="checkbox" ' + (mm.on ? 'checked' : '') + ' onchange="SIGX.mod(\'' + role + '\',\'' + m.k + '\',this.checked)"><i></i></label></td>' +
       '<td class="n">' + m.t + '</td>' +
-      '<td><select onchange="SIGX.place(\'' + role + '\',\'' + m.k + '\',this.value)">' + sel + '</select></td>' +
+      '<td><select onchange="SIGX.place(\'' + role + '\',\'' + m.k + '\',this.value)">' + sel + '</select>' + xy + '</td>' +
       '<td class="z" id="sigx-eff-' + role + '-' + m.k + '"></td></tr>';
   }).join('');
 
@@ -15236,7 +15331,7 @@ function render(role){
     '<div class="sigx-card"><div class="sigx-h"><span>4</span> किस-किस प्रिंट में लगाना है? (टिक करें)' +
       '<div class="sigx-mini"><button onclick="SIGX.all(\'' + role + '\',true)">सभी चुनें</button><button onclick="SIGX.all(\'' + role + '\',false)">सभी हटाएँ</button></div></div>' +
       '<div class="sigx-tw"><table class="sigx-tbl"><thead><tr><th>टिक</th><th>प्रिंट / विकल्प</th><th>कहाँ लगे</th><th>प्रिंट में साइज़</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<p class="sigx-note">जिस प्रिंट में <b>Class Teacher Sign</b> है वहाँ टिक करने पर उसकी जगह यह हस्ताक्षर आ जाएगा। जिन प्रिंट में वह जगह नहीं है, वहाँ पेज के नीचे आएगा। चाहें तो हर प्रिंट के लिए "कहाँ लगे" में बाएँ / बीच / दाएँ चुनें।</p>' +
+      '<p class="sigx-note">जिस प्रिंट में <b>Class Teacher Sign</b> है वहाँ टिक करने पर उसकी जगह यह हस्ताक्षर आ जाएगा। जिन प्रिंट में वह जगह नहीं है, वहाँ पेज के नीचे आएगा। चाहें तो हर प्रिंट के लिए "कहाँ लगे" में बाएँ / बीच / दाएँ चुनें। नया: <b>"पेज पर कहीं भी"</b> चुनकर X% (बाएँ से) व Y% (ऊपर से) डालें तो हस्ताक्षर आपकी बताई किसी भी जगह आएगा; प्रवेश पत्र में <b>"Student Signature की जगह"</b> भी चुन सकते हैं।</p>' +
     '</div>' +
 
     '<div class="sigx-act"><button class="sigx-btn gold big" onclick="SIGX.save(\'' + role + '\')"><i class="fa-solid fa-cloud-arrow-up"></i> Firebase में सेव करें</button>' +
@@ -15315,7 +15410,8 @@ var API = {
   opt: function(role, k, val){ draft[role][k] = !!val; if(k === 'lock' && val){ var s = draft[role]; if(s.nw && s.nh) s.h = r1(clampN(s.w / (s.nw / s.nh), 2, 120)); } refresh(role); },
   pv: function(role, p){ draft[role].pv = p; refresh(role); },
   mod: function(role, k, on){ draft[role].mods[k].on = !!on; refresh(role); },
-  place: function(role, k, p){ draft[role].mods[k].place = p; refresh(role); },
+  place: function(role, k, p){ draft[role].mods[k].place = p; var xyb = $('sigx-fxy-' + role + '-' + k); if(xyb) xyb.style.display = (p === 'free' ? '' : 'none'); refresh(role); },
+  fxy: function(role, k, w, val){ draft[role].mods[k][w] = clampN(num(val, 50), 0, 100); refresh(role); },
   all: function(role, on){ MODS.forEach(function(m){ draft[role].mods[m.k].on = !!on; });
     MODS.forEach(function(m){ var row = $('sigx-row-' + role + '-' + m.k); if(row){ var c = row.querySelector('input[type=checkbox]'); if(c) c.checked = !!on; } }); refresh(role); },
   removeImg: function(role){
