@@ -1744,6 +1744,11 @@
                     <span>फोटो डाउनलोड (Photo Download)</span>
                 </div>
                 
+                <div class="menu-item" data-perm="teacher-posts" onclick="switchTab('teacher-posts')">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>शिक्षक पद स्थापना</span>
+                </div>
+
                 <div class="menu-item" data-perm="student-db" onclick="toggleSubmenu('student-sub')">
                     <i class="fa-solid fa-user-graduate"></i>
                     <span>छात्र डेटाबेस</span>
@@ -2108,6 +2113,76 @@
                             </div>
                         </div>
                         <div id="photo-list-area" class="table-responsive" style="margin-top:15px;"></div>
+                    </div>
+                </section>
+
+                <!-- TAB: शिक्षक पद स्थापना (NEW) -->
+                <section id="tab-teacher-posts" class="tab-content hidden">
+                    <div class="card tp-card">
+                        <div class="tp-hero">
+                            <div class="tp-hero-glow"></div>
+                            <div class="tp-hero-spark tp-spark1"></div>
+                            <div class="tp-hero-spark tp-spark2"></div>
+                            <img id="tp-logo-l" class="tp-logo" alt="" style="display:none">
+                            <div class="tp-hero-center">
+                                <div class="tp-school" id="tp-school-name">—</div>
+                                <div class="tp-meta-line">
+                                    <span id="tp-dise-line">School DISE Code - —</span>
+                                    <i class="tp-dot"></i>
+                                    <span id="tp-year-line">सत्र: —</span>
+                                </div>
+                                <div class="tp-flourish"><i></i><b>✦</b><i></i></div>
+                                <div class="tp-title">शिक्षक पद स्थापना</div>
+                                <div class="tp-subtitle">Teacher Post Setup</div>
+                            </div>
+                            <img id="tp-logo-r" class="tp-logo" alt="" style="display:none">
+                        </div>
+
+                        <div class="tp-stats">
+                            <div class="tp-stat"><b id="tp-stat-total">0</b><small>कुल कर्मचारी (Saved)</small></div>
+                            <div class="tp-stat"><b id="tp-stat-posts">0</b><small>अलग-अलग पद</small></div>
+                            <div class="tp-stat"><b id="tp-stat-pending">0</b><small>फ़ॉर्म में नई एंट्री</small></div>
+                        </div>
+
+                        <div class="tp-panel">
+                            <div class="tp-toolbar">
+                                <div class="tp-field tp-year-field">
+                                    <label><i class="fa-solid fa-calendar-days"></i> सत्र (Year)</label>
+                                    <select id="tp-session" onchange="tpYearChanged()"></select>
+                                </div>
+                                <div class="tp-toolbar-btns">
+                                    <button type="button" class="tp-btn tp-btn-add" onclick="tpAddRow()"><i class="fa-solid fa-user-plus"></i> Add Teacher</button>
+                                    <button type="button" class="tp-btn tp-btn-save" onclick="tpSave()"><i class="fa-solid fa-cloud-arrow-up"></i> Save</button>
+                                </div>
+                            </div>
+
+                            <div class="tp-section-label"><i class="fa-solid fa-pen-ruler"></i> नई एंट्री / संशोधन फॉर्म</div>
+                            <div id="tp-rows"></div>
+                            <datalist id="tp-qual-list">
+                                <option value="10th"></option><option value="12th"></option><option value="B.A."></option><option value="B.Sc."></option><option value="B.Com."></option>
+                                <option value="M.A."></option><option value="M.Sc."></option><option value="M.Com."></option><option value="B.Ed."></option><option value="M.Ed."></option>
+                                <option value="D.El.Ed."></option><option value="B.P.Ed."></option><option value="M.P.Ed."></option><option value="B.Tech"></option><option value="MBA"></option>
+                                <option value="P.G.D.C.A."></option><option value="Ph.D."></option>
+                            </datalist>
+                            <div class="tp-note"><i class="fa-solid fa-circle-info"></i> * वाले फ़ील्ड ज़रूरी हैं। वेतनमान वैकल्पिक है। Save दबाने पर डेटा Firebase में सुरक्षित होगा।</div>
+                        </div>
+
+                        <div class="tp-panel tp-list-panel">
+                            <div class="tp-list-head">
+                                <div class="tp-section-label" style="margin:0"><i class="fa-solid fa-users"></i> सेव किए गए शिक्षक / कर्मचारी</div>
+                                <div class="tp-list-tools">
+                                    <input type="text" id="tp-search" class="tp-search" placeholder="नाम / पद से खोजें..." oninput="tpRenderList()">
+                                    <button type="button" class="tp-btn tp-btn-print" onclick="tpPrint()"><i class="fa-solid fa-print"></i> Print (A4)</button>
+                                    <button type="button" class="tp-btn tp-btn-excel" onclick="tpExcel()"><i class="fa-solid fa-file-excel"></i> Download Excel</button>
+                                </div>
+                            </div>
+                            <div class="tp-table-wrap">
+                                <table class="tp-table">
+                                    <thead><tr><th>क्र.</th><th>कर्मचारी का नाम</th><th>पद</th><th>उच्चतम योग्यता</th><th>मोबाइल नं.</th><th>वेतनमान</th><th>Action</th></tr></thead>
+                                    <tbody id="tp-list-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -4140,6 +4215,7 @@
                                     <label><input type="checkbox" class="tch-perm-chk" value="student-db" checked> छात्र डेटाबेस (Student DB)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="student-photo" checked> छात्र फोटो अपलोड (Student Photo Upload)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="photo-download"> फोटो डाउनलोड (Photo Download)</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="teacher-posts"> शिक्षक पद स्थापना</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="add-single" checked> नया छात्र जोड़ें</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="add-bulk"> बल्क एक्सेल अपलोड</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="view-data" checked> छात्र डेटा देखें</label>
@@ -5708,6 +5784,7 @@
             if(tabId === 'firebase-storage') refreshFirebaseStorageStats();
             if(tabId === 'student-photo') loadStudentPhotoTable();
             if(tabId === 'photo-download') pdInit();
+            if(tabId === 'teacher-posts' && typeof tpInit === 'function') tpInit();
             if(tabId === 'goshwara-report') generateGoshwaraReport();
             if(tabId === 'control-panel') { if(!controlPanelUnlocked) showControlPanelGate(); else { renderCorrectionHistoryTable(); renderDuplicateDataTable(); renderActivityHistory(); renderTeacherMarksAudit(); renderTeacherAccountsTable(); buildTeacherScopeBuilder(); } hdLock(); }
             if(tabId === 'fill-marks') applyTeacherFillScope();
@@ -15437,6 +15514,341 @@ var API = {
 };
 window.SIGX = API;
 window.SIGX_refreshAll = refreshAll;
+})();
+</script>
+
+<style id="teacher-posts-style">
+@import url('https://fonts.googleapis.com/css2?family=Yatra+One&family=Tiro+Devanagari+Hindi&display=swap');
+.tp-card{padding:0 !important;background:linear-gradient(160deg,#0b1020 0%,#111b3a 55%,#0b1020 100%) !important;border:1px solid rgba(251,191,36,.35) !important;box-shadow:0 18px 50px rgba(2,6,23,.55),0 0 0 1px rgba(251,191,36,.08) !important;overflow:hidden}
+.tp-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:30px 28px 26px;background:linear-gradient(110deg,#1e3a8a 0%,#312e81 50%,#7c2d12 120%);overflow:hidden;border-bottom:1px solid rgba(251,191,36,.45)}
+.tp-hero-glow{position:absolute;top:-70%;left:-20%;width:60%;height:240%;background:radial-gradient(closest-side,rgba(251,191,36,.35),rgba(251,191,36,0));animation:tpGlow 7s ease-in-out infinite alternate;pointer-events:none}
+@keyframes tpGlow{0%{transform:translateX(0) scale(1);opacity:.6}100%{transform:translateX(170%) scale(1.25);opacity:1}}
+.tp-hero-spark{position:absolute;width:6px;height:6px;border-radius:50%;background:#fde68a;box-shadow:0 0 14px 4px rgba(253,224,71,.7);animation:tpTwinkle 3.2s ease-in-out infinite;pointer-events:none}
+.tp-spark1{top:22%;left:12%}.tp-spark2{bottom:20%;right:14%;animation-delay:1.4s}
+@keyframes tpTwinkle{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.4)}}
+.tp-logo{position:relative;z-index:1;width:74px;height:74px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.95);padding:4px;border:2px solid rgba(251,191,36,.8);box-shadow:0 0 24px rgba(251,191,36,.45)}
+.tp-hero-center{position:relative;z-index:1;flex:1;text-align:center;min-width:0}
+.tp-school{font-size:1.15rem;font-weight:800;color:#fff;letter-spacing:1.6px;text-transform:uppercase;text-shadow:0 2px 14px rgba(0,0,0,.55);word-break:break-word}
+.tp-meta-line{margin-top:6px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;font-size:.86rem;font-weight:700;color:#fde68a;letter-spacing:.6px}
+.tp-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#fbbf24;box-shadow:0 0 8px #fbbf24}
+.tp-flourish{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px auto 4px;max-width:420px;color:#fbbf24}
+.tp-flourish i{flex:1;height:2px;background:linear-gradient(90deg,transparent,#fbbf24,transparent)}
+.tp-flourish b{font-size:1rem;animation:tpTwinkle 3s ease-in-out infinite}
+.tp-title{font-family:'Yatra One','Tiro Devanagari Hindi','Noto Serif Devanagari',serif;font-size:2.6rem;line-height:1.25;font-weight:400;background:linear-gradient(180deg,#fff7d6 0%,#fbbf24 55%,#f59e0b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(251,191,36,.45));letter-spacing:1px;animation:tpTitleIn .9s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes tpTitleIn{0%{opacity:0;transform:translateY(16px) scale(.94);letter-spacing:6px}100%{opacity:1;transform:none;letter-spacing:1px}}
+.tp-subtitle{font-size:.78rem;color:#cbd5e1;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
+.tp-stats{display:flex;flex-wrap:wrap;gap:12px;padding:16px 28px 0}
+.tp-stat{flex:1;min-width:140px;padding:12px 16px;border-radius:12px;background:rgba(30,41,59,.7);border:1px solid rgba(251,191,36,.25);animation:tpRise .5s ease both}
+.tp-stat b{display:block;font-size:1.5rem;color:#fbbf24;text-shadow:0 0 14px rgba(251,191,36,.4)}
+.tp-stat small{color:#94a3b8;font-weight:600}
+@keyframes tpRise{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+.tp-panel{padding:20px 28px 8px}
+.tp-list-panel{padding-bottom:28px}
+.tp-toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.tp-toolbar-btns,.tp-list-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tp-field label{display:block;font-size:.76rem;font-weight:700;color:#fbbf24;margin-bottom:5px;letter-spacing:.4px}
+.tp-field input,.tp-field select,.tp-search{width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.8);color:#f1f5f9;font-size:.9rem;font-weight:600;outline:none;transition:.2s;box-sizing:border-box}
+.tp-field select option{background:#0f172a;color:#f1f5f9}
+.tp-field input:focus,.tp-field select:focus,.tp-search:focus{border-color:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.25)}
+.tp-field input::placeholder,.tp-search::placeholder{color:#64748b;font-weight:500}
+.tp-year-field{min-width:170px}
+.tp-search{width:220px}
+.tp-section-label{font-size:.95rem;font-weight:800;color:#fde68a;margin:4px 0 12px;letter-spacing:.4px}
+.tp-section-label i{color:#fbbf24;margin-right:7px}
+.tp-btn{border:none;cursor:pointer;font-weight:700;font-size:.88rem;padding:10px 18px;border-radius:9px;display:inline-flex;align-items:center;gap:8px;transition:.25s;color:#fff;letter-spacing:.3px;white-space:nowrap}
+.tp-btn:hover{transform:translateY(-2px)}
+.tp-btn-add{background:linear-gradient(135deg,#7c3aed,#4c1d95);box-shadow:0 6px 18px rgba(124,58,237,.45)}
+.tp-btn-save{background:linear-gradient(135deg,#16a34a,#047857);box-shadow:0 6px 20px rgba(22,163,74,.5)}
+.tp-btn-print{background:linear-gradient(135deg,#2563eb,#1e3a8a);box-shadow:0 6px 18px rgba(37,99,235,.45)}
+.tp-btn-excel{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 6px 18px rgba(217,119,6,.45)}
+.tp-row{display:grid;grid-template-columns:38px 1.6fr 1.3fr 1.3fr 1fr 1fr 46px;gap:12px;align-items:start;padding:14px 14px 12px;margin-bottom:12px;border-radius:14px;background:rgba(30,41,59,.62);border:1px solid rgba(251,191,36,.22);animation:tpRise .45s ease both}
+.tp-row.tp-editing{border-color:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.25),0 0 22px rgba(34,197,94,.18)}
+.tp-sr{width:34px;height:34px;margin-top:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a;background:linear-gradient(135deg,#fde68a,#f59e0b);box-shadow:0 0 14px rgba(251,191,36,.45)}
+.tp-other{margin-top:8px}
+.tp-del{margin-top:22px;width:40px;height:40px;border:none;border-radius:10px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#ef4444,#991b1b);box-shadow:0 5px 14px rgba(239,68,68,.45);transition:.2s}
+.tp-del:hover{transform:scale(1.1)}
+.tp-edit-tag{grid-column:2 / -1;font-size:.74rem;font-weight:700;color:#86efac;margin-top:-4px}
+.tp-note{margin:6px 0 4px;font-size:.78rem;color:#94a3b8;line-height:1.6}
+.tp-note i{color:#fbbf24;margin-right:5px}
+.tp-list-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tp-table-wrap{max-height:60vh;overflow:auto;border-radius:12px;border:1px solid rgba(148,163,184,.25)}
+.tp-table{width:100%;border-collapse:collapse;font-size:.86rem;color:#e2e8f0}
+.tp-table th{position:sticky;top:0;z-index:5;background:#1e3a8a;color:#fde68a;padding:11px 12px;text-align:left;border:none;letter-spacing:.4px;white-space:nowrap}
+.tp-table td{padding:9px 12px;border:none;border-bottom:1px solid rgba(148,163,184,.15);background:rgba(15,23,42,.55);vertical-align:middle}
+.tp-table tr:hover td{background:rgba(51,65,85,.7)}
+.tp-table tbody tr{animation:tpRow .4s ease both}
+@keyframes tpRow{0%{opacity:0;transform:translateX(-12px)}100%{opacity:1;transform:none}}
+.tp-post-chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700;color:#fde68a;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4)}
+.tp-act{border:none;cursor:pointer;color:#fff;font-weight:700;font-size:.78rem;padding:6px 11px;border-radius:7px;margin-right:6px;transition:.2s}
+.tp-act:hover{transform:translateY(-1px)}
+.tp-act-edit{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+.tp-act-del{background:linear-gradient(135deg,#ef4444,#991b1b)}
+.tp-empty{text-align:center;padding:30px 10px;color:#fca5a5;font-weight:600}
+@media(max-width:980px){
+  .tp-row{grid-template-columns:38px 1fr 1fr;}
+  .tp-del{grid-column:3;justify-self:end}
+  .tp-hero{padding:20px 14px}.tp-title{font-size:2rem}.tp-logo{width:54px;height:54px}
+  .tp-panel,.tp-stats{padding-left:14px;padding-right:14px}
+}
+@media(max-width:560px){.tp-row{grid-template-columns:34px 1fr}.tp-del{grid-column:2;justify-self:start;margin-top:0}.tp-logo{display:none}.tp-search{width:100%}}
+</style>
+
+<script id="teacher-posts-script">
+/* =========== शिक्षक पद स्थापना (NEW FEATURE) — डेटा सिर्फ Firebase (cloudStore → portalData/NPHS_TEACHER_POSTS_DB_V1) में सेव होता है।
+   बाकी किसी भी मौजूदा डेटा/फ़ंक्शन को यह छूता या बदलता नहीं है। =========== */
+(function(){
+  const KEY = 'NPHS_TEACHER_POSTS_DB_V1';
+  const POSTS = [
+    'Director (निदेशक)',
+    'Principal (प्राचार्य)',
+    'Headmaster (प्रधानाध्यापक)',
+    'Subject Teacher (विषय शिक्षक)',
+    'Examination In-Charge (परीक्षा प्रभारी)',
+    'Sport Teacher (खेल शिक्षक)',
+    'Lab Teacher (लैब शिक्षक)',
+    'Accountant (अकाउंटेंट)',
+    'Lekhapal (लेखपाल)',
+    'Cultural Activities In-Charge (सांस्कृतिक गतिविधि प्रभारी)',
+    'Other (अन्य)'
+  ];
+  const OTHER = 'Other (अन्य)';
+  let rows = [];          // फ़ॉर्म में चल रही एंट्रियाँ
+  let seq = 0;
+
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const uid = () => 'tp' + Date.now().toString(36) + (++seq) + Math.random().toString(36).slice(2,6);
+  const years = () => (typeof PORTAL_YEARS !== 'undefined' && PORTAL_YEARS.length) ? PORTAL_YEARS : ['2026-27','2027-28','2028-29','2029-30'];
+  const curYear = () => { const s = document.getElementById('tp-session'); return s && s.value ? s.value : (typeof getPortalYear === 'function' ? getPortalYear() : years()[0]); };
+
+  function getAll(){
+    try { const o = JSON.parse(cloudStore.getItem(KEY) || '{}'); return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
+    catch(e){ return {}; }
+  }
+  function putAll(o){
+    cloudStore.setItem(KEY, JSON.stringify(o));
+    try { if(typeof flushCloudStore === 'function') flushCloudStore(); } catch(e){}
+  }
+  function listFor(year){ const a = getAll()[year]; return Array.isArray(a) ? a : []; }
+  function postIdx(p){ const i = POSTS.indexOf(p); return i < 0 ? POSTS.length - 1 : i; }
+  function sortedList(year){
+    return listFor(year).slice().sort((a,b) => postIdx(a.post) - postIdx(b.post) || (a.createdAt||0) - (b.createdAt||0));
+  }
+  function postLabel(r){ return (r.post === OTHER && r.otherPost) ? r.otherPost : (r.post || ''); }
+  function cfg(){ return (typeof marksheetConfigDB !== 'undefined' && marksheetConfigDB) ? marksheetConfigDB : {}; }
+  function schoolName(){ return cfg().schoolName || 'NAHUSH PUBLIC HIGH SCHOOL MOHLA'; }
+  function diseCode(){ return cfg().diseCode || ''; }
+  function newRow(){ return {uid: uid(), editId: null, name:'', post:'', otherPost:'', qual:'', mobile:'', pay:''}; }
+
+  /* ---------- हेडर / init ---------- */
+  function renderHeader(){
+    const y = curYear();
+    const n = document.getElementById('tp-school-name'); if(n) n.textContent = schoolName();
+    const d = document.getElementById('tp-dise-line'); if(d) d.textContent = 'School DISE Code - ' + diseCode();
+    const yl = document.getElementById('tp-year-line'); if(yl) yl.textContent = 'सत्र: ' + y;
+    ['tp-logo-l','tp-logo-r'].forEach(id => {
+      const im = document.getElementById(id); if(!im) return;
+      try { if(typeof logoDataURL !== 'undefined' && logoDataURL){ im.src = logoDataURL; im.style.display = ''; } else im.style.display = 'none'; } catch(e){ im.style.display = 'none'; }
+    });
+  }
+  window.tpInit = function(){
+    const sel = document.getElementById('tp-session'); if(!sel) return;
+    const def = (typeof getPortalYear === 'function') ? getPortalYear() : years()[0];
+    sel.innerHTML = years().map(y => `<option value="${esc(y)}">${esc(y)}</option>`).join('');
+    sel.value = years().includes(def) ? def : years()[0];
+    rows = rows.filter(r => !r.editId);
+    if(!rows.length) rows.push(newRow());
+    renderHeader(); renderRows(); window.tpRenderList();
+  };
+  window.tpYearChanged = function(){
+    rows = rows.filter(r => !r.editId);
+    if(!rows.length) rows.push(newRow());
+    renderHeader(); renderRows(); window.tpRenderList();
+  };
+
+  /* ---------- फ़ॉर्म rows ---------- */
+  function renderRows(){
+    const box = document.getElementById('tp-rows'); if(!box) return;
+    box.innerHTML = rows.map((r,i) => {
+      const opts = '<option value="">-- पद चुनें --</option>' + POSTS.map(p => `<option value="${esc(p)}" ${r.post===p?'selected':''}>${esc(p)}</option>`).join('');
+      return `<div class="tp-row ${r.editId?'tp-editing':''}" data-uid="${r.uid}">
+        <div class="tp-sr">${i+1}</div>
+        <div class="tp-field"><label>कर्मचारी का नाम (Employee Name) *</label><input type="text" value="${esc(r.name)}" placeholder="पूरा नाम" oninput="tpSet('${r.uid}','name',this.value)"></div>
+        <div class="tp-field"><label>पद (Post) *</label><select onchange="tpPostChange('${r.uid}',this.value)">${opts}</select>
+          <input type="text" class="tp-other" style="display:${r.post===OTHER?'block':'none'}" value="${esc(r.otherPost)}" placeholder="पद का नाम लिखें" oninput="tpSet('${r.uid}','otherPost',this.value)"></div>
+        <div class="tp-field"><label>उच्चतम योग्यता (Highest Qualification)</label><input type="text" list="tp-qual-list" value="${esc(r.qual)}" placeholder="जैसे M.A., B.Ed." oninput="tpSet('${r.uid}','qual',this.value)"></div>
+        <div class="tp-field"><label>मोबाइल नं. (Mobile No.)</label><input type="tel" inputmode="numeric" maxlength="10" value="${esc(r.mobile)}" placeholder="10 अंक" oninput="this.value=this.value.replace(/\\D/g,'');tpSet('${r.uid}','mobile',this.value)"></div>
+        <div class="tp-field"><label>वेतनमान (Pay Scale) — वैकल्पिक</label><input type="text" value="${esc(r.pay)}" placeholder="वैकल्पिक" oninput="tpSet('${r.uid}','pay',this.value)"></div>
+        <button type="button" class="tp-del" title="Delete Teacher" onclick="tpDelRow('${r.uid}')"><i class="fa-solid fa-user-minus"></i></button>
+        ${r.editId ? '<div class="tp-edit-tag"><i class="fa-solid fa-pen"></i> यह सेव्ड रिकॉर्ड का संशोधन है — Save दबाने पर अपडेट होगा</div>' : ''}
+      </div>`;
+    }).join('');
+    const p = document.getElementById('tp-stat-pending'); if(p) p.textContent = rows.filter(r => !isBlank(r) && !r.editId).length;
+  }
+  function isBlank(r){ return !r.name.trim() && !r.post && !r.qual.trim() && !r.mobile.trim() && !r.pay.trim() && !r.otherPost.trim(); }
+  function find(u){ return rows.find(r => r.uid === u); }
+
+  window.tpSet = function(u, f, v){ const r = find(u); if(r){ r[f] = v; const p = document.getElementById('tp-stat-pending'); if(p) p.textContent = rows.filter(x => !isBlank(x) && !x.editId).length; } };
+  window.tpPostChange = function(u, v){ const r = find(u); if(!r) return; r.post = v; if(v !== OTHER) r.otherPost = ''; renderRows(); };
+  window.tpAddRow = function(){ rows.push(newRow()); renderRows(); const last = document.querySelector('#tp-rows .tp-row:last-child input'); if(last) last.focus(); };
+  window.tpDelRow = function(u){
+    const r = find(u); if(!r) return;
+    if(rows.length === 1){ rows = [newRow()]; }
+    else { rows = rows.filter(x => x.uid !== u); }
+    renderRows();
+  };
+
+  /* ---------- Save (Firebase) ---------- */
+  window.tpSave = function(){
+    const year = curYear();
+    const toSave = rows.filter(r => !isBlank(r));
+    if(!toSave.length){ alert('सेव करने के लिए कम से कम एक कर्मचारी की जानकारी भरें।'); return; }
+    for(let i = 0; i < toSave.length; i++){
+      const r = toSave[i], no = rows.indexOf(r) + 1;
+      if(!r.name.trim()){ alert('एंट्री ' + no + ': कर्मचारी का नाम भरें।'); return; }
+      if(!r.post){ alert('एंट्री ' + no + ': पद चुनें।'); return; }
+      if(r.post === OTHER && !r.otherPost.trim()){ alert('एंट्री ' + no + ': "अन्य" पद का नाम लिखें।'); return; }
+      if(r.mobile.trim() && !/^\d{10}$/.test(r.mobile.trim())){ alert('एंट्री ' + no + ': मोबाइल नंबर 10 अंकों का होना चाहिए।'); return; }
+    }
+    const all = getAll();
+    const arr = Array.isArray(all[year]) ? all[year].slice() : [];
+    const now = Date.now();
+    toSave.forEach(r => {
+      const rec = { id: r.editId || ('TP_' + uid()), name: r.name.trim(), post: r.post, otherPost: r.post === OTHER ? r.otherPost.trim() : '',
+                    qual: r.qual.trim(), mobile: r.mobile.trim(), pay: r.pay.trim(), updatedAt: now };
+      const idx = r.editId ? arr.findIndex(x => x.id === r.editId) : -1;
+      if(idx >= 0){ rec.createdAt = arr[idx].createdAt || now; arr[idx] = rec; }
+      else { rec.createdAt = now; arr.push(rec); }
+    });
+    all[year] = arr;
+    putAll(all);
+    rows = [newRow()];
+    renderRows(); window.tpRenderList();
+    alert('✅ ' + toSave.length + ' कर्मचारी की जानकारी Firebase में सेव हो गई।');
+  };
+
+  /* ---------- सेव्ड सूची ---------- */
+  window.tpRenderList = function(){
+    const body = document.getElementById('tp-list-body'); if(!body) return;
+    const year = curYear();
+    const full = sortedList(year);
+    const q = (document.getElementById('tp-search')?.value || '').trim().toLowerCase();
+    const list = q ? full.filter(r => (r.name + ' ' + postLabel(r) + ' ' + r.qual + ' ' + r.mobile).toLowerCase().includes(q)) : full;
+    const t = document.getElementById('tp-stat-total'); if(t) t.textContent = full.length;
+    const p = document.getElementById('tp-stat-posts'); if(p) p.textContent = new Set(full.map(postLabel)).size;
+    if(!list.length){ body.innerHTML = `<tr><td colspan="7" class="tp-empty">${full.length ? 'खोज से कोई रिकॉर्ड नहीं मिला।' : 'इस सत्र में अभी कोई शिक्षक / कर्मचारी सेव नहीं है।'}</td></tr>`; return; }
+    body.innerHTML = list.map((r,i) => `<tr>
+      <td>${i+1}</td><td><b>${esc(r.name)}</b></td><td><span class="tp-post-chip">${esc(postLabel(r))}</span></td>
+      <td>${esc(r.qual) || '—'}</td><td>${esc(r.mobile) || '—'}</td><td>${esc(r.pay) || '—'}</td>
+      <td style="white-space:nowrap"><button type="button" class="tp-act tp-act-edit" onclick="tpEdit('${esc(r.id)}')"><i class="fa-solid fa-pen"></i> Edit</button><button type="button" class="tp-act tp-act-del" onclick="tpDelete('${esc(r.id)}')"><i class="fa-solid fa-trash"></i> Delete</button></td>
+    </tr>`).join('');
+  };
+  window.tpEdit = function(id){
+    const rec = listFor(curYear()).find(x => x.id === id); if(!rec) return;
+    if(!rows.some(r => r.editId === id)){
+      rows = rows.filter(r => !isBlank(r) || r.editId);
+      rows.unshift({uid: uid(), editId: id, name: rec.name || '', post: rec.post || '', otherPost: rec.otherPost || '', qual: rec.qual || '', mobile: rec.mobile || '', pay: rec.pay || ''});
+    }
+    renderRows();
+    document.getElementById('tp-rows')?.scrollIntoView({behavior:'smooth', block:'center'});
+  };
+  window.tpDelete = function(id){
+    const year = curYear(); const all = getAll();
+    const arr = Array.isArray(all[year]) ? all[year] : [];
+    const rec = arr.find(x => x.id === id); if(!rec) return;
+    if(!confirm('क्या आप "' + rec.name + '" का रिकॉर्ड डिलीट करना चाहते हैं?')) return;
+    all[year] = arr.filter(x => x.id !== id);
+    putAll(all);
+    rows = rows.filter(r => r.editId !== id);
+    if(!rows.length) rows.push(newRow());
+    renderRows(); window.tpRenderList();
+  };
+
+  /* ---------- Excel ---------- */
+  window.tpExcel = function(){
+    const year = curYear(); const list = sortedList(year);
+    if(!list.length){ alert('इस सत्र में डाउनलोड के लिए कोई डेटा नहीं है।'); return; }
+    const head = ['क्र.','कर्मचारी का नाम','पद','उच्चतम योग्यता','मोबाइल नं.','वेतनमान'];
+    const aoa = [[schoolName()], ['School DISE Code - ' + diseCode() + '    |    सत्र: ' + year], ['शिक्षक पद स्थापना'], [], head];
+    list.forEach((r,i) => aoa.push([i+1, r.name, postLabel(r), r.qual || '', r.mobile || '', r.pay || '']));
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!merges'] = [0,1,2].map(r => ({s:{r:r,c:0}, e:{r:r,c:5}}));
+    ws['!cols'] = [{wch:6},{wch:32},{wch:34},{wch:22},{wch:16},{wch:20}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Shikshak Pad Sthapna');
+    XLSX.writeFile(wb, 'Shikshak_Pad_Sthapna_' + year + '.xlsx');
+  };
+
+  /* ---------- Print (A4, fit to page) ---------- */
+  function buildPrintHTML(list, year){
+    const logo = (typeof logoDataURL !== 'undefined' && logoDataURL) ? `<img class="lg" src="${logoDataURL}">` : '<span class="lg"></span>';
+    const trs = list.map((r,i) => `<tr><td class="c">${i+1}</td><td class="n">${esc(r.name)}</td><td>${esc(postLabel(r))}</td><td>${esc(r.qual) || '—'}</td><td class="c">${esc(r.mobile) || '—'}</td><td>${esc(r.pay) || '—'}</td></tr>`).join('');
+    return `<!DOCTYPE html><html lang="hi"><head><meta charset="UTF-8"><title>शिक्षक पद स्थापना - ${esc(year)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:8mm}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html,body{margin:0;padding:0;background:#fff;font-family:'Noto Sans Devanagari','Mangal',Arial,sans-serif;color:#111}
+#tpw{width:194mm;border:2px solid #1e3a8a;padding:5mm 5mm 4mm;outline:1px solid #d97706;outline-offset:-4mm}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:4mm}
+.lg{width:19mm;height:19mm;object-fit:contain;display:block}
+.hc{flex:1;text-align:center}
+.sn{font-size:17pt;font-weight:900;color:#1e3a8a;letter-spacing:.6px;text-transform:uppercase;line-height:1.2}
+.ml{margin-top:1.5mm;font-size:10.5pt;font-weight:800;color:#b45309;letter-spacing:.4px}
+.ttl{margin:3.5mm 0 2.5mm;text-align:center}
+.ttl .fl{display:flex;align-items:center;gap:3mm;color:#d97706;justify-content:center}
+.ttl .fl i{flex:1;height:.6mm;background:linear-gradient(90deg,transparent,#d97706,transparent)}
+.ttl h1{margin:.5mm 0 0;font-family:'Yatra One','Tiro Devanagari Hindi','Noto Serif Devanagari',serif;font-weight:400;font-size:26pt;color:#7c2d12;letter-spacing:1px;line-height:1.3}
+table{width:100%;border-collapse:collapse;font-size:10.5pt}
+thead{display:table-header-group}
+th{background:#1e3a8a;color:#fff;padding:2.2mm 2mm;border:.3mm solid #0f172a;text-align:center;font-weight:800}
+td{padding:2.3mm 2mm;border:.3mm solid #334155;vertical-align:middle}
+tr{page-break-inside:avoid}
+tbody tr:nth-child(even) td{background:#f1f5f9}
+td.c{text-align:center}td.n{font-weight:800}
+.ft{display:flex;justify-content:space-between;margin-top:9mm;font-size:10pt;font-weight:700;color:#1e293b}
+.ft div{border-top:.3mm solid #334155;padding-top:1.5mm;min-width:48mm;text-align:center}
+</style></head><body><div id="tpw">
+<div class="hd">${logo}<div class="hc"><div class="sn">${esc(schoolName())}</div><div class="ml">School DISE Code - ${esc(diseCode())} &nbsp;•&nbsp; सत्र: ${esc(year)}</div></div>${logo}</div>
+<div class="ttl"><div class="fl"><i></i><b>✦</b><i></i></div><h1>शिक्षक पद स्थापना</h1></div>
+<table><thead><tr><th style="width:10mm">क्र.</th><th>कर्मचारी का नाम</th><th>पद</th><th>उच्चतम योग्यता</th><th style="width:27mm">मोबाइल नं.</th><th style="width:27mm">वेतनमान</th></tr></thead><tbody>${trs}</tbody></table>
+<div class="ft"><div>संचालक / प्रबंधक</div><div>प्राचार्य / प्रधानाध्यापक</div></div>
+</div></body></html>`;
+  }
+  window.tpPrint = function(){
+    const year = curYear(); const list = sortedList(year);
+    if(!list.length){ alert('इस सत्र में प्रिंट के लिए कोई डेटा नहीं है।'); return; }
+    const old = document.getElementById('tp-print-frame'); if(old) old.remove();
+    const fr = document.createElement('iframe');
+    fr.id = 'tp-print-frame';
+    fr.style.cssText = 'position:fixed;right:0;bottom:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;';
+    document.body.appendChild(fr);
+    const doc = fr.contentDocument || fr.contentWindow.document;
+    doc.open(); doc.write(buildPrintHTML(list, year)); doc.close();
+    let done = false;
+    const go = () => {
+      if(done) return; done = true;
+      try {
+        const w = fr.contentWindow, d = w.document, wrap = d.getElementById('tpw');
+        const availPx = (297 - 16) * 96 / 25.4;      /* A4 की प्रिंट योग्य ऊँचाई */
+        const h = wrap.scrollHeight;
+        if(h > availPx){
+          const sc = availPx / h;
+          if(sc >= 0.5){                              /* पूरा एक पेज में fit */
+            wrap.style.transformOrigin = 'top left';
+            wrap.style.transform = 'scale(' + sc + ')';
+            wrap.style.width = (194 / sc) + 'mm';
+            d.body.style.height = (availPx - 3) + 'px';
+            d.body.style.overflow = 'hidden';
+          }                                           /* बहुत ज़्यादा rows हों तो अगले पेज पर (header दोहराकर) जाएँगी */
+        }
+        w.focus(); w.print();
+      } catch(e){ console.error(e); alert('प्रिंट शुरू नहीं हो सका।'); }
+      setTimeout(() => { try { fr.remove(); } catch(e){} }, 60000);
+    };
+    const start = () => { try { fr.contentWindow.document.fonts.ready.then(() => setTimeout(go, 150)); } catch(e){ setTimeout(go, 600); } };
+    if(doc.readyState === 'complete') start(); else fr.onload = start;
+    setTimeout(go, 3500);
+  };
 })();
 </script>
 
