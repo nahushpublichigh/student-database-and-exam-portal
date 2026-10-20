@@ -1749,6 +1749,18 @@
                     <span>शिक्षक पद स्थापना</span>
                 </div>
 
+                <!-- NEW MAIN MENU OPTION: परीक्षा बैठक व्यवस्था (Exam Sitting Arrangement) -->
+                <div class="menu-item" data-perm="sitting-sub" onclick="toggleSubmenu('sitting-sub-menu')">
+                    <i class="fa-solid fa-chair"></i>
+                    <span>परीक्षा बैठक व्यवस्था</span>
+                    <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:0.7rem;"></i>
+                </div>
+                <div id="sitting-sub-menu" class="submenu">
+                    <div class="menu-item" data-perm="sitting-create" onclick="switchTab('sitting-create')">1. Create Sitting Arrangement</div>
+                    <div class="menu-item" data-perm="sitting-print" onclick="switchTab('sitting-print')">2. Print Sitting Arrangement</div>
+                    <div class="menu-item" data-perm="sitting-all" onclick="switchTab('sitting-all')">3. All Room Sitting Arrangement</div>
+                </div>
+
                 <div class="menu-item" data-perm="student-db" onclick="toggleSubmenu('student-sub')">
                     <i class="fa-solid fa-user-graduate"></i>
                     <span>छात्र डेटाबेस</span>
@@ -2183,6 +2195,142 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <!-- TAB: परीक्षा बैठक व्यवस्था — 1. Create Sitting Arrangement (NEW) -->
+                <section id="tab-sitting-create" class="tab-content hidden">
+                    <div class="card sa-card">
+                        <div class="sa-hero">
+                            <div class="sa-hero-glow"></div><div class="sa-spark sa-spark1"></div><div class="sa-spark sa-spark2"></div>
+                            <img class="sa-logo sa-h-logo" alt="" style="display:none">
+                            <div class="sa-hero-center">
+                                <div class="sa-school sa-h-school">—</div>
+                                <div class="sa-meta-line"><span class="sa-h-dise">School DISE Code - —</span><i class="sa-dot"></i><span class="sa-h-year">सत्र: —</span></div>
+                                <div class="sa-flourish"><i></i><b>✦</b><i></i></div>
+                                <div class="sa-title">बैठक व्यवस्था बनाएं</div>
+                                <div class="sa-subtitle">Create Sitting Arrangement</div>
+                            </div>
+                            <img class="sa-logo sa-h-logo" alt="" style="display:none">
+                        </div>
+
+                        <div class="sa-panel">
+                            <div class="sa-section-label"><i class="fa-solid fa-wand-magic-sparkles"></i> चरण 1 — सत्र और परीक्षा चुनें</div>
+                            <div class="sa-toolbar">
+                                <div class="sa-field"><label>सत्र (Year)</label><select id="sa-year"></select></div>
+                                <div class="sa-field"><label>परीक्षा का नाम (Exam Name)</label><select id="sa-exam"></select></div>
+                                <div class="sa-btns"><button type="button" class="sa-btn sa-btn-gen" onclick="saStep1()"><i class="fa-solid fa-chair"></i> Generate Sitting Arrangement</button></div>
+                            </div>
+                        </div>
+
+                        <div class="sa-panel sa-hidden" id="sa-config">
+                            <div class="sa-section-label"><i class="fa-solid fa-sliders"></i> चरण 2 — कमरा, तारीख, विषय, Row / Column चुनें</div>
+                            <div class="sa-grid-form">
+                                <div class="sa-field"><label>रूम नं. (Room No.) *</label><input type="text" id="sa-room" placeholder="जैसे 5 या A-1" oninput="saSyncMeta()"></div>
+                                <div class="sa-field"><label>तारीख (Date)</label><input type="date" id="sa-date" onchange="saSyncMeta()"></div>
+                                <div class="sa-field"><label>Row (1 से 10)</label><select id="sa-rows"></select></div>
+                                <div class="sa-field"><label>Column (1 से 10)</label><select id="sa-cols"></select></div>
+                                <div class="sa-field"><label>एक डेस्क पर छात्र</label><select id="sa-per" onchange="saSetPer(this.value)"><option value="1">1 छात्र</option><option value="2">2 छात्र</option><option value="3">3 छात्र</option><option value="4">4 छात्र</option></select></div>
+                                <div class="sa-field"><label>Roll No. भरने का तरीका</label><select id="sa-auto" onchange="saSetAuto(this.value)"><option value="1">Auto-fill (ऊपर से नीचे अपने आप)</option><option value="0">Manual (खुद भरूँगा)</option></select></div>
+                            </div>
+                            <div class="sa-field" style="margin-top:12px"><label>विषय (Subject) — एक से ज़्यादा चुन सकते हैं</label><div id="sa-subj" class="sa-chips"></div></div>
+                            <div class="sa-toolbar" style="margin-top:14px">
+                                <div class="sa-field" style="min-width:260px"><label>पहले से सेव कमरा Edit करें</label><select id="sa-load-sel"></select></div>
+                                <div class="sa-btns">
+                                    <button type="button" class="sa-btn sa-btn-view" onclick="saLoadSaved()"><i class="fa-solid fa-pen-to-square"></i> Load / Edit</button>
+                                    <button type="button" class="sa-btn sa-btn-gen" onclick="saBuild()"><i class="fa-solid fa-table-cells"></i> Generate</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sa-panel sa-hidden" id="sa-work">
+                            <div class="sa-toolbar">
+                                <div class="sa-btns">
+                                    <button type="button" class="sa-btn sa-btn-add" onclick="saAddRow()"><i class="fa-solid fa-plus"></i> Add Row</button>
+                                    <button type="button" class="sa-btn sa-btn-del" onclick="saDelRow()"><i class="fa-solid fa-minus"></i> Delete Row</button>
+                                    <button type="button" class="sa-btn sa-btn-add" onclick="saAddCol()"><i class="fa-solid fa-plus"></i> Add Column</button>
+                                    <button type="button" class="sa-btn sa-btn-del" onclick="saDelCol()"><i class="fa-solid fa-minus"></i> Delete Column</button>
+                                </div>
+                                <div class="sa-btns">
+                                    <button type="button" class="sa-btn sa-btn-save" onclick="saSave()"><i class="fa-solid fa-cloud-arrow-up"></i> Save</button>
+                                    <button type="button" class="sa-btn sa-btn-reset" onclick="saReset()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                                    <label style="display:inline-flex;align-items:center;gap:5px;font-size:12px"><input type="checkbox" id="sa-principal-sign"> प्रिंसिपल हस्ताक्षर</label>
+                                    <select id="sa-orient" class="sa-mini-select"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
+                                    <button type="button" class="sa-btn sa-btn-print" onclick="saPrintCreate()"><i class="fa-solid fa-print"></i> Print (A4)</button>
+                                    <button type="button" class="sa-btn sa-btn-excel" onclick="saExcelCreate()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                                </div>
+                            </div>
+                            <div class="sa-note"><i class="fa-solid fa-circle-info"></i> हर Column के ✕ के ठीक नीचे Class चुनें। 2 या 3 छात्र प्रति डेस्क चुनने पर हर छात्र के लिए अलग Class चयन आएगा। किसी Column में Roll No. भरने पर नीचे की Rows में क्रमवार Roll No. अपने आप भरेंगे।</div>
+                            <datalist id="sa-cls-list"></datalist>
+                            <div id="sa-editor" class="sa-editor-wrap"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: परीक्षा बैठक व्यवस्था — 2. Print Sitting Arrangement (NEW) -->
+                <section id="tab-sitting-print" class="tab-content hidden">
+                    <div class="card sa-card">
+                        <div class="sa-hero">
+                            <div class="sa-hero-glow"></div><div class="sa-spark sa-spark1"></div><div class="sa-spark sa-spark2"></div>
+                            <img class="sa-logo sa-h-logo" alt="" style="display:none">
+                            <div class="sa-hero-center">
+                                <div class="sa-school sa-h-school">—</div>
+                                <div class="sa-meta-line"><span class="sa-h-dise">School DISE Code - —</span><i class="sa-dot"></i><span class="sa-h-year">सत्र: —</span></div>
+                                <div class="sa-flourish"><i></i><b>✦</b><i></i></div>
+                                <div class="sa-title">बैठक व्यवस्था प्रिंट</div>
+                                <div class="sa-subtitle">Print Sitting Arrangement</div>
+                            </div>
+                            <img class="sa-logo sa-h-logo" alt="" style="display:none">
+                        </div>
+                        <div class="sa-panel">
+                            <div class="sa-toolbar">
+                                <div class="sa-field"><label>सत्र (Year)</label><select id="sa-pl-year"></select></div>
+                                <div class="sa-field"><label>परीक्षा का नाम (Exam Name)</label><select id="sa-pl-exam"></select></div>
+                                <div class="sa-field"><label>Print Orientation</label><select id="sa-pl-orient"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+                                <div class="sa-btns"><button type="button" class="sa-btn sa-btn-gen" onclick="saPlShow()"><i class="fa-solid fa-list"></i> Show List</button></div>
+                            </div>
+                        </div>
+                        <div class="sa-panel sa-hidden" id="sa-pl-wrap">
+                            <div class="sa-section-label"><i class="fa-solid fa-door-open"></i> सेव की गई बैठक व्यवस्था (Room Wise)</div>
+                            <div class="sa-table-wrap">
+                                <table class="sa-table">
+                                    <thead><tr><th>क्र.</th><th>Room No.</th><th>तारीख</th><th>विषय</th><th>कुल छात्र</th><th>Action</th></tr></thead>
+                                    <tbody id="sa-pl-body"></tbody>
+                                </table>
+                            </div>
+                            <div id="sa-pl-view" class="sa-editor-wrap" style="margin-top:18px"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: परीक्षा बैठक व्यवस्था — 3. All Room Sitting Arrangement (NEW) -->
+                <section id="tab-sitting-all" class="tab-content hidden">
+                    <div class="card sa-card">
+                        <div class="sa-hero">
+                            <div class="sa-hero-glow"></div><div class="sa-spark sa-spark1"></div><div class="sa-spark sa-spark2"></div>
+                            <img class="sa-logo sa-h-logo" alt="" style="display:none">
+                            <div class="sa-hero-center">
+                                <div class="sa-school sa-h-school">—</div>
+                                <div class="sa-meta-line"><span class="sa-h-dise">School DISE Code - —</span><i class="sa-dot"></i><span class="sa-h-year">सत्र: —</span></div>
+                                <div class="sa-flourish"><i></i><b>✦</b><i></i></div>
+                                <div class="sa-title">सभी कमरों की बैठक व्यवस्था</div>
+                                <div class="sa-subtitle">All Room Sitting Arrangement</div>
+                            </div>
+                            <img class="sa-logo sa-h-logo" alt="" style="display:none">
+                        </div>
+                        <div class="sa-panel">
+                            <div class="sa-toolbar">
+                                <div class="sa-field"><label>सत्र (Year)</label><select id="sa-al-year"></select></div>
+                                <div class="sa-field"><label>परीक्षा का नाम (Exam Name)</label><select id="sa-al-exam"></select></div>
+                                <div class="sa-field"><label>Print Orientation</label><select id="sa-al-orient"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+                                <div class="sa-btns">
+                                    <button type="button" class="sa-btn sa-btn-gen" onclick="saAllShow()"><i class="fa-solid fa-eye"></i> Show</button>
+                                    <button type="button" class="sa-btn sa-btn-print" onclick="saAllPrint()"><i class="fa-solid fa-print"></i> Print (A4)</button>
+                                    <button type="button" class="sa-btn sa-btn-excel" onclick="saAllExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sa-panel sa-hidden" id="sa-al-wrap"><div id="sa-al-out" class="sa-editor-wrap"></div></div>
                     </div>
                 </section>
 
@@ -4216,6 +4364,10 @@
                                     <label><input type="checkbox" class="tch-perm-chk" value="student-photo" checked> छात्र फोटो अपलोड (Student Photo Upload)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="photo-download"> फोटो डाउनलोड (Photo Download)</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="teacher-posts"> शिक्षक पद स्थापना</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="sitting-sub"> परीक्षा बैठक व्यवस्था</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="sitting-create"> Create Sitting Arrangement</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="sitting-print"> Print Sitting Arrangement</label>
+                                    <label><input type="checkbox" class="tch-perm-chk" value="sitting-all"> All Room Sitting Arrangement</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="add-single" checked> नया छात्र जोड़ें</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="add-bulk"> बल्क एक्सेल अपलोड</label>
                                     <label><input type="checkbox" class="tch-perm-chk" value="view-data" checked> छात्र डेटा देखें</label>
@@ -5785,6 +5937,7 @@
             if(tabId === 'student-photo') loadStudentPhotoTable();
             if(tabId === 'photo-download') pdInit();
             if(tabId === 'teacher-posts' && typeof tpInit === 'function') tpInit();
+            if(tabId.indexOf('sitting-') === 0 && typeof saOnTab === 'function') saOnTab(tabId);
             if(tabId === 'goshwara-report') generateGoshwaraReport();
             if(tabId === 'control-panel') { if(!controlPanelUnlocked) showControlPanelGate(); else { renderCorrectionHistoryTable(); renderDuplicateDataTable(); renderActivityHistory(); renderTeacherMarksAudit(); renderTeacherAccountsTable(); buildTeacherScopeBuilder(); } hdLock(); }
             if(tabId === 'fill-marks') applyTeacherFillScope();
@@ -15848,6 +16001,593 @@ td.c{text-align:center}td.n{font-weight:800}
     const start = () => { try { fr.contentWindow.document.fonts.ready.then(() => setTimeout(go, 150)); } catch(e){ setTimeout(go, 600); } };
     if(doc.readyState === 'complete') start(); else fr.onload = start;
     setTimeout(go, 3500);
+  };
+})();
+</script>
+
+<style id="sitting-arrangement-style">
+.sa-card{padding:0 !important;background:linear-gradient(160deg,#07131f 0%,#0f1d3a 55%,#07131f 100%) !important;border:1px solid rgba(45,212,191,.35) !important;box-shadow:0 18px 50px rgba(2,6,23,.55),0 0 0 1px rgba(45,212,191,.08) !important;overflow:hidden}
+.sa-hidden{display:none !important}
+.sa-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:30px 28px 26px;background:linear-gradient(110deg,#0f766e 0%,#1e3a8a 55%,#4c1d95 120%);overflow:hidden;border-bottom:1px solid rgba(45,212,191,.5)}
+.sa-hero-glow{position:absolute;top:-70%;left:-20%;width:60%;height:240%;background:radial-gradient(closest-side,rgba(45,212,191,.35),rgba(45,212,191,0));animation:saGlow 7s ease-in-out infinite alternate;pointer-events:none}
+@keyframes saGlow{0%{transform:translateX(0) scale(1);opacity:.6}100%{transform:translateX(170%) scale(1.25);opacity:1}}
+.sa-spark{position:absolute;width:6px;height:6px;border-radius:50%;background:#99f6e4;box-shadow:0 0 14px 4px rgba(94,234,212,.7);animation:saTwinkle 3.2s ease-in-out infinite;pointer-events:none}
+.sa-spark1{top:22%;left:12%}.sa-spark2{bottom:20%;right:14%;animation-delay:1.4s}
+@keyframes saTwinkle{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.4)}}
+.sa-logo{position:relative;z-index:1;width:74px;height:74px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.95);padding:4px;border:2px solid rgba(45,212,191,.85);box-shadow:0 0 24px rgba(45,212,191,.45)}
+.sa-hero-center{position:relative;z-index:1;flex:1;text-align:center;min-width:0}
+.sa-school{font-size:1.15rem;font-weight:800;color:#fff;letter-spacing:1.6px;text-transform:uppercase;text-shadow:0 2px 14px rgba(0,0,0,.55);word-break:break-word}
+.sa-meta-line{margin-top:6px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;font-size:.86rem;font-weight:700;color:#99f6e4;letter-spacing:.6px}
+.sa-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 8px #2dd4bf}
+.sa-flourish{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px auto 4px;max-width:420px;color:#2dd4bf}
+.sa-flourish i{flex:1;height:2px;background:linear-gradient(90deg,transparent,#2dd4bf,transparent)}
+.sa-flourish b{font-size:1rem;animation:saTwinkle 3s ease-in-out infinite}
+.sa-title{font-size:2.3rem;line-height:1.3;font-weight:800;background:linear-gradient(180deg,#ffffff 0%,#5eead4 55%,#fbbf24 120%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:saTitleIn 1s ease both;filter:drop-shadow(0 4px 18px rgba(0,0,0,.45))}
+@keyframes saTitleIn{0%{opacity:0;transform:translateY(16px) scale(.94);letter-spacing:6px}100%{opacity:1;transform:none;letter-spacing:1px}}
+.sa-subtitle{font-size:.78rem;color:#cbd5e1;letter-spacing:5px;text-transform:uppercase;margin-top:2px}
+.sa-panel{padding:20px 28px 10px;animation:saRise .5s ease both}
+@keyframes saRise{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+.sa-section-label{font-size:.95rem;font-weight:800;color:#99f6e4;margin:4px 0 12px;letter-spacing:.4px}
+.sa-section-label i{color:#2dd4bf;margin-right:7px}
+.sa-toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.sa-btns{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sa-grid-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.sa-field{min-width:170px}
+.sa-field label{display:block;font-size:.76rem;font-weight:700;color:#5eead4;margin-bottom:5px;letter-spacing:.4px}
+.sa-field input,.sa-field select,.sa-mini-select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.8);color:#f1f5f9;font-size:.9rem;font-weight:600;outline:none;transition:.2s;box-sizing:border-box;color-scheme:dark}
+.sa-mini-select{width:auto;padding:9px 10px}
+.sa-field select option,.sa-mini-select option{background:#0f172a;color:#f1f5f9}
+.sa-field input:focus,.sa-field select:focus,.sa-mini-select:focus{border-color:#2dd4bf;box-shadow:0 0 0 3px rgba(45,212,191,.25)}
+.sa-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sa-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.8);color:#e2e8f0;font-size:.82rem;font-weight:700;cursor:pointer;transition:.2s;user-select:none}
+.sa-chip input{accent-color:#2dd4bf;width:auto;margin:0;cursor:pointer}
+.sa-chip:hover{border-color:#2dd4bf;transform:translateY(-1px)}
+.sa-chip.on{background:linear-gradient(135deg,#0f766e,#1d4ed8);border-color:#5eead4;color:#fff;box-shadow:0 4px 14px rgba(45,212,191,.3)}
+.sa-btn{border:none;cursor:pointer;font-weight:700;font-size:.88rem;padding:10px 16px;border-radius:9px;display:inline-flex;align-items:center;gap:8px;transition:.25s;color:#fff;letter-spacing:.3px;white-space:nowrap}
+.sa-btn:hover{transform:translateY(-2px)}
+.sa-btn-gen{background:linear-gradient(135deg,#0d9488,#1d4ed8);box-shadow:0 6px 18px rgba(13,148,136,.45)}
+.sa-btn-add{background:linear-gradient(135deg,#7c3aed,#4c1d95);box-shadow:0 6px 18px rgba(124,58,237,.4)}
+.sa-btn-del{background:linear-gradient(135deg,#e11d48,#9f1239);box-shadow:0 6px 18px rgba(225,29,72,.35)}
+.sa-btn-save{background:linear-gradient(135deg,#16a34a,#166534);box-shadow:0 6px 18px rgba(22,163,74,.4)}
+.sa-btn-reset{background:linear-gradient(135deg,#64748b,#334155)}
+.sa-btn-print{background:linear-gradient(135deg,#2563eb,#1e3a8a);box-shadow:0 6px 18px rgba(37,99,235,.4)}
+.sa-btn-excel{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 6px 18px rgba(5,150,105,.4)}
+.sa-btn-view{background:linear-gradient(135deg,#f59e0b,#b45309);box-shadow:0 6px 18px rgba(245,158,11,.35)}
+.sa-note{margin:4px 0 14px;padding:10px 14px;border-radius:10px;background:rgba(45,212,191,.08);border:1px dashed rgba(45,212,191,.4);color:#cbd5e1;font-size:.82rem;font-weight:600;line-height:1.5}
+.sa-note i{color:#2dd4bf;margin-right:6px}
+.sa-editor-wrap{overflow:auto;padding:4px 2px 24px}
+.sa-table-wrap{overflow:auto;border-radius:12px;border:1px solid rgba(45,212,191,.25)}
+.sa-table{width:100%;border-collapse:collapse;font-size:.88rem;color:#e2e8f0}
+.sa-table th{background:linear-gradient(180deg,#0f766e,#115e59);color:#fff;padding:10px 12px;text-align:center;font-weight:800;border-bottom:2px solid #2dd4bf}
+.sa-table td{padding:10px 12px;border-bottom:1px solid rgba(148,163,184,.18);text-align:center;background:rgba(15,23,42,.55)}
+.sa-table tbody tr:hover td{background:rgba(45,212,191,.1)}
+.sa-act{border:none;cursor:pointer;font-weight:700;font-size:.78rem;padding:6px 11px;border-radius:7px;color:#fff;margin:2px;transition:.2s}
+.sa-act:hover{transform:translateY(-1px)}
+.sa-act-view{background:#d97706}.sa-act-edit{background:#2563eb}.sa-act-print{background:#0d9488}.sa-act-del{background:#e11d48}
+.sa-empty{padding:22px;text-align:center;color:#94a3b8;font-weight:600}
+@media (max-width:700px){.sa-hero{flex-direction:column;padding:22px 14px}.sa-title{font-size:1.7rem}.sa-panel{padding:16px 14px 8px}}
+/* editable grid (paper sheet) extras */
+.sa-sheet table.g input{width:100%;box-sizing:border-box;border:none;background:transparent;text-align:center;font:inherit;outline:none;padding:2px 1px;color:#0f172a}
+.sa-sheet table.g input.sa-cls{font-size:10px;font-weight:700;color:#7c2d12;text-transform:uppercase}
+.sa-sheet table.g input.sa-roll{font-size:13px;font-weight:900;border-top:1px solid #cbd5e1}
+.sa-sheet table.g input:focus{background:#fef9c3;box-shadow:inset 0 0 0 1px #d97706}
+.sa-sheet .xbtn{border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:50%;width:18px;height:18px;line-height:16px;font-size:10px;cursor:pointer;margin-left:4px;padding:0}
+.sa-sheet .xbtn:hover{background:#e11d48}
+.sa-sheet{min-width:560px;max-width:1000px;margin:0 auto}
+</style>
+
+<script id="sitting-arrangement-script">
+/* =========== परीक्षा बैठक व्यवस्था (NEW FEATURE) — डेटा सिर्फ Firebase (cloudStore → portalData/NPHS_SITTING_ARRANGEMENT_DB_V1) में सेव होता है।
+   संरचना: { "<सत्र>": { "<EXAM>": { "<ROOM>": {room,date,subjects,rows,cols,per,cells,...} } } }
+   बाकी किसी भी मौजूदा डेटा/फ़ंक्शन को यह छूता या बदलता नहीं है। =========== */
+(function(){
+  const KEY = 'NPHS_SITTING_ARRANGEMENT_DB_V1';
+  const EXAMS = [['QUARTERLY','Quarterly'],['HALF YEARLY','Half Yearly'],['PRE BOARD','Pre Board'],['ANNUAL','Annual']];
+  const SUBJECTS = [['ALL','All (सभी)'],['HINDI','Hindi'],['ENGLISH','English'],['SANSKRIT','Sanskrit'],['MATHEMATICS','Mathematics'],['SCIENCE','Science'],['SOCIAL SCIENCE','Social Science'],['COMPUTER','Computer'],['GK','GK'],['EVS','EVS'],['ORAL','Oral'],['PRACTICAL','Practical'],['ENVIRONMENT','Environment'],['OTHER','Other']];
+  const MAXR = 20, MAXC = 20;
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const years = () => (typeof PORTAL_YEARS !== 'undefined' && PORTAL_YEARS.length) ? PORTAL_YEARS : ['2026-27','2027-28','2028-29','2029-30'];
+  const cfg = () => (typeof marksheetConfigDB !== 'undefined' && marksheetConfigDB) ? marksheetConfigDB : {};
+  const schoolName = () => cfg().schoolName || 'NAHUSH PUBLIC HIGH SCHOOL MOHLA';
+  const diseCode = () => cfg().diseCode || '';
+  const classList = () => (typeof CLASS_SEQUENCE !== 'undefined') ? CLASS_SEQUENCE : ['NURSERY','LKG','UKG','1ST','2ND','3RD','4TH','5TH','6TH','7TH','8TH','9TH','10TH','11TH','12TH'];
+
+  /* ---------- Firebase storage ---------- */
+  function getAll(){ try { const o = JSON.parse(cloudStore.getItem(KEY) || '{}'); return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; } catch(e){ return {}; } }
+  function putAll(o){ cloudStore.setItem(KEY, JSON.stringify(o)); try { if(typeof flushCloudStore === 'function') flushCloudStore(); } catch(e){} }
+  function roomsFor(y, ex){
+    const o = ((getAll()[y] || {})[ex]) || {};
+    return Object.keys(o).map(k => o[k]).sort((a,b) => String(a.room).localeCompare(String(b.room), undefined, {numeric:true}));
+  }
+
+  /* ---------- helpers ---------- */
+  const examLabel = v => { const e = EXAMS.find(x => x[0] === v); return e ? e[1] : v; };
+  function fmtDate(d){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? (m[3] + '-' + m[2] + '-' + m[1]) : (d || ''); }
+  function subjText(a){ if(!a || !a.length) return ''; if(a.includes('ALL')) return 'All Subjects'; return a.map(x => { const s = SUBJECTS.find(z => z[0] === x); return s ? s[1] : x; }).join(', '); }
+  const filled = s => String(s.r == null ? '' : s.r).trim() !== '';
+  function incRoll(v){
+    const m = /^(.*?)(\d+)$/.exec(String(v == null ? '' : v).trim()); if(!m) return '';
+    try { return m[1] + String(BigInt(m[2]) + BigInt(1)).padStart(m[2].length, '0'); } catch(e){ return m[1] + String(parseInt(m[2],10) + 1).padStart(m[2].length, '0'); }
+  }
+  const emptyDesk = per => Array.from({length: per}, () => ({c:'', r:''}));
+  const newGrid = (rows, cols, per) => Array.from({length: rows}, () => Array.from({length: cols}, () => emptyDesk(per)));
+  function recTotals(rec){
+    const colT = Array.from({length: rec.cols}, () => 0); const cw = {}; let total = 0;
+    rec.cells.forEach(row => row.forEach((desk, c) => desk.forEach(s => {
+      if(filled(s)){ colT[c]++; total++; const k = String(s.c || '').trim().toUpperCase() || '—'; cw[k] = (cw[k] || 0) + 1; }
+    })));
+    return {cols: colT, total: total, cw: cw};
+  }
+  function classOrder(a, b){
+    const L = classList(); let x = L.indexOf(a), y = L.indexOf(b);
+    if(x < 0) x = 999; if(y < 0) y = 999;
+    return x - y || String(a).localeCompare(String(b), undefined, {numeric:true});
+  }
+  function cwText(cw){ return Object.keys(cw).sort(classOrder).map(k => k + ': ' + cw[k]).join(' &nbsp;|&nbsp; '); }
+  function fillSel(id, items, keep){
+    const el = $(id); if(!el) return; const old = el.value;
+    el.innerHTML = items.map(i => `<option value="${esc(i[0])}">${esc(i[1])}</option>`).join('');
+    if(keep && old && items.some(i => i[0] === old)) el.value = old;
+  }
+  function fillYearExam(yId, eId){
+    const def = (typeof getPortalYear === 'function') ? getPortalYear() : years()[0];
+    const ys = $(yId), es = $(eId); if(!ys || !es) return;
+    if(!ys.options.length){ fillSel(yId, years().map(y => [y, y])); ys.value = years().includes(def) ? def : years()[0]; }
+    if(!es.options.length) fillSel(eId, EXAMS);
+  }
+  function renderHeroes(){
+    document.querySelectorAll('.sa-h-school').forEach(n => n.textContent = schoolName());
+    document.querySelectorAll('.sa-h-dise').forEach(n => n.textContent = 'School DISE Code - ' + diseCode());
+    const y = (typeof getPortalYear === 'function') ? getPortalYear() : years()[0];
+    document.querySelectorAll('.sa-h-year').forEach(n => n.textContent = 'सत्र: ' + y);
+    document.querySelectorAll('.sa-h-logo').forEach(im => {
+      try { if(typeof logoDataURL !== 'undefined' && logoDataURL){ im.src = logoDataURL; im.style.display = ''; } else im.style.display = 'none'; } catch(e){ im.style.display = 'none'; }
+    });
+  }
+
+  /* ---------- Paper-sheet CSS (screen + print दोनों में एक जैसा) ---------- */
+  function sheetCss(P){ return `
+${P}{background:#fff;color:#111;font-family:'Noto Sans Devanagari','Mangal',Arial,sans-serif;border:2px solid #1e3a8a;outline:1px solid #d97706;outline-offset:-5px;padding:12px;box-sizing:border-box}
+${P} .hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+${P} .lg{width:64px;height:64px;object-fit:contain;display:block}
+${P} .hc{flex:1;text-align:center}
+${P} .sn{font-size:22px;font-weight:900;color:#1e3a8a;text-transform:uppercase;letter-spacing:.5px;line-height:1.2}
+${P} .ex{margin-top:4px;font-size:14px;font-weight:800;color:#b45309;letter-spacing:.4px}
+${P} .box{margin:8px auto 0;text-align:center;font-weight:900;color:#fff;border-radius:8px;padding:6px 10px;letter-spacing:1px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+${P} .b1{background:linear-gradient(90deg,#7c2d12,#b45309);font-size:20px;width:55%}
+${P} .b2{background:linear-gradient(90deg,#1e3a8a,#4338ca);font-size:16px;width:75%}
+${P} .meta{margin-top:8px;text-align:center;font-size:12px;font-weight:700;color:#334155}
+${P} table.g,${P} table.al{width:100%;border-collapse:collapse;margin-top:8px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+${P} table.g{table-layout:fixed}
+${P} table.g th,${P} table.g td,${P} table.al th,${P} table.al td{border:1px solid #334155;padding:4px;text-align:center;vertical-align:middle;word-break:break-word}
+${P} table.g th,${P} table.al th{background:#1e3a8a;color:#fff;font-size:12px}
+${P} table.g th.rh{background:#312e81;width:62px}
+${P} table.g tfoot th,${P} table.g tfoot td,${P} table.al tfoot td,${P} table.al tfoot th{background:#fef3c7;color:#111;font-weight:900;font-size:13px}
+${P} table.g tr,${P} table.al tr{page-break-inside:avoid}
+${P} .dk{display:flex;justify-content:center}
+${P} .sl{flex:1;min-width:0;padding:2px 3px;border-left:1px dashed #94a3b8}
+${P} .sl:first-child{border-left:none}
+${P} .sl .cl{display:block;font-size:10px;font-weight:700;color:#7c2d12;min-height:12px;text-transform:uppercase}
+${P} .sl .rl{display:block;font-size:13px;font-weight:900;color:#0f172a;min-height:17px;border-top:1px solid #cbd5e1}
+${P} .rt{margin-top:8px;padding:6px 10px;text-align:center;font-size:13px;font-weight:900;color:#7c2d12;background:#fef3c7;border:1px solid #d97706;border-radius:6px}
+${P} table.al th.roll-range-head{font-size:15px;font-weight:900;letter-spacing:.2px;padding:7px 4px}
+${P} table.al td.l{text-align:left}
+${P} table.al td.b{font-weight:900}
+${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
+`; }
+  (function injectSheetCss(){
+    if($('sa-sheet-css')) return;
+    const st = document.createElement('style'); st.id = 'sa-sheet-css'; st.textContent = sheetCss('.sa-sheet'); document.head.appendChild(st);
+  })();
+
+  /* ---------- Sheet HTML builders ---------- */
+  function pHead(year, exam){
+    const logo = (typeof logoDataURL !== 'undefined' && logoDataURL) ? `<img class="lg" src="${logoDataURL}">` : '<span class="lg"></span>';
+    return `<div class="hd">${logo}<div class="hc"><div class="sn">${esc(schoolName())}</div><div class="ex">${esc(String(examLabel(exam)).toUpperCase())} EXAM &bull; ${esc(year)}</div></div>${logo}</div>`;
+  }
+  const roomBox = room => `<div class="box b1" id="sa-ph-room">ROOM NO. ${esc(room || '—')}</div>`;
+  const titleBox = '<div class="box b2">EXAM SITTING ARRANGEMENT</div>';
+  function metaLine(rec){
+    const a = []; if(rec.date) a.push('Date: ' + esc(fmtDate(rec.date))); const s = subjText(rec.subjects); if(s) a.push('Subject: ' + esc(s));
+    return a.join(' &nbsp;&bull;&nbsp; ');
+  }
+  function staticGrid(rec){
+    const tot = recTotals(rec);
+    let h = '<table class="g"><thead><tr><th class="rh">Row</th>' + Array.from({length: rec.cols}, (_, c) => `<th>Column ${c+1}</th>`).join('') + '</tr></thead><tbody>';
+    rec.cells.forEach((row, r) => {
+      h += `<tr><th class="rh">${r+1}</th>` + row.map(desk => `<td><div class="dk">${desk.map(s => `<div class="sl"><span class="cl">${esc(s.c)}</span><span class="rl">${esc(s.r)}</span></div>`).join('')}</div></td>`).join('') + '</tr>';
+    });
+    h += '</tbody><tfoot><tr><th class="rh">Total</th>' + tot.cols.map(n => `<td>${n}</td>`).join('') + '</tr></tfoot></table>';
+    h += `<div class="rt">Room Total Students: ${tot.total}${Object.keys(tot.cw).length ? ' &nbsp;|&nbsp; ' + cwText(tot.cw) : ''}</div>`;
+    return h;
+  }
+  function roomSheetHTML(rec){
+    return pHead(rec.year, rec.exam) + roomBox(rec.room) + titleBox + (metaLine(rec) ? `<div class="meta">${metaLine(rec)}</div>` : '') + staticGrid(rec);
+  }
+
+  /* ---------- Print (A4, fit to page, portrait / landscape) ---------- */
+  function doPrint(inner, title, orient, minScale){
+    const land = orient === 'landscape';
+    const pw = land ? 297 : 210, ph = land ? 210 : 297, availW = pw - 16, availH = ph - 16;
+    const old = $('sa-print-frame'); if(old) old.remove();
+    const fr = document.createElement('iframe'); fr.id = 'sa-print-frame';
+    fr.style.cssText = 'position:fixed;right:0;bottom:0;width:' + Math.round(pw*96/25.4) + 'px;height:' + Math.round(ph*96/25.4) + 'px;border:0;opacity:0;pointer-events:none;';
+    document.body.appendChild(fr);
+    const doc = fr.contentDocument || fr.contentWindow.document;
+    const html = `<!DOCTYPE html><html lang="hi"><head><meta charset="UTF-8"><title>${esc(title)}</title>
+<style>@page{size:A4 ${land ? 'landscape' : 'portrait'};margin:8mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}#saw{width:${availW}mm}${sheetCss('#saw')}</style></head><body><div id="saw">${inner}</div></body></html>`;
+    doc.open(); doc.write(html); doc.close();
+    let done = false;
+    const go = () => {
+      if(done) return; done = true;
+      try {
+        const w = fr.contentWindow, d = w.document, wrap = d.getElementById('saw');
+        const pxW = availW * 96 / 25.4, pxH = availH * 96 / 25.4 - 4;
+        const sc = Math.min(1, pxH / wrap.scrollHeight, pxW / wrap.scrollWidth);
+        if(sc < 1 && sc >= minScale){
+          wrap.style.transformOrigin = 'top left'; wrap.style.transform = 'scale(' + sc + ')'; wrap.style.width = (availW / sc) + 'mm';
+          d.body.style.height = pxH + 'px'; d.body.style.overflow = 'hidden';
+        }
+        w.focus(); w.print();
+      } catch(e){ console.error(e); alert('प्रिंट शुरू नहीं हो सका।'); }
+      setTimeout(() => { try { fr.remove(); } catch(e){} }, 60000);
+    };
+    const start = () => { try { fr.contentWindow.document.fonts.ready.then(() => setTimeout(go, 150)); } catch(e){ setTimeout(go, 600); } };
+    if(doc.readyState === 'complete') start(); else fr.onload = start;
+    setTimeout(go, 3500);
+  }
+  function safeName(s){ return String(s).replace(/[^A-Za-z0-9_-]+/g, '_'); }
+
+  /* ================= 1. CREATE SITTING ARRANGEMENT ================= */
+  const S = {year:'', exam:'', room:'', date:'', subjects:[], rows:0, cols:0, per:1, cells:[], auto:true, orig:null, built:false};
+
+  function subjectsFromDom(){ return Array.from(document.querySelectorAll('#sa-subj input:checked')).map(i => i.value); }
+  function paintChips(){ document.querySelectorAll('#sa-subj .sa-chip').forEach(l => l.classList.toggle('on', l.querySelector('input').checked)); }
+  function buildChips(){
+    const box = $('sa-subj'); if(!box || box.children.length) return;
+    box.innerHTML = SUBJECTS.map(s => `<label class="sa-chip"><input type="checkbox" value="${esc(s[0])}" onchange="saSubjClick(this)"> ${esc(s[1])}</label>`).join('');
+  }
+  window.saSubjClick = function(inp){
+    if(inp.checked){
+      if(inp.value === 'ALL') document.querySelectorAll('#sa-subj input').forEach(i => { if(i.value !== 'ALL') i.checked = false; });
+      else { const a = document.querySelector('#sa-subj input[value="ALL"]'); if(a) a.checked = false; }
+    }
+    paintChips(); window.saSyncMeta();
+  };
+  function snap(){
+    return {year:S.year, exam:S.exam, room:S.room, date:S.date, subjects:S.subjects.slice(), rows:S.rows, cols:S.cols, per:S.per, cells:S.cells};
+  }
+  window.saSyncMeta = function(){
+    S.room = ($('sa-room').value || '').trim(); S.date = $('sa-date').value || ''; S.subjects = subjectsFromDom();
+    if(!S.built) return;
+    const rb = $('sa-ph-room'); if(rb) rb.innerHTML = 'ROOM NO. ' + esc(S.room || '—');
+    const mt = $('sa-ph-meta'); if(mt) mt.innerHTML = metaLine(snap());
+  };
+
+  window.saInitCreate = function(){
+    fillYearExam('sa-year', 'sa-exam'); buildChips();
+    if(!$('sa-rows').options.length){
+      fillSel('sa-rows', Array.from({length: 10}, (_, i) => [String(i+1), String(i+1)]));
+      fillSel('sa-cols', Array.from({length: 10}, (_, i) => [String(i+1), String(i+1)]));
+      $('sa-rows').value = '5'; $('sa-cols').value = '4';
+    }
+    const dl = $('sa-cls-list'); if(dl && !dl.children.length) dl.innerHTML = classList().map(c => `<option value="${esc(c)}"></option>`).join('');
+    renderHeroes();
+  };
+  function refreshLoadSel(){
+    const list = roomsFor(S.year, S.exam);
+    const el = $('sa-load-sel');
+    el.innerHTML = '<option value="">-- सेव कमरा चुनें --</option>' + list.map(r => `<option value="${esc(r.room)}">Room ${esc(r.room)}</option>`).join('');
+  }
+  window.saStep1 = function(){
+    const prevY = S.year, prevE = S.exam;
+    S.year = $('sa-year').value; S.exam = $('sa-exam').value;
+    if(!S.year || !S.exam){ alert('कृपया सत्र और परीक्षा चुनें।'); return; }
+    if(S.built && (S.year !== prevY || S.exam !== prevE)) S.orig = null;
+    refreshLoadSel();
+    $('sa-config').classList.remove('sa-hidden');
+    if(S.built){ renderEditor(); }
+    $('sa-config').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  window.saBuild = function(){
+    S.year = $('sa-year').value; S.exam = $('sa-exam').value;
+    const room = ($('sa-room').value || '').trim();
+    if(!room){ alert('कृपया रूम नं. भरें।'); $('sa-room').focus(); return; }
+    if(S.built && S.cells.some(row => row.some(d => d.some(s => filled(s) || String(s.c || '').trim()))) && !confirm('नया Generate करने पर अभी भरी हुई जानकारी हट जाएगी। जारी रखें?')) return;
+    S.room = room; S.date = $('sa-date').value || ''; S.subjects = subjectsFromDom();
+    S.rows = +$('sa-rows').value; S.cols = +$('sa-cols').value; S.per = +$('sa-per').value; S.auto = $('sa-auto').value === '1';
+    S.cells = newGrid(S.rows, S.cols, S.per); S.built = true; S.orig = null;
+    $('sa-work').classList.remove('sa-hidden'); renderEditor();
+    $('sa-work').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+
+  function renderEditor(){
+    const ed = $('sa-editor'); if(!ed) return;
+    const rec = snap(); let h = '<div class="sa-sheet" id="sa-sheet">' + pHead(S.year, S.exam) + roomBox(S.room) + titleBox + `<div class="meta" id="sa-ph-meta">${metaLine(rec)}</div>`;
+    h += '<table class="g"><thead><tr><th class="rh">Row</th>' + Array.from({length: S.cols}, (_, c) => `<th><div>Column ${c+1}<button type="button" class="xbtn" title="यह Column हटाएँ" onclick="saDelCol(${c})">✕</button></div><div class="sa-column-classes">${Array.from({length:S.per},(_,k)=>`<label style="display:block;font-size:10px;margin-top:4px">Class${S.per>1?' '+(k+1):''}<select class="sa-column-class" data-c="${c}" data-k="${k}" onchange="saSetColumnClass(${c},${k},this.value)" style="display:block;width:100%;max-width:140px;font-size:12px"><option value="">Class चुनें</option>${classList().map(cl=>`<option value="${esc(cl)}" ${S.cells.some(row=>row[c]&&row[c][k]&&row[c][k].c===cl)?'selected':''}>${esc(cl)}</option>`).join('')}</select></label>`).join('')}</div></th>`).join('') + '</tr></thead><tbody>';
+    S.cells.forEach((row, r) => {
+      h += `<tr><th class="rh">${r+1}<button type="button" class="xbtn" title="यह Row हटाएँ" onclick="saDelRow(${r})">✕</button></th>` + row.map((desk, c) =>
+        `<td><div class="dk">${desk.map((st, k) => `<div class="sl"><input class="sa-roll" placeholder="" aria-label="Column ${c+1} Row ${r+1} Roll No ${k+1}" inputmode="text" data-r="${r}" data-c="${c}" data-k="${k}" value="${esc(st.r)}"></div>`).join('')}</div></td>`).join('') + '</tr>';
+    });
+    h += '</tbody><tfoot><tr><th class="rh">Total</th>' + Array.from({length: S.cols}, (_, c) => `<td id="sa-ct-${c}">0</td>`).join('') + '</tr></tfoot></table>';
+    h += '<div class="rt">Room Total Students: <span id="sa-rt">0</span><span id="sa-cw"></span></div></div>';
+    ed.innerHTML = h; updateTotals();
+  }
+  window.saSetColumnClass = function(c,k,value){
+    if(!S.cells) return;
+    S.cells.forEach(row=>{ if(row[c] && row[c][k]) row[c][k].c=value; });
+    updateTotals();
+  };
+  function updateTotals(){
+    const t = recTotals(snap());
+    t.cols.forEach((n, c) => { const e = $('sa-ct-' + c); if(e) e.textContent = n; });
+    const rt = $('sa-rt'); if(rt) rt.textContent = t.total;
+    const cw = $('sa-cw'); if(cw) cw.innerHTML = Object.keys(t.cw).length ? ' &nbsp;|&nbsp; ' + cwText(t.cw) : '';
+  }
+  function syncInputs(rr, c, k){
+    const q = (f) => document.querySelector(`#sa-editor input.${f}[data-r="${rr}"][data-c="${c}"][data-k="${k}"]`);
+    const cell = S.cells[rr][c][k]; const a = q('sa-cls'), b = q('sa-roll');
+    if(a) a.value = cell.c; if(b) b.value = cell.r;
+  }
+  function fillDown(r, c, k, what){
+    const src = S.cells[r][c][k];
+    if(what === 'c'){
+      if(!src.c) return;
+      for(let rr = r + 1; rr < S.rows; rr++){ const t = S.cells[rr][c][k]; if(!String(t.c || '').trim()){ t.c = src.c; syncInputs(rr, c, k); } }
+      return;
+    }
+    let prev = src.r;
+    for(let rr = r + 1; rr < S.rows; rr++){
+      const nx = incRoll(prev); if(nx === '') break;
+      const t = S.cells[rr][c][k]; t.r = nx; prev = nx;
+      if(!String(t.c || '').trim() && src.c) t.c = src.c;
+      syncInputs(rr, c, k);
+    }
+  }
+  // एक Roll No. भरने पर उसी Class के बाकी स्थानों में क्रमवार Roll No. भरें।
+  function fillClassRolls(r, c, k){
+    const src = S.cells[r] && S.cells[r][c] && S.cells[r][c][k];
+    if(!src || !String(src.c || '').trim() || !String(src.r || '').trim()) return;
+    let prev = src.r;
+    let passedSource = false;
+    for(let rr = 0; rr < S.rows; rr++){
+      for(let cc = 0; cc < S.cols; cc++){
+        for(let kk = 0; kk < S.per; kk++){
+          if(rr === r && cc === c && kk === k){ passedSource = true; continue; }
+          if(!passedSource) continue;
+          const t = S.cells[rr][cc][kk];
+          if(String(t.c || '').trim() !== String(src.c).trim()) continue;
+          const nx = incRoll(prev);
+          if(nx === '') return;
+          t.r = nx; prev = nx; syncInputs(rr, cc, kk);
+        }
+      }
+    }
+  }
+  (function bindEditor(){
+    document.addEventListener('input', function(e){
+      const t = e.target; if(!t || !t.matches || !t.matches('#sa-editor input[data-k]')) return;
+      const cell = S.cells[+t.dataset.r] && S.cells[+t.dataset.r][+t.dataset.c] && S.cells[+t.dataset.r][+t.dataset.c][+t.dataset.k]; if(!cell) return;
+      if(t.classList.contains('sa-roll')){ cell.r = t.value; updateTotals(); }
+    });
+    document.addEventListener('change', function(e){
+      const t = e.target; if(!t || !t.matches || !t.matches('#sa-editor input[data-k]')) return;
+      const r = +t.dataset.r, c = +t.dataset.c, k = +t.dataset.k; if(!S.cells[r] || !S.cells[r][c] || !S.cells[r][c][k]) return;
+      if(t.classList.contains('sa-roll')) { S.cells[r][c][k].r = t.value.trim(); t.value = S.cells[r][c][k].r; if(S.auto) { fillDown(r, c, k, 'r'); fillClassRolls(r, c, k); } }
+      updateTotals();
+    });
+  })();
+  window.saSetAuto = function(v){ S.auto = v === '1'; };
+  window.saSetPer = function(v){
+    S.per = +v; if(!S.built) return;
+    S.cells.forEach(row => row.forEach((desk, c) => { while(desk.length < S.per) desk.push({c:'', r:''}); if(desk.length > S.per) desk.length = S.per; }));
+    renderEditor();
+  };
+  window.saAddRow = function(){
+    if(!S.built) return; if(S.rows >= MAXR){ alert('इससे ज़्यादा Row नहीं जोड़ी जा सकतीं।'); return; }
+    const prev = S.cells[S.rows - 1]; const row = [];
+    for(let c = 0; c < S.cols; c++){
+      const desk = emptyDesk(S.per);
+      if(S.auto && prev) desk.forEach((s, k) => { const p = prev[c][k]; if(filled(p)){ const nx = incRoll(p.r); if(nx){ s.r = nx; s.c = p.c; } } });
+      row.push(desk);
+    }
+    S.cells.push(row); S.rows++; renderEditor();
+  };
+  window.saDelRow = function(i){
+    if(!S.built) return; if(S.rows <= 1){ alert('कम से कम एक Row ज़रूरी है।'); return; }
+    const idx = (typeof i === 'number') ? i : S.rows - 1;
+    if(S.cells[idx].some(d => d.some(filled)) && !confirm('Row ' + (idx + 1) + ' में भरी हुई जानकारी है। हटाएँ?')) return;
+    S.cells.splice(idx, 1); S.rows--; renderEditor();
+  };
+  window.saAddCol = function(){
+    if(!S.built) return; if(S.cols >= MAXC){ alert('इससे ज़्यादा Column नहीं जोड़े जा सकते।'); return; }
+    S.cells.forEach(row => row.push(emptyDesk(S.per))); S.cols++; renderEditor();
+  };
+  window.saDelCol = function(j){
+    if(!S.built) return; if(S.cols <= 1){ alert('कम से कम एक Column ज़रूरी है।'); return; }
+    const idx = (typeof j === 'number') ? j : S.cols - 1;
+    if(S.cells.some(row => row[idx].some(filled)) && !confirm('Column ' + (idx + 1) + ' में भरी हुई जानकारी है। हटाएँ?')) return;
+    S.cells.forEach(row => row.splice(idx, 1)); S.cols--; renderEditor();
+  };
+  window.saReset = function(){
+    if(S.built && !confirm('पूरी बैठक व्यवस्था Reset करें? (सेव किया हुआ डेटा नहीं हटेगा)')) return;
+    S.built = false; S.cells = []; S.rows = S.cols = 0; S.orig = null; S.room = ''; S.date = ''; S.subjects = [];
+    $('sa-room').value = ''; $('sa-date').value = '';
+    document.querySelectorAll('#sa-subj input').forEach(i => i.checked = false); paintChips();
+    $('sa-editor').innerHTML = ''; $('sa-work').classList.add('sa-hidden');
+  };
+  window.saSave = function(){
+    if(!S.built){ alert('पहले Generate करें।'); return; }
+    window.saSyncMeta();
+    if(!S.room){ alert('कृपया रूम नं. भरें।'); $('sa-room').focus(); return; }
+    const all = getAll(); const y = S.year, ex = S.exam;
+    all[y] = all[y] || {}; all[y][ex] = all[y][ex] || {};
+    /* Roll No. दोहराव की जाँच (इसी परीक्षा के बाकी कमरों के साथ भी) */
+    const seen = {}; const dup = [];
+    const scan = (room, cells) => cells.forEach(row => row.forEach(desk => desk.forEach(s => {
+      if(!filled(s)) return; const k = String(s.c || '').trim().toUpperCase() + '|' + String(s.r).trim();
+      if(seen[k] !== undefined){ if(dup.length < 5) dup.push(String(s.r).trim() + ' (Room ' + seen[k] + (seen[k] === room ? '' : ' / ' + room) + ')'); }
+      else seen[k] = room;
+    })));
+    Object.keys(all[y][ex]).forEach(rm => { if(rm !== S.room && rm !== S.orig) scan(rm, all[y][ex][rm].cells || []); });
+    scan(S.room, S.cells);
+    if(dup.length && !confirm('ये Roll No. एक से ज़्यादा जगह आ रहे हैं:\n' + dup.join('\n') + '\n\nफिर भी सेव करें?')) return;
+    if(all[y][ex][S.room] && S.orig !== S.room && !confirm('Room ' + S.room + ' पहले से सेव है। उसे बदल दें?')) return;
+    if(S.orig && S.orig !== S.room) delete all[y][ex][S.orig];
+    all[y][ex][S.room] = {year:y, exam:ex, room:S.room, date:S.date, subjects:S.subjects.slice(), rows:S.rows, cols:S.cols, per:S.per, cells:JSON.parse(JSON.stringify(S.cells)), updatedAt:Date.now()};
+    putAll(all); S.orig = S.room; refreshLoadSel();
+    alert('Room ' + S.room + ' की बैठक व्यवस्था Firebase में सेव हो गई।');
+  };
+  function loadRecord(rec){
+    S.year = rec.year; S.exam = rec.exam;
+    $('sa-year').value = rec.year; $('sa-exam').value = rec.exam;
+    S.room = rec.room; S.date = rec.date || ''; S.subjects = (rec.subjects || []).slice();
+    S.rows = rec.rows; S.cols = rec.cols; S.per = rec.per || 1; S.cells = JSON.parse(JSON.stringify(rec.cells)); S.orig = rec.room; S.built = true;
+    $('sa-room').value = S.room; $('sa-date').value = S.date; $('sa-rows').value = String(Math.min(S.rows, 10)); $('sa-cols').value = String(Math.min(S.cols, 10)); $('sa-per').value = String(S.per);
+    document.querySelectorAll('#sa-subj input').forEach(i => i.checked = S.subjects.includes(i.value)); paintChips();
+    refreshLoadSel(); $('sa-load-sel').value = rec.room;
+    $('sa-config').classList.remove('sa-hidden'); $('sa-work').classList.remove('sa-hidden'); renderEditor();
+  }
+  window.saLoadSaved = function(){
+    const room = $('sa-load-sel').value; if(!room){ alert('कृपया सेव किया हुआ कमरा चुनें।'); return; }
+    const rec = ((getAll()[S.year] || {})[S.exam] || {})[room]; if(!rec){ alert('यह रिकॉर्ड नहीं मिला।'); return; }
+    loadRecord(rec); $('sa-work').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  window.saPrintCreate = function(){
+    if(!S.built){ alert('पहले Generate करें।'); return; }
+    window.saSyncMeta(); if(!S.room){ alert('कृपया रूम नं. भरें।'); return; }
+    const includeSign = $('sa-principal-sign') && $('sa-principal-sign').checked;
+    const signHtml = includeSign ? '<div style="display:flex;justify-content:flex-end;margin-top:28px;padding-right:25px"><div style="text-align:center;min-width:180px;border-top:1px solid #111;padding-top:5px;font-weight:bold">प्रिंसिपल हस्ताक्षर</div></div>' : '';
+    doPrint(roomSheetHTML(snap()) + signHtml, 'Sitting Arrangement - Room ' + S.room, $('sa-orient').value, 0.3);
+  };
+  function excelRoom(rec){
+    const per = rec.per, nc = rec.cols, width = 1 + nc * per, tot = recTotals(rec);
+    const aoa = [[schoolName()], [String(examLabel(rec.exam)).toUpperCase() + ' EXAM  |  ' + rec.year], ['ROOM NO. ' + rec.room], ['EXAM SITTING ARRANGEMENT'], ['Date: ' + fmtDate(rec.date) + '     Subject: ' + subjText(rec.subjects)], []];
+    const merges = [0,1,2,3,4].map(r => ({s:{r:r,c:0}, e:{r:r,c:width-1}}));
+    const h1 = ['Row']; for(let c = 0; c < nc; c++){ h1.push('Column ' + (c+1)); for(let k = 1; k < per; k++) h1.push(''); }
+    const hr = aoa.length; aoa.push(h1);
+    if(per > 1){ const h2 = ['']; for(let c = 0; c < nc; c++) for(let k = 0; k < per; k++) h2.push('Student ' + (k+1)); aoa.push(h2); merges.push({s:{r:hr,c:0}, e:{r:hr+1,c:0}}); }
+    if(per > 1) for(let c = 0; c < nc; c++) merges.push({s:{r:hr,c:1+c*per}, e:{r:hr,c:c*per+per}});
+    rec.cells.forEach((row, r) => { const line = [r + 1]; row.forEach(desk => desk.forEach(s => line.push(filled(s) ? (String(s.c || '').trim() ? s.c + ' - ' + s.r : s.r) : ''))); aoa.push(line); });
+    const tr = aoa.length; const tl = ['Total']; tot.cols.forEach(n => { tl.push(n); for(let k = 1; k < per; k++) tl.push(''); }); aoa.push(tl);
+    if(per > 1) for(let c = 0; c < nc; c++) merges.push({s:{r:tr,c:1+c*per}, e:{r:tr,c:c*per+per}});
+    aoa.push([]); aoa.push(['Room Total Students', tot.total]);
+    const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!merges'] = merges; ws['!cols'] = Array.from({length: width}, (_, i) => ({wch: i === 0 ? 20 : 16}));
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, ('Room ' + rec.room).replace(/[\\\/?*\[\]:]/g, '').slice(0, 31));
+    XLSX.writeFile(wb, 'Sitting_Arrangement_Room_' + safeName(rec.room) + '_' + safeName(rec.exam) + '_' + rec.year + '.xlsx');
+  }
+  window.saExcelCreate = function(){
+    if(!S.built){ alert('पहले Generate करें।'); return; }
+    window.saSyncMeta(); if(!S.room){ alert('कृपया रूम नं. भरें।'); return; }
+    excelRoom(snap());
+  };
+
+  /* ================= 2. PRINT SITTING ARRANGEMENT ================= */
+  let plList = [], plY = '', plE = '';
+  window.saInitPrint = function(){ fillYearExam('sa-pl-year', 'sa-pl-exam'); renderHeroes(); };
+  window.saPlShow = function(){
+    plY = $('sa-pl-year').value; plE = $('sa-pl-exam').value; plList = roomsFor(plY, plE);
+    $('sa-pl-wrap').classList.remove('sa-hidden'); $('sa-pl-view').innerHTML = '';
+    const tb = $('sa-pl-body');
+    if(!plList.length){ tb.innerHTML = '<tr><td colspan="6" class="sa-empty">इस सत्र / परीक्षा की कोई सेव की हुई बैठक व्यवस्था नहीं मिली।</td></tr>'; return; }
+    tb.innerHTML = plList.map((r, i) => `<tr><td>${i+1}</td><td><b>${esc(r.room)}</b></td><td>${esc(fmtDate(r.date)) || '—'}</td><td>${esc(subjText(r.subjects)) || '—'}</td><td><b>${recTotals(r).total}</b></td>
+      <td style="white-space:nowrap"><button type="button" class="sa-act sa-act-view" onclick="saPlView(${i})"><i class="fa-solid fa-eye"></i> View</button><button type="button" class="sa-act sa-act-edit" onclick="saPlEdit(${i})"><i class="fa-solid fa-pen"></i> Edit</button><button type="button" class="sa-act sa-act-print" onclick="saPlPrint(${i})"><i class="fa-solid fa-print"></i> Print</button><button type="button" class="sa-act sa-act-del" onclick="saPlDel(${i})"><i class="fa-solid fa-trash"></i> Delete</button></td></tr>`).join('');
+  };
+  window.saPlView = function(i){
+    const r = plList[i]; if(!r) return;
+    $('sa-pl-view').innerHTML = '<div class="sa-sheet">' + roomSheetHTML(r).replace('id="sa-ph-room"', '') + '</div>';
+    $('sa-pl-view').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  window.saPlPrint = function(i){ const r = plList[i]; if(!r) return; doPrint(roomSheetHTML(r), 'Sitting Arrangement - Room ' + r.room, $('sa-pl-orient').value, 0.3); };
+  window.saPlEdit = function(i){
+    const r = plList[i]; if(!r) return;
+    switchTab('sitting-create');
+    const tab = $('tab-sitting-create'); if(!tab || tab.classList.contains('hidden')) return;
+    window.saInitCreate(); loadRecord(r);
+    $('sa-work').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  window.saPlDel = function(i){
+    const r = plList[i]; if(!r) return;
+    if(!confirm('क्या Room ' + r.room + ' की बैठक व्यवस्था डिलीट करना चाहते हैं?')) return;
+    const all = getAll(); if(all[plY] && all[plY][plE]) delete all[plY][plE][r.room];
+    putAll(all);
+    if(S.built && S.orig === r.room && S.year === plY && S.exam === plE) S.orig = null;
+    window.saPlShow();
+  };
+
+  /* ================= 3. ALL ROOM SITTING ARRANGEMENT ================= */
+  let alData = null;
+  window.saInitAll = function(){ fillYearExam('sa-al-year', 'sa-al-exam'); renderHeroes(); };
+  function rangesOf(rolls){
+    const nums = [], others = [];
+    rolls.forEach(v => { const s = String(v).trim(); if(/^\d+$/.test(s)) nums.push(s); else others.push(s); });
+    nums.sort((a, b) => (a.length - b.length) || (a < b ? -1 : a > b ? 1 : 0));
+    const out = []; let st = null, pv = null;
+    nums.forEach(s => {
+      if(st !== null && s.length === pv.length && incRoll(pv) === s){ pv = s; }
+      else { if(st !== null) out.push([st, pv]); st = s; pv = s; }
+    });
+    if(st !== null) out.push([st, pv]);
+    others.sort((a, b) => a.localeCompare(b, undefined, {numeric:true})).forEach(s => out.push([s, s]));
+    return out;
+  }
+  function computeAll(y, ex){
+    const rooms = roomsFor(y, ex); let grand = 0;
+    const rows = rooms.map(rec => {
+      const g = {}; let total = 0;
+      rec.cells.forEach(row => row.forEach(desk => desk.forEach(s => {
+        if(!filled(s)) return; const k = String(s.c || '').trim().toUpperCase() || '—'; (g[k] = g[k] || []).push(String(s.r).trim()); total++;
+      })));
+      grand += total;
+      const classes = Object.keys(g).sort(classOrder).map(k => ({cls:k, ranges:rangesOf(g[k]), count:g[k].length}));
+      return {room:rec.room, date:rec.date, subjects:rec.subjects, classes:classes, total:total};
+    });
+    return {year:y, exam:ex, rows:rows, grand:grand};
+  }
+  function allTableHTML(d){
+    let h = '<table class="al"><thead><tr><th style="width:9%">S.No</th><th style="width:13%">Room No.</th><th style="width:16%">Class</th><th class="roll-range-head">Roll No. (From – To)</th><th style="width:12%">Students</th><th style="width:12%">Room Total</th></tr></thead><tbody>';
+    d.rows.forEach((r, i) => {
+      const n = Math.max(1, r.classes.length);
+      if(!r.classes.length){ h += `<tr><td>${i+1}</td><td class="b">${esc(r.room)}</td><td>—</td><td>—</td><td>0</td><td class="b">0</td></tr>`; return; }
+      r.classes.forEach((c, j) => {
+        h += '<tr>' + (j === 0 ? `<td rowspan="${n}">${i+1}</td><td rowspan="${n}" class="b">${esc(r.room)}</td>` : '') + `<td class="b">${esc(c.cls)}</td><td class="l">${c.ranges.map(x => x[0] === x[1] ? esc(x[0]) : esc(x[0]) + ' – ' + esc(x[1])).join(' &nbsp;,&nbsp; ')}</td><td>${c.count}</td>` + (j === 0 ? `<td rowspan="${n}" class="b">${r.total}</td>` : '') + '</tr>';
+      });
+    });
+    h += `</tbody><tfoot><tr><td colspan="4" style="text-align:right">कुल योग (Grand Total)</td><td colspan="2">${d.grand}</td></tr></tfoot></table>`;
+    return h;
+  }
+  function allSheetHTML(d){
+    return pHead(d.year, d.exam) + '<div class="box b2">SITTING ARRANGEMENT</div>' + allTableHTML(d);
+  }
+  window.saAllShow = function(){
+    const d = computeAll($('sa-al-year').value, $('sa-al-exam').value); alData = d;
+    $('sa-al-wrap').classList.remove('sa-hidden');
+    $('sa-al-out').innerHTML = d.rows.length ? '<div class="sa-sheet">' + allSheetHTML(d) + '</div>' : '<div class="sa-empty">इस सत्र / परीक्षा की कोई सेव की हुई बैठक व्यवस्था नहीं मिली।</div>';
+  };
+  function needAll(){
+    if(!alData || !alData.rows.length){ alert('पहले Year और Exam चुनकर Show दबाएँ (बैठक व्यवस्था सेव होनी चाहिए)।'); return false; }
+    return true;
+  }
+  window.saAllPrint = function(){ if(!needAll()) return; doPrint(allSheetHTML(alData), 'All Room Sitting Arrangement', $('sa-al-orient').value, 0.55); };
+  window.saAllExcel = function(){
+    if(!needAll()) return; const d = alData;
+    const aoa = [[schoolName()], [String(examLabel(d.exam)).toUpperCase() + ' EXAM  |  ' + d.year], ['SITTING ARRANGEMENT'], [], ['S.No', 'Room No.', 'Class', 'Roll No. (From – To)', 'Students', 'Room Total']];
+    d.rows.forEach((r, i) => {
+      if(!r.classes.length) aoa.push([i+1, r.room, '—', '—', 0, 0]);
+      r.classes.forEach((c, j) => aoa.push([j === 0 ? i+1 : '', j === 0 ? r.room : '', c.cls, c.ranges.map(x => x[0] === x[1] ? x[0] : x[0] + ' - ' + x[1]).join(' , '), c.count, j === 0 ? r.total : '']));
+    });
+    aoa.push(['', '', '', 'Grand Total', d.grand, '']);
+    const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!merges'] = [0,1,2].map(r => ({s:{r:r,c:0}, e:{r:r,c:5}})); ws['!cols'] = [{wch:8},{wch:12},{wch:12},{wch:48},{wch:10},{wch:12}];
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'All Rooms');
+    XLSX.writeFile(wb, 'All_Room_Sitting_Arrangement_' + safeName(d.exam) + '_' + d.year + '.xlsx');
+  };
+
+  /* ---------- tab hook (switchTab से बुलाया जाता है) ---------- */
+  window.saOnTab = function(tabId){
+    if(tabId === 'sitting-create') window.saInitCreate();
+    else if(tabId === 'sitting-print') window.saInitPrint();
+    else if(tabId === 'sitting-all') window.saInitAll();
   };
 })();
 </script>
