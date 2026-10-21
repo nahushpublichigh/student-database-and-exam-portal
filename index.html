@@ -155,7 +155,7 @@
         #login-splash img {
             position: relative; z-index: 2;
             width: 100%; height: 100%; object-fit: cover; object-position: center;
-            animation: splashZoom 18s ease-in-out forwards;
+            animation: splashZoom 8s ease-in-out forwards;
         }
         #login-splash .splash-flash {
             position: absolute; inset: 0; background: #fff; opacity: 0;
@@ -1497,6 +1497,24 @@
 .admit-a6 .ac-table th,.admit-a6 .ac-table td{padding:.14em .25em !important;font-size:.82em !important;line-height:1.2;}
 .admit-a6 .ac-note-box{display:block !important;padding:.25em .45em;font-size:.68em;margin-bottom:.4em;line-height:1.3;}
 .admit-a6 .ac-footer{font-size:.78em;min-height:11mm;padding-top:.3em;}
+/* A6 पर A4 के चार कार्ड: विवरण स्पष्ट, बड़ा और बोल्ड */
+.admit-a6 .admit-card-box{font-size:12px;font-weight:800;color:#102a56;border:2px solid #1e40af;}
+.admit-a6 .ac-title h2{font-size:1.22em;font-weight:900;color:#b45309;}
+.admit-a6 .ac-title p{font-size:.82em;font-weight:800;color:#1e3a8a;}
+.admit-a6 .ac-badge{font-size:.76em;font-weight:900;color:#fff;}
+.admit-a6 .ac-info-grid{font-size:1.08em;font-weight:900;line-height:1.34;color:#102a56;}
+.admit-a6 .ac-info-grid b,.admit-a6 .ac-info-grid strong{font-weight:900;color:#9a3412;}
+.admit-a6 .ac-table th,.admit-a6 .ac-table td{font-size:.92em!important;font-weight:800!important;color:#102a56;}
+.admit-a6 .ac-note-box{font-size:.78em;font-weight:800;line-height:1.35;}
+.admit-a6 .ac-footer{font-size:.86em;font-weight:900;}
+body.ac-admit-bw .admit-a6 .admit-card-box,
+body.ac-admit-bw .admit-a6 .admit-card-box *{color:#000!important;background-color:#fff!important;text-shadow:none!important;box-shadow:none!important;border-color:#000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body.ac-admit-bw .admit-a6 .ac-badge,
+body.ac-admit-bw .admit-a6 .ac-header,
+body.ac-admit-bw .admit-a6 .ac-title,
+body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!important;}
+@media print{body.ac-admit-bw .admit-card-box,body.ac-admit-bw .admit-card-box *{color:#000!important;background:#fff!important;text-shadow:none!important;box-shadow:none!important;border-color:#000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+
 /* हस्ताक्षर — "कहाँ लगे" में X% / Y% वाले छोटे box */
 .sigx-fxy{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
 .sigx-fxy label{font-size:.72rem;font-weight:700;display:flex;align-items:center;gap:3px;}
@@ -2123,6 +2141,12 @@
                                 </div>
                                 <button class="btn btn-warning" onclick="loadStudentPhotoTable()"><i class="fa-solid fa-list"></i> Show</button>
                             </div>
+                        </div>
+                        <div id="photo-lock-bar" style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:12px 14px; border-radius:10px; background:#fff7ed; border:1px dashed #fb923c;">
+                            <span style="font-weight:800; color:#9a3412;"><i class="fa-solid fa-shield-halved"></i> फोटो सुरक्षा (सत्र + कक्षा अनुसार):</span>
+                            <button class="btn btn-danger" onclick="plLockPhotos()"><i class="fa-solid fa-lock"></i> Lock Photo</button>
+                            <button class="btn btn-success" onclick="plAskUnlock()"><i class="fa-solid fa-lock-open"></i> Unlock Photo</button>
+                            <span id="photo-lock-status" style="font-weight:800;"></span>
                         </div>
                         <div id="photo-list-area" class="table-responsive" style="margin-top:15px;"></div>
                     </div>
@@ -4085,6 +4109,13 @@
                                             <option value="ALL">All (पूरी क्लास)</option>
                                         </select>
                                     </div>
+                                    <div class="filter-item">
+                                        <label>प्रिंट रंग (Print Mode)</label>
+                                        <select id="ac-print-mode">
+                                            <option value="color">Colour Print</option>
+                                            <option value="bw">Black & White Print</option>
+                                        </select>
+                                    </div>
                                     <button class="btn btn-warning" onclick="generateAdmitCards()"><i class="fa-solid fa-id-card"></i> एडमिट कार्ड जनरेट करें</button>
                                     <button class="btn btn-primary" onclick="printAllAdmitCards()" style="margin-left:auto;"><i class="fa-solid fa-print"></i> सभी A4 साइज प्रिंट करें</button>
                                 </div>
@@ -4533,6 +4564,29 @@
                             <h3 style="color:var(--primary); margin-bottom:10px;"><i class="fa-solid fa-clock-rotate-left"></i> करेक्शन हिस्ट्री (Marks / Data Correction History) - केवल Admin</h3>
                             <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">पोर्टल में छात्र डेटा या परीक्षा अंकों में जब भी कोई सुधार (Correction) किया जाता है, उसकी पुरानी और नई जानकारी, दिनांक-समय एवं किसने किया, यहाँ सूचीबद्ध होती है।</p>
                             <div id="correction-history-area"></div>
+
+                            <!-- ADMIN LOGIN & ACTIVITY HISTORY (NEW) -->
+                            <div id="admin-activity-block" style="margin-top:22px; padding:16px; border:1px solid #c7d2fe; border-radius:12px; background:#f8faff;">
+                                <h4 style="color:var(--primary); margin:0 0 6px;"><i class="fa-solid fa-user-shield"></i> Admin Login व गतिविधि हिस्ट्री (Admin Login &amp; Activity History)</h4>
+                                <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Admin ने कितनी बार, कब लॉगिन/लॉगआउट किया और लॉगिन के दौरान पोर्टल में क्या-क्या काम किया — पूरी सूची यहाँ दिखेगी।</p>
+                                <div id="admin-activity-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;"></div>
+                                <div class="history-filter-row">
+                                    <div>
+                                        <label style="font-size:0.78rem; font-weight:700; display:block; margin-bottom:4px;">प्रकार</label>
+                                        <select id="admin-hist-type" onchange="renderAdminActivityHistory()" style="width:220px;">
+                                            <option value="ALL">सभी गतिविधि</option>
+                                            <option value="LOGIN">सिर्फ़ Login / Logout</option>
+                                            <option value="WORK">सिर्फ़ काम (Login/Logout छोड़कर)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.78rem; font-weight:700; display:block; margin-bottom:4px;">तारीख</label>
+                                        <input type="date" id="admin-hist-date" onchange="renderAdminActivityHistory()">
+                                    </div>
+                                    <button class="btn btn-secondary" onclick="document.getElementById('admin-hist-type').value='ALL';document.getElementById('admin-hist-date').value='';renderAdminActivityHistory();"><i class="fa-solid fa-filter-circle-xmark"></i> फ़िल्टर हटाएं</button>
+                                </div>
+                                <div id="admin-activity-area"></div>
+                            </div>
                         </div>
 
                         <!-- DUPLICATE DATA -->
@@ -5576,9 +5630,9 @@
             if(img1) { img1.style.display = ''; img1.style.animation = 'none'; void img1.offsetWidth; img1.style.animation = ''; }
             if(img2) img2.style.display = 'none';
             splash.style.display = 'flex';
-            loginSplashFlashLoop(20000);
+            loginSplashFlashLoop(10000);
 
-            let secondsLeft = 20;
+            let secondsLeft = 10;
             if(timerEl) timerEl.innerText = secondsLeft + ' सेकंड...';
             const countdown = setInterval(() => {
                 secondsLeft--;
@@ -5586,16 +5640,16 @@
                 if(secondsLeft <= 0) clearInterval(countdown);
             }, 1000);
 
-            // 18 सेकंड बाद दूसरी फोटो (hh) 2 सेकंड के लिए
+            // 8 सेकंड बाद दूसरी फोटो 2 सेकंड के लिए
             setTimeout(() => {
                 if(img1) img1.style.display = 'none';
                 if(img2) { img2.style.display = ''; img2.style.animation = 'none'; void img2.offsetWidth; img2.style.animation = ''; img2.style.animationDuration = '2s'; }
-            }, 18000);
+            }, 8000);
 
             setTimeout(() => {
                 splash.style.display = 'none';
                 enterFn();
-            }, 20000);
+            }, 10000);
         }
 
         async function attemptLogin() {
@@ -6013,11 +6067,32 @@
         }
         function histPush(kind, entry) {
             try {
+                if(typeof db === 'undefined' || !db || !histLive[kind]) {
+                    console.error('Correction/activity history: Firebase database is not ready.');
+                    return false;
+                }
                 const ref = db.ref(HIST_ROOT + '/' + kind).push();
                 entry._id = ref.key;
                 histLive[kind][ref.key] = entry;
-                ref.set(entry).catch(err => console.error('History save error', err));
-            } catch(err) { console.error('History push error', err); }
+                // पहले UI में दिखाएँ, फिर Firebase में लिखें; Firebase error भी स्पष्ट log हो।
+                histScheduleRender();
+                ref.set(entry).then(() => {
+                    histScheduleRender();
+                }).catch(err => {
+                    console.error('History save error (' + kind + '):', err);
+                    const area = document.getElementById(kind === 'correction' ? 'correction-history-area' : 'admin-activity-stats');
+                    if(area && activeUserRole === 'ADMIN') {
+                        const warn = document.createElement('p');
+                        warn.style.cssText = 'color:#b91c1c;font-size:12px;margin:6px 0;';
+                        warn.textContent = 'हिस्ट्री Firebase में सेव नहीं हुई: ' + (err && err.message ? err.message : 'Permission / network error');
+                        area.prepend(warn);
+                    }
+                });
+                return true;
+            } catch(err) {
+                console.error('History push error (' + kind + '):', err);
+                return false;
+            }
         }
         function histList(kind) {
             const legacy = (kind === 'activity' ? activityLogDB : correctionHistoryDB) || [];
@@ -11556,9 +11631,12 @@ function initPortalYear(){
             }
 
             const m = acAdmitCardMeta;
+            const printMode = (document.getElementById('ac-print-mode') || {}).value || 'color';
+            document.body.classList.toggle('ac-admit-bw', printMode === 'bw');
             container.innerHTML = buildAdmitCardsPagesHTML(acAdmitCardFullList, m.perPage, m.cls, m.yr, m.ex, m.timeTableList, m.logoImgSrc);
 
             window.onafterprint = function() {
+                document.body.classList.remove('ac-admit-bw');
                 generateAdmitCards();
                 window.onafterprint = null;
             };
@@ -15221,7 +15299,11 @@ var MODS = [
   { k:'ms9',       t:'कक्षा- नवमी मार्कशीट — Create Marksheet',                                kind:'slot', cap:12, sel:null,                slot:'.ms9-sign > div', slotRe:/class\s*teacher/i, page:'.ms9-sheet', lab:function(r){return 'SIGNATURE OF '+r.join(' / ');}, slotTxt:'Class Teacher Sign की जगह' },
   { k:'letter',    t:'लैटर हेड (Letter Head)',                                               kind:'slot', cap:22, sel:null, slot:'.sigx-none', slotRe:/^$/, page:'.lh-paper', slotTxt:'पेज के नीचे — दाएँ' },
   { k:'attend',    t:'उपस्तिथि पत्रक (Exam Attendance)',                                      kind:'flow', cap:18, sel:null, flowIn:'.ea-sheet' },
-  { k:'fees',      t:'फीस स्ट्रक्चर (Print Fees Structure)',                                  kind:'slot', cap:12, sel:'#fs-print-area', slot:'.fs-sfoot span', slotRe:/^Principal$/i, page:'.fs-frame', pageRel:true, keepLabel:true, slotTxt:'Principal लाइन के ऊपर' }
+  { k:'fees',      t:'फीस स्ट्रक्चर (Print Fees Structure)',                                  kind:'slot', cap:12, sel:'#fs-print-area', slot:'.fs-sfoot span', slotRe:/^Principal$/i, page:'.fs-frame', pageRel:true, keepLabel:true, slotTxt:'Principal लाइन के ऊपर' },
+  { k:'teacherposts', t:'शिक्षक पद स्थापना (Teacher Posts Print)',                              kind:'slot', cap:16, sel:null, slot:'.ft div', slotRe:/प्राचार्य/, page:'#tpw', pageRel:true, keepLabel:true, slotTxt:'प्राचार्य / प्रधानाध्यापक लाइन के ऊपर' },
+  { k:'sitcreate',    t:'बैठक व्यवस्था — 1. Create Sitting Arrangement (Print)',                kind:'flow', cap:16, sel:null },
+  { k:'sitprint',     t:'बैठक व्यवस्था — 2. Print Sitting Arrangement (Room Wise Print)',       kind:'flow', cap:16, sel:null },
+  { k:'sitall',       t:'बैठक व्यवस्था — 3. All Room Sitting Arrangement (Print)',              kind:'flow', cap:16, sel:null }
 ];
 var MOD = {}; MODS.forEach(function(m){ MOD[m.k] = m; });
 
@@ -15667,6 +15749,22 @@ var API = {
 };
 window.SIGX = API;
 window.SIGX_refreshAll = refreshAll;
+/* दूसरे प्रिंट-स्क्रिप्ट के लिए: HTML string में हस्ताक्षर जोड़कर वापस string देता है (टिक न हो / कोई गड़बड़ हो तो original ही लौटता है) */
+window.SIGX_inner = function(key, html){
+  try {
+    if(typeof html !== 'string' || !MOD[key] || !enabledFor(key).length) return html;
+    var t = document.createElement('div'); t.innerHTML = html;
+    decorate(t, key); return t.innerHTML;
+  } catch(e) { console.error('SIGX_inner', key, e); return html; }
+};
+window.SIGX_html = function(key, html){
+  try {
+    if(typeof html !== 'string' || !MOD[key] || !enabledFor(key).length) return html;
+    var d = new DOMParser().parseFromString(html, 'text/html');
+    decorate(d.body, key);
+    return '<!DOCTYPE html>' + d.documentElement.outerHTML;
+  } catch(e) { console.error('SIGX_html', key, e); return html; }
+};
 })();
 </script>
 
@@ -15976,7 +16074,7 @@ td.c{text-align:center}td.n{font-weight:800}
     fr.style.cssText = 'position:fixed;right:0;bottom:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;';
     document.body.appendChild(fr);
     const doc = fr.contentDocument || fr.contentWindow.document;
-    doc.open(); doc.write(buildPrintHTML(list, year)); doc.close();
+    doc.open(); doc.write((window.SIGX_html ? window.SIGX_html('teacherposts', buildPrintHTML(list, year)) : buildPrintHTML(list, year))); doc.close();
     let done = false;
     const go = () => {
       if(done) return; done = true;
@@ -16171,8 +16269,8 @@ ${P} .sl:first-child{border-left:none}
 ${P} .sl .cl{display:block;font-size:10px;font-weight:700;color:#7c2d12;min-height:12px;text-transform:uppercase}
 ${P} .sl .rl{display:block;font-size:13px;font-weight:900;color:#0f172a;min-height:17px;border-top:1px solid #cbd5e1}
 ${P} .rt{margin-top:8px;padding:6px 10px;text-align:center;font-size:13px;font-weight:900;color:#7c2d12;background:#fef3c7;border:1px solid #d97706;border-radius:6px}
-${P} table.al th.roll-range-head{font-size:15px;font-weight:900;letter-spacing:.2px;padding:7px 4px}
-${P} table.al td.l{text-align:left}
+${P} table.al th.roll-range-head{font-size:17px;font-weight:900;letter-spacing:.3px;padding:8px 4px}
+${P} table.al td.l{text-align:left;font-size:18px;font-weight:900;color:#0f172a;letter-spacing:.3px;line-height:1.5}
 ${P} table.al td.b{font-weight:900}
 ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
 `; }
@@ -16459,7 +16557,7 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
     window.saSyncMeta(); if(!S.room){ alert('कृपया रूम नं. भरें।'); return; }
     const includeSign = $('sa-principal-sign') && $('sa-principal-sign').checked;
     const signHtml = includeSign ? '<div style="display:flex;justify-content:flex-end;margin-top:28px;padding-right:25px"><div style="text-align:center;min-width:180px;border-top:1px solid #111;padding-top:5px;font-weight:bold">प्रिंसिपल हस्ताक्षर</div></div>' : '';
-    doPrint(roomSheetHTML(snap()) + signHtml, 'Sitting Arrangement - Room ' + S.room, $('sa-orient').value, 0.3);
+    doPrint((window.SIGX_inner ? window.SIGX_inner('sitcreate', roomSheetHTML(snap()) + signHtml) : roomSheetHTML(snap()) + signHtml), 'Sitting Arrangement - Room ' + S.room, $('sa-orient').value, 0.3);
   };
   function excelRoom(rec){
     const per = rec.per, nc = rec.cols, width = 1 + nc * per, tot = recTotals(rec);
@@ -16499,7 +16597,7 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
     $('sa-pl-view').innerHTML = '<div class="sa-sheet">' + roomSheetHTML(r).replace('id="sa-ph-room"', '') + '</div>';
     $('sa-pl-view').scrollIntoView({behavior:'smooth', block:'start'});
   };
-  window.saPlPrint = function(i){ const r = plList[i]; if(!r) return; doPrint(roomSheetHTML(r), 'Sitting Arrangement - Room ' + r.room, $('sa-pl-orient').value, 0.3); };
+  window.saPlPrint = function(i){ const r = plList[i]; if(!r) return; doPrint((window.SIGX_inner ? window.SIGX_inner('sitprint', roomSheetHTML(r)) : roomSheetHTML(r)), 'Sitting Arrangement - Room ' + r.room, $('sa-pl-orient').value, 0.3); };
   window.saPlEdit = function(i){
     const r = plList[i]; if(!r) return;
     switchTab('sitting-create');
@@ -16569,7 +16667,7 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
     if(!alData || !alData.rows.length){ alert('पहले Year और Exam चुनकर Show दबाएँ (बैठक व्यवस्था सेव होनी चाहिए)।'); return false; }
     return true;
   }
-  window.saAllPrint = function(){ if(!needAll()) return; doPrint(allSheetHTML(alData), 'All Room Sitting Arrangement', $('sa-al-orient').value, 0.55); };
+  window.saAllPrint = function(){ if(!needAll()) return; doPrint((window.SIGX_inner ? window.SIGX_inner('sitall', allSheetHTML(alData)) : allSheetHTML(alData)), 'All Room Sitting Arrangement', $('sa-al-orient').value, 0.55); };
   window.saAllExcel = function(){
     if(!needAll()) return; const d = alData;
     const aoa = [[schoolName()], [String(examLabel(d.exam)).toUpperCase() + ' EXAM  |  ' + d.year], ['SITTING ARRANGEMENT'], [], ['S.No', 'Room No.', 'Class', 'Roll No. (From – To)', 'Students', 'Room Total']];
@@ -16589,6 +16687,237 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
     else if(tabId === 'sitting-print') window.saInitPrint();
     else if(tabId === 'sitting-all') window.saInitAll();
   };
+})();
+</script>
+
+
+<script id="admin-history-photolock-script">
+/* =====================================================================
+   (1) Admin Login & Activity History  (2) Student Photo Lock / Unlock
+   — सिर्फ़ जोड़ा गया नया कोड; पुराने function/data जस के तस, सिर्फ़ wrapper लगे हैं।
+   ===================================================================== */
+(function(){
+  'use strict';
+  if(window.__AHPL_LOADED) return; window.__AHPL_LOADED = true;
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(x){ return String(x == null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  /* ---------------- (1) ADMIN HISTORY ---------------- */
+  window._histLimit = window._histLimit || {};
+  if(!window._histLimit.admin) window._histLimit.admin = 500;
+
+  function adminEntries(){
+    var all = [];
+    try { all = histList('activity') || []; } catch(e) { all = []; }
+    return all.filter(function(h){ return h && h.role === 'ADMIN'; });
+  }
+  function isLoginType(h){ var a = String(h.action || '').toUpperCase(); return a === 'LOGIN' || a === 'LOGOUT'; }
+  function todayKey(){ var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); }; return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()); }
+  function chip(label, val, color){
+    return '<div style="min-width:150px;padding:10px 14px;border-radius:10px;background:#fff;border:1px solid #e2e8f0;border-left:5px solid ' + color + ';"><div style="font-size:1.25rem;font-weight:900;color:' + color + ';">' + val + '</div><div style="font-size:.76rem;font-weight:700;color:#64748b;">' + label + '</div></div>';
+  }
+
+  window.renderAdminActivityHistory = function(){
+    var area = $('admin-activity-area'), stats = $('admin-activity-stats');
+    if(!area) return;
+    if(typeof activeUserRole === 'undefined' || activeUserRole !== 'ADMIN'){
+      area.innerHTML = '<p style="color:#dc2626;font-size:.85rem;">यह हिस्ट्री केवल एडमिन लॉगिन पर ही दिखाई देती है।</p>';
+      if(stats) stats.innerHTML = '';
+      return;
+    }
+    var list = adminEntries().sort(function(a,b){ return (Number(b.ts)||0) - (Number(a.ts)||0); });
+    var logins = list.filter(function(h){ return String(h.action || '').toUpperCase() === 'LOGIN'; });
+    var tk = todayKey();
+    var todayLogins = logins.filter(function(h){ try { return histDateKey(h) === tk; } catch(e){ return false; } }).length;
+    var work = list.filter(function(h){ return !isLoginType(h); }).length;
+    if(stats){
+      stats.innerHTML =
+        chip('कुल Admin Login', logins.length, '#1d4ed8') +
+        chip('आज के Login', todayLogins, '#0f766e') +
+        chip('अंतिम Login', loglogin(logins[0]), '#b45309') +
+        chip('कुल काम (Activities)', work, '#7c3aed');
+    }
+    var type = ($('admin-hist-type') || {}).value || 'ALL';
+    var date = ($('admin-hist-date') || {}).value || '';
+    var f = list;
+    if(type === 'LOGIN') f = f.filter(isLoginType);
+    else if(type === 'WORK') f = f.filter(function(h){ return !isLoginType(h); });
+    if(date) f = f.filter(function(h){ try { return histDateKey(h) === date; } catch(e){ return false; } });
+    if(!f.length){ area.innerHTML = '<p style="color:#64748b;font-size:.85rem;">Admin की कोई गतिविधि उपलब्ध नहीं है।</p>'; return; }
+    var shown = f.slice(0, window._histLimit.admin);
+    var rows = shown.map(function(h, i){
+      var a = String(h.action || '').toUpperCase();
+      var badge = a === 'LOGIN' ? 'background:#dcfce7;color:#166534;' : (a === 'LOGOUT' ? 'background:#fee2e2;color:#991b1b;' : '');
+      return '<tr><td>' + (i+1) + '</td><td>' + esc(h.dateTime) + '</td>' +
+        '<td style="white-space:normal;word-break:break-word;"><b style="padding:2px 8px;border-radius:99px;' + badge + '">' + esc(histPretty(h.action)) + '</b></td>' +
+        '<td style="white-space:normal;word-break:break-word;">' + (esc(histPretty(h.details)) || '-') + '</td></tr>';
+    }).join('');
+    var more = f.length > shown.length ? '<p style="margin-top:8px;"><button class="btn btn-warning" onclick="window._histLimit.admin=1e9;renderAdminActivityHistory();">सभी ' + f.length + ' रिकॉर्ड दिखाएँ</button></p>' : '';
+    area.innerHTML = '<p style="font-size:.8rem;color:#64748b;margin-bottom:6px;">कुल रिकॉर्ड: <b>' + f.length + '</b></p>' +
+      '<div class="table-responsive"><table><thead><tr><th>#</th><th>दिनांक व समय</th><th>कार्य (Action)</th><th>विवरण (Details)</th></tr></thead><tbody>' + rows + '</tbody></table></div>' + more;
+  };
+  function logLogin(h){ return h ? esc(h.dateTime) : '—'; }
+  window.logLogin = logLogin;
+  function logloginSafe(h){ return logLogin(h); }
+  /* chip() के लिए छोटा नाम */
+  var logloginAlias = logloginSafe;
+  window.__ahplAlias = logloginAlias;
+  /* ऊपर stats में 'logLogin' नाम से बुलाया गया है — उसी का सुरक्षित रूप */
+  function logLoginWrapper(h){ return logLogin(h); }
+  window.logLoginWrapper = logLoginWrapper;
+
+  /* करेक्शन हिस्ट्री दिखने पर Admin पैनल भी साथ में रिफ्रेश हो */
+  function wrapAfter(name, fn){
+    var o = window[name];
+    if(typeof o !== 'function' || o.__ahpl) return;
+    var w = function(){ var r = o.apply(this, arguments); try { fn.apply(this, arguments); } catch(e){ console.error('AHPL', name, e); } return r; };
+    w.__ahpl = true; window[name] = w;
+  }
+  function installHist(){
+    wrapAfter('renderCorrectionHistoryTable', function(){ window.renderAdminActivityHistory(); });
+    wrapAfter('showHeaderUserBadge', function(){ window.__sessionStartTs = Date.now(); });
+    /* Admin logout भी हिस्ट्री में दर्ज + उस सत्र की अवधि */
+    var lo = window.logout;
+    if(typeof lo === 'function' && !lo.__ahpl){
+      var w = function(){
+        try {
+          if(typeof activeUserRole !== 'undefined' && activeUserRole === 'ADMIN' && typeof logActivity === 'function'){
+            var mins = window.__sessionStartTs ? Math.max(0, Math.round((Date.now() - window.__sessionStartTs) / 60000)) : null;
+            logActivity('LOGOUT', 'पोर्टल से लॉगआउट किया (Admin)' + (mins !== null ? ' — इस बार की अवधि: ' + mins + ' मिनट' : ''));
+          }
+        } catch(e){ console.error('AHPL logout', e); }
+        return lo.apply(this, arguments);
+      };
+      w.__ahpl = true; window.logout = w;
+    }
+  }
+
+  /* ---------------- (2) STUDENT PHOTO LOCK ---------------- */
+  var LKEY = 'NPHS_PHOTO_LOCK_DB_V1';       /* { "<सत्र>": { "ALL": true, "9TH": true, ... } } — Firebase (cloudStore) में सेव */
+  function lockDB(){
+    var o = {};
+    try { o = JSON.parse(cloudStore.getItem(LKEY) || '{}'); } catch(e){ o = {}; }
+    return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {};
+  }
+  function lockSave(o){
+    cloudStore.setItem(LKEY, JSON.stringify(o));
+    try { if(typeof flushCloudStore === 'function' && typeof cloudReady !== 'undefined' && cloudReady) flushCloudStore(); } catch(e){}
+  }
+  function classes(){ return (typeof CLASS_SEQUENCE !== 'undefined' && CLASS_SEQUENCE.length) ? CLASS_SEQUENCE.slice() : ['NURSERY','LKG','UKG','1ST','2ND','3RD','4TH','5TH','6TH','7TH','8TH','9TH','10TH','11TH','12TH']; }
+  function isLocked(yr, cls){ var y = lockDB()[yr]; return !!(y && (y.ALL || y[cls])); }
+  window.plIsPhotoLocked = isLocked;
+
+  function sel(){ return { yr: ($('photo-year') || {}).value, cls: ($('photo-class') || {}).value }; }
+
+  window.plRefreshStatus = function(){
+    var el = $('photo-lock-status'); if(!el) return;
+    var s = sel(), y = lockDB()[s.yr] || {};
+    if(s.cls === 'ALL'){
+      var n = y.ALL ? classes().length : classes().filter(function(c){ return y[c]; }).length;
+      el.innerHTML = n ? ('<span style="color:#b91c1c;"><i class="fa-solid fa-lock"></i> ' + (y.ALL ? 'सभी कक्षाओं की फोटो Locked हैं' : n + ' कक्षा की फोटो Locked हैं') + '</span>') : '<span style="color:#15803d;"><i class="fa-solid fa-lock-open"></i> Unlocked</span>';
+    } else {
+      el.innerHTML = (y.ALL || y[s.cls]) ? '<span style="color:#b91c1c;"><i class="fa-solid fa-lock"></i> कक्षा ' + esc(s.cls) + ' की फोटो Locked है</span>' : '<span style="color:#15803d;"><i class="fa-solid fa-lock-open"></i> कक्षा ' + esc(s.cls) + ' Unlocked है</span>';
+    }
+  };
+
+  window.plLockPhotos = function(){
+    var s = sel(); if(!s.yr) return;
+    var label = s.cls === 'ALL' ? 'सत्र ' + s.yr + ' की सभी कक्षाओं' : 'सत्र ' + s.yr + ' | कक्षा ' + s.cls;
+    if(!confirm(label + ' की फोटो Lock करें?\n\nLock के बाद इन छात्रों की फोटो न बदली जा सकेगी, न हटाई जा सकेगी (Unlock के लिए पासवर्ड चाहिए)।')) return;
+    var db = lockDB(); db[s.yr] = db[s.yr] || {};
+    if(s.cls === 'ALL') db[s.yr].ALL = true; else db[s.yr][s.cls] = true;
+    lockSave(db);
+    try { if(typeof logActivity === 'function') logActivity('छात्र फोटो Lock की', label); } catch(e){}
+    if(typeof loadStudentPhotoTable === 'function') loadStudentPhotoTable();
+    window.plRefreshStatus();
+    alert('🔒 ' + label + ' की फोटो Lock हो गई।');
+  };
+
+  /* पासवर्ड मॉडल (टाइप करते समय छिपा हुआ) */
+  function ensureModal(){
+    if($('pl-pass-modal')) return;
+    var d = document.createElement('div');
+    d.id = 'pl-pass-modal';
+    d.style.cssText = 'display:none;position:fixed;inset:0;z-index:100000;background:rgba(2,6,23,.6);align-items:center;justify-content:center;';
+    d.innerHTML = '<div style="background:#fff;border-radius:14px;padding:22px 24px;width:min(92vw,360px);box-shadow:0 20px 60px rgba(0,0,0,.4);">' +
+      '<h3 style="margin:0 0 6px;color:#0f172a;"><i class="fa-solid fa-lock-open" style="color:#16a34a"></i> Unlock Photo</h3>' +
+      '<p id="pl-pass-sub" style="margin:0 0 12px;font-size:.84rem;color:#475569;"></p>' +
+      '<input type="password" id="pl-pass-input" placeholder="पासवर्ड दर्ज करें" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:1rem;box-sizing:border-box;">' +
+      '<div id="pl-pass-err" style="color:#dc2626;font-size:.82rem;font-weight:700;min-height:18px;margin-top:6px;"></div>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;"><button class="btn btn-secondary" onclick="plCloseModal()">रद्द करें</button><button class="btn btn-success" onclick="plConfirmUnlock()"><i class="fa-solid fa-unlock"></i> Unlock</button></div></div>';
+    document.body.appendChild(d);
+    $('pl-pass-input').addEventListener('keydown', function(e){ if(e.key === 'Enter') window.plConfirmUnlock(); });
+  }
+  window.plCloseModal = function(){ var m = $('pl-pass-modal'); if(m) m.style.display = 'none'; };
+  window.plAskUnlock = function(){
+    var s = sel(); if(!s.yr) return;
+    ensureModal();
+    $('pl-pass-sub').textContent = (s.cls === 'ALL' ? 'सत्र ' + s.yr + ' की सभी कक्षाओं' : 'सत्र ' + s.yr + ' | कक्षा ' + s.cls) + ' की फोटो Unlock करने के लिए पासवर्ड दर्ज करें।';
+    $('pl-pass-input').value = ''; $('pl-pass-err').textContent = '';
+    $('pl-pass-modal').style.display = 'flex';
+    setTimeout(function(){ try { $('pl-pass-input').focus(); } catch(e){} }, 50);
+  };
+  window.plConfirmUnlock = function(){
+    var inp = $('pl-pass-input'); if(!inp) return;
+    if(inp.value !== '4797'){ $('pl-pass-err').textContent = 'गलत पासवर्ड! फोटो Unlock नहीं हुई।'; inp.select(); return; }
+    var s = sel(), db = lockDB(), y = db[s.yr];
+    if(y){
+      if(s.cls === 'ALL'){ delete db[s.yr]; }
+      else {
+        if(y.ALL){ delete y.ALL; classes().forEach(function(c){ if(c !== s.cls) y[c] = true; }); }   /* बाकी कक्षाएँ Locked ही रहेंगी */
+        delete y[s.cls];
+        if(!Object.keys(y).length) delete db[s.yr];
+      }
+      lockSave(db);
+    }
+    try { if(typeof logActivity === 'function') logActivity('छात्र फोटो Unlock की', s.cls === 'ALL' ? 'सत्र ' + s.yr + ' (सभी कक्षाएँ)' : 'सत्र ' + s.yr + ' | कक्षा ' + s.cls); } catch(e){}
+    window.plCloseModal();
+    if(typeof loadStudentPhotoTable === 'function') loadStudentPhotoTable();
+    window.plRefreshStatus();
+    alert('🔓 फोटो Unlock हो गई। अब फोटो बदली जा सकती है।');
+  };
+
+  function studentOf(roll, yr){
+    try { return students.find(function(x){ return cleanString(x['ROLL NO.']) === cleanString(roll) && x['YEAR'] === yr; }); } catch(e){ return null; }
+  }
+  function installPhoto(){
+    /* टेबल बनने के बाद: Locked कक्षा की पंक्तियों में Upload/कैमरा की जगह 🔒 */
+    wrapAfter('loadStudentPhotoTable', function(){
+      var area = $('photo-list-area'); if(!area) return;
+      var yr = ($('photo-year') || {}).value;
+      area.querySelectorAll('tbody tr').forEach(function(tr){
+        var tds = tr.children; if(tds.length < 6) return;
+        var cls = String(tds[3].textContent || '').trim();
+        if(isLocked(yr, cls)){
+          tds[5].innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:#fee2e2;color:#991b1b;font-weight:800;font-size:.8rem;"><i class="fa-solid fa-lock"></i> Locked</span>';
+        }
+      });
+      window.plRefreshStatus();
+    });
+    /* सुरक्षा-जाल: किसी और रास्ते से भी Locked फोटो न बदले */
+    ['handleStudentPhotoUpload', 'saveStudentPhotoFromCamera'].forEach(function(name){
+      var o = window[name];
+      if(typeof o !== 'function' || o.__ahplLock) return;
+      var w = function(a, b, c){
+        var roll = name === 'handleStudentPhotoUpload' ? b : a, yr = name === 'handleStudentPhotoUpload' ? c : b;
+        var st = studentOf(roll, yr);
+        if(st && isLocked(yr, st['CLASS'])){
+          try { if(name === 'handleStudentPhotoUpload' && a && a.value !== undefined) a.value = ''; } catch(e){}
+          alert('🔒 इस छात्र की फोटो Locked है — बदली या हटाई नहीं जा सकती।\nपहले Unlock Photo करें।');
+          return name === 'saveStudentPhotoFromCamera' ? Promise.resolve(false) : undefined;
+        }
+        return o.apply(this, arguments);
+      };
+      w.__ahplLock = true; window[name] = w;
+    });
+    ['photo-year', 'photo-class'].forEach(function(id){ var e = $(id); if(e && !e.__ahplBound){ e.__ahplBound = true; e.addEventListener('change', function(){ window.plRefreshStatus(); }); } });
+    window.plRefreshStatus();
+  }
+
+  function installAll(){ installHist(); installPhoto(); }
+  installAll();
+  window.addEventListener('load', installAll);
+  setTimeout(installAll, 1500);
 })();
 </script>
 
