@@ -1998,6 +1998,16 @@ body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!imp
                 <section id="tab-dashboard" class="tab-content hidden">
                     <div class="card">
                         <div class="card-header"><i class="fa-solid fa-chart-simple"></i> डैशबोर्ड (Dashboard)</div>
+                        <div id="dsx-search" class="dsx">
+                            <div class="dsx-title"><i class="fa-solid fa-user-magnifying-glass"></i> छात्र खोजें (Search Student)</div>
+                            <div class="dsx-bar">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input id="dsx-input" type="text" autocomplete="off" placeholder="नाम / SSSM ID / PEN Number / APAAR Number / आधार Number / AD No. लिखें...">
+                                <button type="button" id="dsx-clear" title="साफ़ करें">&#10005;</button>
+                            </div>
+                            <div class="dsx-hint">नाम कम से कम 2 अक्षर और ID/नंबर कम से कम 3 अंक लिखें — छात्र की पूरी जानकारी फोटो सहित दिखेगी।</div>
+                            <div id="dsx-results"></div>
+                        </div>
                         <div id="dashboard-stats-area"></div>
                         <div id="dashboard-chart-area" style="margin-top:20px;"></div>
                         <div id="dashboard-classwise-area" style="margin-top:10px;"></div>
@@ -3690,6 +3700,10 @@ body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!imp
                                         <option value="200">200 List</option>
                                         <option value="ALL" selected>All List</option>
                                     </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Row की चौड़ाई / ऊँचाई (mm)</label>
+                                    <input type="number" id="patrak-row-h" min="3" max="40" step="0.5" placeholder="खाली = पहले जैसा" oninput="patrakApplyRowH()" style="width:150px;">
                                 </div>
                                 <button class="btn btn-warning" onclick="loadPatrakTable('filled')"><i class="fa-solid fa-eye"></i> शो (Show Patrak)</button>
                                 <button class="btn btn-success" onclick="exportMarksToExcel('patrak')" style="margin-left:auto;"><i class="fa-solid fa-file-excel"></i> एक्सेल डाउनलोड</button>
@@ -6874,7 +6888,7 @@ function initPortalYear(){
             const marksData = examMarksDB[marksKey] || {};
 
             let clsStudents = students.filter(s => s['CLASS'] === cls && s['YEAR'] === yr);
-            let totalPossible = activeSubjects.reduce((sum, s) => sum + (parseFloat(s.maxA) || 0) + (s.hasPractical ? (parseFloat(s.practicalMax) || 0) : 0), 0);
+            let totalPossible = activeSubjects.reduce((sum, s) => sum + (parseFloat(ex === 'QUARTERLY' ? s.maxQ : (ex === 'HALF YEARLY' ? s.maxH : s.maxA)) || 0) + (s.hasPractical ? (parseFloat(s.practicalMax) || 0) : 0), 0);
 
             let results = [];
 
@@ -10783,6 +10797,26 @@ function initPortalYear(){
             area.innerHTML = html;
         }
 
+        /* --- PATRAK ROW SIZE (mm) : खाली छोड़ने पर प्रिंट पहले जैसा ही रहता है --- */
+        function patrakRowH() {
+            const e = document.getElementById('patrak-row-h');
+            const v = e ? parseFloat(e.value) : 0;
+            return (v > 0) ? v : 0;
+        }
+        function patrakApplyRowH() {
+            let st = document.getElementById('patrak-row-style');
+            if(!st) { st = document.createElement('style'); st.id = 'patrak-row-style'; document.head.appendChild(st); }
+            const v = patrakRowH();
+            try { if(v) localStorage.setItem('NPHS_PATRAK_ROW_H', String(v)); else localStorage.removeItem('NPHS_PATRAK_ROW_H'); } catch(e) {}
+            st.textContent = v ? `#patrak-view-area tbody tr{height:${v}mm !important} #patrak-view-area tbody td{padding-top:0 !important;padding-bottom:0 !important;vertical-align:middle !important}` : '';
+        }
+        (function(){
+            function init(){
+                try { const s = localStorage.getItem('NPHS_PATRAK_ROW_H'); const e = document.getElementById('patrak-row-h'); if(s && e){ e.value = s; patrakApplyRowH(); } } catch(e) {}
+            }
+            if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+        })();
+
         /* --- PRINT EXAM PATRAK: A4 LANDSCAPE, FIT TO PAGE (नया विकल्प; पुराने प्रिंट बटन जैसे थे वैसे ही हैं) --- */
         function printPatrakLandscape(mode) {
             loadPatrakTable(mode || 'filled');
@@ -10793,6 +10827,7 @@ function initPortalYear(){
             // कॉलम ज़्यादा हों तो फ़ॉन्ट छोटा, ताकि A4 की चौड़ाई में पूरा पत्रक फिट हो
             let fs = colCount <= 10 ? 9.5 : colCount <= 14 ? 8.2 : colCount <= 18 ? 7 : colCount <= 24 ? 6 : 5.2;
             let pad = rowCount > 45 ? 1.1 : rowCount > 30 ? 1.6 : 2.2;
+            const rh = patrakRowH();
             const w = window.open('', '_blank', 'width=1400,height=900');
             if(!w) { alert('Print window blocked. कृपया browser में pop-up allow करें।'); return; }
             w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Exam Patrak - A4 Landscape</title>
@@ -10810,6 +10845,7 @@ function initPortalYear(){
                 thead th{background:#1e3a8a!important;color:#fff!important;font-weight:700}
                 tr{page-break-inside:avoid;break-inside:avoid}
                 td:nth-child(3),td:nth-child(4){text-align:left;padding-left:3px}
+                ${rh ? `tbody tr{height:${rh}mm} tbody td{padding-top:0;padding-bottom:0;vertical-align:middle}` : ''}
             </style></head><body><div id="pt-wrap">${area.innerHTML}</div>
             <script>window.onload=function(){setTimeout(function(){window.print();window.onafterprint=function(){window.close();}},300)};<\/script></body></html>`);
             w.document.close();
@@ -14770,7 +14806,7 @@ function pdPrint(){
     excel:{label:'Excel',icon:'fa-file-excel',ext:/\.(xlsx|xls|xlsm|csv)$/i,accept:'.xlsx,.xls,.xlsm,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv',hint:'Excel (.xlsx, .xls, .csv)'},
     word:{label:'Word',icon:'fa-file-word',ext:/\.(docx|doc)$/i,accept:'.docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',hint:'Word (.docx, .doc)'},
     link:{label:'Google Drive Link',icon:'fa-link'},
-    pdf:{label:'PDF',icon:'fa-file-pdf'}
+    pdf:{label:'PDF',icon:'fa-file-pdf',ext:/\.pdf$/i,accept:'.pdf,application/pdf',hint:'PDF (.pdf)'}
   };
   const CT={xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',xls:'application/vnd.ms-excel',xlsm:'application/vnd.ms-excel.sheet.macroEnabled.12',csv:'text/csv',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',doc:'application/msword',pdf:'application/pdf'};
   const ctOf=n=>{const m=/\.([a-z0-9]+)$/i.exec(n||'');return (m&&CT[m[1].toLowerCase()])||'application/octet-stream';};
@@ -14890,7 +14926,7 @@ function pdPrint(){
   }
   function pickBtn(id,kind){
     const K=KIND[kind];
-    return `<span class="pp-btn ${kind==='excel'?'pp-b-green':'pp-b-blue'} pp-pick"><i class="fa-solid ${K.icon}"></i> ${K.label} चुनें<input type="file" accept="${K.accept}" onchange="ppPick('${id}','${kind}',this)"></span>`;
+    return `<span class="pp-btn ${kind==='excel'?'pp-b-green':(kind==='pdf'?'pp-b-red':'pp-b-blue')} pp-pick"><i class="fa-solid ${K.icon}"></i> ${K.label} चुनें<input type="file" accept="${K.accept}" onchange="ppPick('${id}','${kind}',this)"></span>`;
   }
   function rowHTML(s,i){
     const p=PP.pend[s.id]; let mid='';
@@ -14901,10 +14937,11 @@ function pdPrint(){
     else if(!p) mid+='<span class="pp-none">अभी कुछ अपलोड/सेव नहीं है</span>';
     let act='';
     if(!p||p.state==='chosen'){
-      mid+=`<div class="pp-opts">${pickBtn(s.id,'excel')}${pickBtn(s.id,'word')}<span class="pp-linkbox"><input class="pp-link-in" id="pp-link-${s.id}" placeholder="Google Drive Link यहाँ पेस्ट करें" onkeydown="if(event.key==='Enter')ppLinkSave('${s.id}')"><button class="pp-btn pp-b-purple" onclick="ppLinkSave('${s.id}')"><i class="fa-solid fa-link"></i> Link Save</button></span></div>`;
+      mid+=`<div class="pp-opts">${pickBtn(s.id,'excel')}${pickBtn(s.id,'word')}${pickBtn(s.id,'pdf')}<span class="pp-linkbox"><input class="pp-link-in" id="pp-link-${s.id}" placeholder="Google Drive Link यहाँ पेस्ट करें" onkeydown="if(event.key==='Enter')ppLinkSave('${s.id}')"><button class="pp-btn pp-b-purple" onclick="ppLinkSave('${s.id}')"><i class="fa-solid fa-link"></i> Link Save</button></span></div>`;
     }
     if(p&&p.state==='chosen'){
       mid+=`<span class="pp-file-pend"><i class="fa-solid fa-paperclip"></i> ${esc(p.file.name)} (${fmtSize(p.file.size)})</span>`;
+      if(p.iv) mid+=`<span class="pp-file-pend"><i class="fa-solid fa-hourglass-half"></i> <b id="pp-cd-${s.id}">${p.cd!=null?p.cd:5}</b> सेकंड में अपने-आप Upload शुरू होगा</span>`;
       act+=`<button class="pp-btn pp-b-gold" onclick="ppStartUpload('${s.id}')"><i class="fa-solid fa-cloud-arrow-up"></i> Upload ${KIND[p.kind].label}</button><button class="pp-btn pp-b-slate" onclick="ppCancelUpload('${s.id}')"><i class="fa-solid fa-xmark"></i> हटाएं</button>`;
     }
     if(p&&p.state==='uploading'){
@@ -14946,10 +14983,19 @@ function pdPrint(){
     const f=inp.files&&inp.files[0]; if(!f)return;
     const K=KIND[kind];
     if(!K||!K.ext||!K.ext.test(f.name)){alert('केवल '+(K&&K.hint||'सही')+' फाइल चुनें।');inp.value='';return;}
-    PP.pend[id]={file:f,kind,state:'chosen',pct:0}; renderUpload();
+    const old=PP.pend[id]; if(old) ppClearAuto(old);
+    const p={file:f,kind,state:'chosen',pct:0,cd:5}; PP.pend[id]=p;
+    p.iv=setInterval(()=>{
+      if(PP.pend[id]!==p||p.state!=='chosen'){ppClearAuto(p);return;}
+      p.cd--; const e=$('pp-cd-'+id); if(e) e.textContent=Math.max(p.cd,0);
+      if(p.cd<=0){ ppClearAuto(p); window.ppStartUpload(id); }
+    },1000);
+    renderUpload();
   };
+  function ppClearAuto(p){ if(p&&p.iv){ clearInterval(p.iv); p.iv=null; } }
   window.ppStartUpload=function(id){
     const p=PP.pend[id], s=findSub(id); if(!p||!s)return;
+    if(p.state==='uploading')return; ppClearAuto(p);
     const sel=PP.cur.sel;
     const path=`${stBase(sel)}/${id}_${Date.now()}_${safeName(p.file.name)}`;
     const task=firebaseStorage.ref(path).put(p.file,{contentType:p.file.type||ctOf(p.file.name)});
@@ -14971,7 +15017,7 @@ function pdPrint(){
     });
   };
   window.ppCancelUpload=function(id){
-    const p=PP.pend[id]; if(!p)return; try{p.task&&p.task.cancel();}catch(e){}
+    const p=PP.pend[id]; if(!p)return; ppClearAuto(p); try{p.task&&p.task.cancel();}catch(e){}
     delete PP.pend[id]; renderUpload(); toast('Upload रद्द किया गया');
   };
 
@@ -15130,6 +15176,7 @@ function pdPrint(){
 
   /* ---- Excel / Word को पेज के अंदर दिखाने वाला Viewer ---- */
   const LIB2={
+    h2c:['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js','https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'],
     xlsx:['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'],
     mammoth:['https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js','https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js']
   };
@@ -15142,42 +15189,108 @@ function pdPrint(){
   function vwEnsure(){
     if(VW) return VW;
     const d=document.createElement('div'); d.className='pp-vw'; d.id='pp-vw';
-    d.innerHTML='<div class="pp-vw-box"><div class="pp-vw-hd"><div class="pp-vw-t" id="pp-vw-t"></div><div class="pp-actions"><button class="pp-btn pp-b-blue" id="pp-vw-dl"><i class="fa-solid fa-download"></i> Download</button><button class="pp-btn pp-b-red" onclick="ppVwClose()"><i class="fa-solid fa-xmark"></i> बंद करें</button></div></div><div class="pp-vw-tabs" id="pp-vw-tabs" style="display:none"></div><div class="pp-vw-body" id="pp-vw-body"></div></div>';
+    d.innerHTML='<div class="pp-vw-box"><div class="pp-vw-hd"><div class="pp-vw-t" id="pp-vw-t"></div><div class="pp-actions"><button class="pp-btn pp-b-blue" id="pp-vw-dl"><i class="fa-solid fa-download"></i> Download PDF</button><button class="pp-btn pp-b-purple" id="pp-vw-pr"><i class="fa-solid fa-print"></i> Print</button><button class="pp-btn pp-b-red" onclick="ppVwClose()"><i class="fa-solid fa-xmark"></i> बंद करें</button></div></div><div class="pp-vw-tabs" id="pp-vw-tabs" style="display:none"></div><div class="pp-vw-body" id="pp-vw-body"></div></div>';
     d.addEventListener('click',e=>{ if(e.target===d) window.ppVwClose(); });
     document.body.appendChild(d); VW=d; return d;
   }
   window.ppVwClose=function(){ VWTOK++; if(VW){ VW.classList.remove('on'); const b=$('pp-vw-body'); if(b) b.innerHTML=''; } };
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&VW&&VW.classList.contains('on')) window.ppVwClose(); });
+  /* ---- Excel / Word / PDF : हर फाइल को PDF बनाकर दिखाना ---- */
+  if(!document.getElementById('pp-x-style')){const st=document.createElement('style');st.id='pp-x-style';
+    st.textContent='.ppx{font:13px/1.45 "Noto Sans Devanagari","Mangal",Arial,sans-serif;color:#000;background:#fff}.ppx table{border-collapse:collapse;margin:4px 0}.ppx td,.ppx th{border:1px solid #555;padding:3px 6px;vertical-align:top}.ppx p{margin:0 0 8px}.ppx img{max-width:100%;max-height:900px}.ppx h3{margin:10px 0 6px}';
+    document.head.appendChild(st);}
+  PP.pdfCache=PP.pdfCache||{};
+  async function htmlSectionsToPdf(sections,prog){
+    await needLib('html2canvas',LIB2.h2c); await needPdfLib();
+    const pdf=await window.PDFLib.PDFDocument.create();
+    let pageNo=0;
+    for(const sec of sections){
+      const W=sec.landscape?1123:794, H=sec.landscape?794:1123, PX=30, PY=30, avail=H-2*PY, inW=W-2*PX;
+      const host=document.createElement('div');
+      host.style.cssText='position:fixed;left:-20000px;top:0;width:'+W+'px;background:#fff';
+      host.innerHTML='<div class="ppx" style="position:relative;width:'+W+'px;padding:'+PY+'px '+PX+'px;box-sizing:border-box"><div class="ppx-c">'+sec.html+'</div></div>';
+      document.body.appendChild(host);
+      try{
+        const c=host.querySelector('.ppx-c');
+        await Promise.all(Array.from(c.querySelectorAll('img')).map(im=>im.decode?im.decode().catch(()=>{}):0));
+        if(sec.fit){
+          c.style.width='max-content'; const nat=Math.max(c.offsetWidth,1);
+          if(nat>inW){ const sc=inW/nat; c.style.width=nat+'px'; c.style.transform='scale('+sc+')'; c.style.transformOrigin='0 0'; }
+          else c.style.width=inW+'px';
+        } else c.style.width=inW+'px';
+        const top0=c.getBoundingClientRect().top, units=[];
+        Array.from(c.children).forEach(ch=>{
+          if(ch.tagName==='TABLE'&&ch.rows&&ch.rows.length>1) Array.from(ch.rows).forEach(r=>{const b=r.getBoundingClientRect();units.push([b.top-top0,b.bottom-top0]);});
+          else{const b=ch.getBoundingClientRect();units.push([b.top-top0,b.bottom-top0]);}
+        });
+        units.sort((x,y)=>x[0]-y[0]);
+        const cH=c.getBoundingClientRect().height; if(cH<2) continue;
+        const starts=[0]; let st=0;
+        units.forEach(u=>{ if(u[1]-st>avail && u[0]-st>1){ st=u[0]; starts.push(st); } });
+        for(let i=0;i<starts.length;i++){
+          pageNo++; prog&&prog('PDF बन रहा है... पेज '+pageNo);
+          const pg=document.createElement('div');
+          pg.style.cssText='position:fixed;left:-20000px;top:0;width:'+W+'px;height:'+H+'px;overflow:hidden;background:#fff';
+          pg.innerHTML='<div class="ppx" style="position:absolute;left:'+PX+'px;top:'+(PY-starts[i])+'px;width:'+inW+'px">'+c.outerHTML+'</div>';
+          document.body.appendChild(pg);
+          try{
+            const cv=await window.html2canvas(pg,{scale:1.5,backgroundColor:'#fff',useCORS:true,logging:false});
+            const b64=cv.toDataURL('image/jpeg',0.85).split(',')[1];
+            const jpg=await pdf.embedJpg(Uint8Array.from(atob(b64),ch=>ch.charCodeAt(0)));
+            const PW=sec.landscape?842:595, PH=sec.landscape?595:842;
+            pdf.addPage([PW,PH]).drawImage(jpg,{x:0,y:0,width:PW,height:PH});
+            cv.width=cv.height=0;
+          } finally { pg.remove(); }
+        }
+      } finally { host.remove(); }
+    }
+    if(!pdf.getPageCount()) throw new Error('फाइल खाली है');
+    return new Blob([await pdf.save()],{type:'application/pdf'});
+  }
+  async function fileToPdf(f,prog){
+    const key=f.path||f.url; if(PP.pdfCache[key]) return PP.pdfCache[key];
+    const k=kindOf(f); const blob=await getBlob(f); let out;
+    if(k==='pdf'||/\.pdf$/i.test(f.name||'')) out=blob;
+    else{
+      const buf=await blob.arrayBuffer(); const sections=[];
+      if(k==='excel'){
+        await needLib('XLSX',LIB2.xlsx);
+        const wb=XLSX.read(buf,/\.csv$/i.test(f.name||'')?{type:'array',codepage:65001}:{type:'array'});
+        const names=(wb.SheetNames||[]).filter(n=>wb.Sheets[n]&&wb.Sheets[n]['!ref']);
+        if(!names.length) throw new Error('खाली Excel फाइल');
+        names.forEach(n=>sections.push({landscape:true,fit:true,html:(names.length>1?'<h3>'+esc(n)+'</h3>':'')+XLSX.utils.sheet_to_html(wb.Sheets[n],{header:'',footer:''})}));
+      } else {
+        await needLib('mammoth',LIB2.mammoth);
+        const r=await mammoth.convertToHtml({arrayBuffer:buf});
+        sections.push({landscape:false,fit:false,html:r.value||'<p>(खाली दस्तावेज़)</p>'});
+      }
+      out=await htmlSectionsToPdf(sections,prog);
+    }
+    if(Object.keys(PP.pdfCache).length>8) PP.pdfCache={};
+    PP.pdfCache[key]=out; return out;
+  }
   window.ppViewFile=async function(src,id){
     const list=src==='view'?(PP.view&&PP.view.subs):(PP.cur&&PP.cur.subs);
     const s=list&&list.find(x=>x.id===id); if(!s||!s.file) return;
     const f=s.file, k=kindOf(f); const d=vwEnsure();
     $('pp-vw-t').textContent=s.name+' — '+(f.name||'');
     const body=$('pp-vw-body'), tabs=$('pp-vw-tabs'); tabs.style.display='none'; tabs.innerHTML='';
-    $('pp-vw-dl').onclick=()=>guarded(async()=>{ const b=await getBlob(f); saveBlob(b,f.name||'file'); });
+    const pdfName=(String(f.name||s.name||'paper').replace(/\.[a-z0-9]+$/i,'')||'paper')+'.pdf';
+    let pdfBlob=null;
+    $('pp-vw-dl').onclick=()=>guarded(async()=>{ if(pdfBlob) saveBlob(pdfBlob,pdfName); });
+    $('pp-vw-pr').onclick=()=>guarded(async()=>{ if(pdfBlob) printBlob(pdfBlob); });
     d.classList.add('on');
-    body.innerHTML='<div class="pp-empty" style="margin:20px;color:#475569"><i class="fa-solid fa-spinner fa-spin"></i> फाइल खुल रही है...</div>';
+    const spin=m=>'<div class="pp-empty" style="margin:20px;color:#475569"><i class="fa-solid fa-spinner fa-spin"></i> '+m+'</div>';
+    body.innerHTML=spin('फाइल PDF में खुल रही है...');
     const token=++VWTOK;
-    const officeView=why=>{ if(token!==VWTOK) return; if(why) console.warn('In-page preview नहीं बना, Office viewer से खोल रहे हैं:',why); body.innerHTML='<iframe allowfullscreen src="https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(f.url)+'"></iframe>'; };
+    const officeView=why=>{ if(token!==VWTOK) return; if(why) console.warn('PDF नहीं बन पाया, Office viewer से खोल रहे हैं:',why); body.innerHTML='<iframe allowfullscreen src="https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(f.url)+'"></iframe>'; };
     try{
       if(k==='word'&&/\.doc$/i.test(f.name||'')){ officeView('legacy .doc'); return; }
-      const blob=await getBlob(f); const buf=await blob.arrayBuffer(); if(token!==VWTOK) return;
-      if(k==='excel'){
-        await needLib('XLSX',LIB2.xlsx); if(token!==VWTOK) return;
-        const wb=XLSX.read(buf,/\.csv$/i.test(f.name||'')?{type:'array',codepage:65001}:{type:'array'});
-        const names=wb.SheetNames||[]; if(!names.length) throw new Error('खाली Excel फाइल');
-        const show=i=>{ body.innerHTML='<div class="pp-xl">'+XLSX.utils.sheet_to_html(wb.Sheets[names[i]],{header:'',footer:''})+'</div>'; };
-        if(names.length>1){
-          tabs.style.display='flex';
-          tabs.innerHTML=names.map((n,i)=>`<button class="pp-btn pp-b-slate" style="padding:6px 12px" data-i="${i}">${esc(n)}</button>`).join('');
-          tabs.onclick=e=>{ const bt=e.target.closest('button'); if(bt) show(+bt.dataset.i); };
-        }
-        show(0);
-      } else {
-        await needLib('mammoth',LIB2.mammoth); if(token!==VWTOK) return;
-        const r=await mammoth.convertToHtml({arrayBuffer:buf}); if(token!==VWTOK) return;
-        body.innerHTML='<div class="pp-doc">'+(r.value||'<p>(खाली दस्तावेज़)</p>')+'</div>';
-      }
+      pdfBlob=await fileToPdf(f,m=>{ if(token===VWTOK) body.innerHTML=spin(m); });
+      if(token!==VWTOK) return;
+      if(PP.vwUrl) try{URL.revokeObjectURL(PP.vwUrl);}catch(e){}
+      const url=URL.createObjectURL(pdfBlob); PP.vwUrl=url;
+      body.innerHTML='<iframe src="'+url+'"></iframe>';
     }catch(e){ console.error(e); officeView(e); }
   };
 
@@ -16734,7 +16847,7 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
       stats.innerHTML =
         chip('कुल Admin Login', logins.length, '#1d4ed8') +
         chip('आज के Login', todayLogins, '#0f766e') +
-        chip('अंतिम Login', loglogin(logins[0]), '#b45309') +
+        chip('अंतिम Login', logLogin(logins[0]), '#b45309') +
         chip('कुल काम (Activities)', work, '#7c3aed');
     }
     var type = ($('admin-hist-type') || {}).value || 'ALL';
@@ -16921,5 +17034,164 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
 })();
 </script>
 
+
+<style id="dash-cine-style">
+/* ===== Dashboard : Cinematic Look (सिर्फ #tab-dashboard पर लागू) ===== */
+@keyframes dscRise{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes dscGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes dscShine{0%{transform:translateX(-130%) skewX(-20deg)}60%,100%{transform:translateX(230%) skewX(-20deg)}}
+@keyframes dscGlow{0%,100%{box-shadow:0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 26px rgba(251,191,36,.35)}}
+@keyframes dscDrift{0%{background-position:0 0,100% 0,0 0}100%{background-position:60px 40px,calc(100% - 50px) 30px,0 0}}
+#tab-dashboard>.card{position:relative;overflow:hidden;color:#e2e8f0;border:1px solid rgba(251,191,36,.3);border-radius:18px;
+  background:radial-gradient(1100px 480px at 8% -8%,rgba(56,189,248,.20),transparent 60%),radial-gradient(900px 480px at 100% 0%,rgba(251,191,36,.15),transparent 55%),linear-gradient(160deg,#040916,#0a1330 55%,#10204a);
+  box-shadow:0 24px 70px rgba(2,6,23,.6),inset 0 0 0 1px rgba(255,255,255,.04);animation:dscDrift 18s linear infinite alternate}
+#tab-dashboard>.card::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px)}
+#tab-dashboard>.card>*{position:relative;z-index:1}
+#tab-dashboard .card-header{background:transparent!important;color:#fde68a!important;font-weight:900;letter-spacing:.4px;text-shadow:0 0 20px rgba(251,191,36,.55);border-bottom:1px solid rgba(251,191,36,.28)!important}
+#tab-dashboard h3{color:#fde68a!important;text-shadow:0 0 14px rgba(251,191,36,.35)}
+#tab-dashboard .dash-stat-card{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5),0 0 30px rgba(56,189,248,.18);animation:dscRise .75s cubic-bezier(.2,.8,.2,1) both;transition:transform .3s,box-shadow .3s}
+#tab-dashboard .dash-stat-card:nth-child(2){animation-delay:.12s}#tab-dashboard .dash-stat-card:nth-child(3){animation-delay:.24s}
+#tab-dashboard .dash-stat-card:hover{transform:translateY(-7px) scale(1.025);box-shadow:0 20px 44px rgba(0,0,0,.55),0 0 40px rgba(251,191,36,.3)}
+#tab-dashboard .dash-stat-card::after{content:'';position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:dscShine 4.5s ease-in-out infinite}
+#tab-dashboard .dash-stat-card .num{font-size:2.8rem;text-shadow:0 0 24px rgba(255,255,255,.5)}
+#tab-dashboard .dash-chart-wrap{background:rgba(2,6,23,.5);border:1px solid rgba(255,255,255,.09);border-radius:16px;box-shadow:inset 0 0 40px rgba(56,189,248,.07)}
+#tab-dashboard .dash-chart-bar{background:linear-gradient(180deg,#fde68a,#f59e0b 45%,#9a3412)!important;box-shadow:0 0 18px rgba(251,191,36,.55);transform-origin:bottom;animation:dscGrow .9s cubic-bezier(.2,.8,.2,1) both;border-radius:6px 6px 2px 2px}
+#tab-dashboard .dash-chart-bar-val,#tab-dashboard .dash-chart-bar-lbl{color:#e2e8f0!important}
+#tab-dashboard table{background:transparent!important;color:#e2e8f0}
+#tab-dashboard th{background:linear-gradient(90deg,#1e3a8a,#312e81)!important;color:#fde68a!important;border-color:rgba(255,255,255,.14)!important}
+#tab-dashboard td{background:transparent!important;color:#e2e8f0!important;border-color:rgba(255,255,255,.1)!important}
+#tab-dashboard tbody tr:hover td{background:rgba(251,191,36,.1)!important}
+#tab-dashboard tfoot tr,#tab-dashboard tfoot td{background:rgba(251,191,36,.16)!important;color:#fde68a!important}
+/* ---- Student Search ---- */
+.dsx{margin:16px 0 22px;padding:18px;border-radius:18px;background:linear-gradient(145deg,rgba(15,23,42,.78),rgba(30,41,99,.55));border:1px solid rgba(251,191,36,.38);box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 34px rgba(251,191,36,.12);animation:dscRise .7s both}
+.dsx-title{font-weight:900;color:#fde68a;font-size:1.05rem;margin-bottom:10px;text-shadow:0 0 14px rgba(251,191,36,.45)}
+.dsx-bar{display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:14px;background:rgba(2,6,23,.75);border:1px solid rgba(148,163,184,.35);transition:.25s}
+.dsx-bar:focus-within{border-color:#fbbf24;animation:dscGlow 2s infinite}
+.dsx-bar i{color:#fbbf24}
+.dsx-bar input{flex:1;min-width:0;background:transparent!important;border:0!important;outline:0!important;color:#fff!important;font-size:1rem;padding:11px 4px!important;box-shadow:none!important}
+.dsx-bar input::placeholder{color:#94a3b8}
+.dsx-bar button{background:rgba(248,113,113,.18);color:#fecaca;border:0;border-radius:8px;width:30px;height:30px;cursor:pointer;font-weight:900}
+.dsx-hint{font-size:.76rem;color:#93c5fd;margin:8px 2px 0}
+.dsx-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px}
+.dsx-item{display:flex;gap:11px;align-items:center;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:.25s;animation:dscRise .45s both}
+.dsx-item:hover{transform:translateY(-4px);border-color:#fbbf24;box-shadow:0 10px 26px rgba(251,191,36,.2)}
+.dsx-item img{width:52px;height:62px;border-radius:9px;object-fit:cover;border:1px solid rgba(255,255,255,.25);background:#0f172a;flex-shrink:0}
+.dsx-item b{display:block;color:#fff;font-size:.95rem}
+.dsx-item small{display:block;color:#93c5fd;font-size:.74rem;margin-top:2px}
+.dsx-item em{display:inline-block;margin-top:4px;font-style:normal;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(251,191,36,.18);color:#fde68a}
+.dsx-empty{margin-top:14px;padding:16px;text-align:center;color:#fecaca;background:rgba(127,29,29,.25);border:1px dashed rgba(248,113,113,.5);border-radius:12px}
+.dsx-note{margin-top:10px;font-size:.78rem;color:#fde68a}
+.dsx-detail{margin-top:16px;display:grid;grid-template-columns:230px 1fr;gap:20px;padding:20px;border-radius:18px;background:linear-gradient(150deg,rgba(2,6,23,.85),rgba(30,58,138,.5));border:1px solid rgba(251,191,36,.45);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 40px rgba(56,189,248,.14);animation:dscRise .55s both}
+.dsx-photo{position:relative;text-align:center}
+.dsx-photo img{width:200px;height:240px;object-fit:cover;border-radius:16px;border:3px solid #fbbf24;background:#0f172a;box-shadow:0 0 34px rgba(251,191,36,.45),0 14px 30px rgba(0,0,0,.6)}
+.dsx-photo .badge{display:inline-block;margin-top:12px;padding:5px 14px;border-radius:99px;font-weight:900;font-size:.85rem;background:linear-gradient(90deg,#f59e0b,#fbbf24);color:#1e1b4b}
+.dsx-name{font-size:1.5rem;font-weight:900;color:#fff;text-shadow:0 0 18px rgba(56,189,248,.5)}
+.dsx-sub{color:#93c5fd;margin:2px 0 14px;font-size:.9rem}
+.dsx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.dsx-f{padding:9px 12px;border-radius:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+.dsx-f.id{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08)}
+.dsx-f span{display:block;font-size:.68rem;font-weight:800;letter-spacing:.5px;color:#93c5fd;text-transform:uppercase}
+.dsx-f b{display:block;color:#fff;font-size:.95rem;word-break:break-word;margin-top:2px}
+.dsx-close{float:right;background:rgba(248,113,113,.2);color:#fecaca;border:1px solid rgba(248,113,113,.5);border-radius:9px;padding:5px 12px;cursor:pointer;font-weight:800}
+@media(max-width:760px){.dsx-detail{grid-template-columns:1fr}.dsx-photo img{width:170px;height:205px}}
+@media print{.dsx{display:none!important}}
+</style>
+<script id="dash-search-script">
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id);};
+  function esc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  var IDF=['SSSM ID','PEN NUMBER','APAAR NUMBER','ADHAR NUMBER','AD NO.'];
+  var LABEL={'ROLL NO.':'Roll No.','ENROLLMENT NO':'Enrollment No','SSSM ID':'SSSM ID','PEN NUMBER':'PEN Number','APAAR NUMBER':'APAAR Number','ADHAR NUMBER':'Aadhaar Number','NAME OF STUDENT':'छात्र का नाम','NAME OF FATHER':'पिता का नाम','NAME OF MOTHER':'माता का नाम','BIRTH DATE':'जन्म तिथि','CAST':'जाति (Cast)','ADMITTED IN CLASS':'प्रवेश की कक्षा','DATE OF ADMISSION':'प्रवेश दिनांक','CATEG':'वर्ग (Category)','GENDER':'लिंग','AD NO.':'AD No.','CLASS':'कक्षा','YEAR':'सत्र'};
+  var NOPHOTO="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240"><rect width="200" height="240" fill="#0f172a"/><circle cx="100" cy="90" r="38" fill="#334155"/><path d="M30 220c0-48 31-72 70-72s70 24 70 72z" fill="#334155"/></svg>');
+  var cur=[];
+  function val(st,k){
+    try{ if(typeof getFieldValue==='function'){ var v=getFieldValue(st,k); if(v!==undefined&&v!==null&&String(v).trim()!=='') return v; } }catch(e){}
+    var r=st?st[k]:''; return (r===undefined||r===null)?'':r;
+  }
+  function pretty(k,v){
+    var s=String(v==null?'':v).trim();
+    if((k==='BIRTH DATE'||k==='DATE OF ADMISSION')&&/^\d{5}$/.test(s)&&typeof excelSerialToDDMMYYYY==='function'){ try{ return excelSerialToDDMMYYYY(Number(s)); }catch(e){} }
+    return s;
+  }
+  function norm(x){return String(x==null?'':x).toUpperCase().replace(/\s+/g,' ').trim();}
+  function clean(x){return (typeof cleanString==='function')?cleanString(x):String(x||'').replace(/[^a-zA-Z0-9]/g,'').toUpperCase();}
+  function search(q){
+    var qn=norm(q), qc=clean(q), out=[];
+    var list=(typeof students!=='undefined'&&Array.isArray(students))?students:[];
+    var py=''; try{ py=clean(getPortalYear()); }catch(e){}
+    list.forEach(function(st){
+      if(!st) return; var why='', score=0;
+      if(qc.length>=3){
+        for(var i=0;i<IDF.length;i++){
+          var v=clean(val(st,IDF[i])); if(!v) continue;
+          if(v===qc){why=(LABEL[IDF[i]]||IDF[i]); score=100; break;}
+          if(v.indexOf(qc)>-1&&!why){why=(LABEL[IDF[i]]||IDF[i]); score=60;}
+        }
+      }
+      if(qn.length>=2){
+        var nm=norm(st['NAME OF STUDENT']);
+        if(nm&&nm.indexOf(qn)>-1){ if(!why){why='नाम';} score=Math.max(score,nm===qn?90:(nm.indexOf(qn)===0?50:30)); }
+      }
+      if(score){ if(py&&clean(st['YEAR'])===py) score+=5; out.push({st:st,why:why,score:score}); }
+    });
+    out.sort(function(a,b){return b.score-a.score;});
+    return out;
+  }
+  function photoOf(st){ return st['PHOTO']||NOPHOTO; }
+  function showDetail(i){
+    var o=cur[i]; if(!o) return; var st=o.st;
+    var fixed=(typeof FIXED_COLUMNS!=='undefined')?FIXED_COLUMNS.slice():Object.keys(LABEL);
+    var extra=Object.keys(st).filter(function(k){
+      if(k==='PHOTO'||k.charAt(0)==='_'||fixed.indexOf(k)>-1) return false;
+      var v=st[k]; return (typeof v==='string'||typeof v==='number')&&String(v).trim()!==''&&String(v).length<200;
+    });
+    var keys=fixed.concat(extra), cells='';
+    keys.forEach(function(k){
+      if(k==='NAME OF STUDENT') return;
+      var v=pretty(k,val(st,k));
+      cells+='<div class="dsx-f'+(IDF.indexOf(k)>-1?' id':'')+'"><span>'+esc(LABEL[k]||k)+'</span><b>'+(v?esc(v):'—')+'</b></div>';
+    });
+    $('dsx-results').innerHTML=
+      '<div class="dsx-detail"><div class="dsx-photo"><img src="'+esc(photoOf(st))+'" alt="photo"><div class="badge">कक्षा '+esc(st['CLASS']||'-')+' | '+esc(st['YEAR']||'-')+'</div></div>'+
+      '<div><button class="dsx-close" type="button" id="dsx-back">&#10005; बंद करें</button><div class="dsx-name">'+esc(st['NAME OF STUDENT']||'')+'</div>'+
+      '<div class="dsx-sub">पिता: '+esc(st['NAME OF FATHER']||'-')+' &nbsp;•&nbsp; Roll No.: '+esc(st['ROLL NO.']||'-')+'</div><div class="dsx-grid">'+cells+'</div></div></div>';
+    var b=$('dsx-back'); if(b) b.onclick=function(){ run(); };
+    var r=$('dsx-results'); if(r&&r.scrollIntoView) try{r.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}
+  }
+  function run(){
+    var q=($('dsx-input').value||'').trim(), box=$('dsx-results');
+    if(!q){ box.innerHTML=''; cur=[]; return; }
+    cur=search(q);
+    if(!cur.length){ box.innerHTML='<div class="dsx-empty"><i class="fa-solid fa-user-slash"></i> कोई छात्र नहीं मिला। (नाम 2+ अक्षर / ID 3+ अंक लिखें)</div>'; return; }
+    if(cur.length===1){ showDetail(0); return; }
+    var shown=cur.slice(0,30);
+    box.innerHTML='<div class="dsx-note">'+cur.length+' छात्र मिले'+(cur.length>30?' (पहले 30 दिख रहे हैं — खोज और स्पष्ट करें)':'')+' — विवरण देखने के लिए किसी पर क्लिक करें</div><div class="dsx-list">'+
+      shown.map(function(o,i){var s=o.st;return '<div class="dsx-item" data-i="'+i+'" style="animation-delay:'+(i*35)+'ms"><img src="'+esc(photoOf(s))+'" alt=""><div><b>'+esc(s['NAME OF STUDENT']||'')+'</b><small>पिता: '+esc(s['NAME OF FATHER']||'-')+'</small><small>कक्षा '+esc(s['CLASS']||'-')+' | '+esc(s['YEAR']||'-')+'</small><em>'+esc(o.why)+'</em></div></div>';}).join('')+'</div>';
+  }
+  var timer=null;
+  function init(){
+    var inp=$('dsx-input'); if(!inp||inp.__dsx) return; inp.__dsx=true;
+    inp.addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(run,250);});
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ clearTimeout(timer); run(); } });
+    $('dsx-clear').addEventListener('click',function(){ inp.value=''; run(); inp.focus(); });
+    $('dsx-results').addEventListener('click',function(e){ var it=e.target.closest&&e.target.closest('.dsx-item'); if(it) showDetail(+it.getAttribute('data-i')); });
+  }
+  /* Dashboard के आँकड़ों में count-up animation (पुराना renderDashboard जैसा था वैसा ही चलता है) */
+  function countUp(){
+    document.querySelectorAll('#dashboard-stats-area .dash-stat-card .num').forEach(function(el){
+      var end=parseInt(el.textContent,10); if(isNaN(end)||end<=0) return; var t0=null, dur=900;
+      function step(t){ if(t0===null) t0=t; var p=Math.min((t-t0)/dur,1); el.textContent=Math.round(end*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(step); else el.textContent=end; }
+      el.textContent='0'; requestAnimationFrame(step);
+    });
+  }
+  var o=window.renderDashboard;
+  if(typeof o==='function'&&!o.__dsx){
+    var w=function(){ var r=o.apply(this,arguments); try{ init(); countUp(); }catch(e){ console.error('dash',e); } return r; };
+    w.__dsx=true; window.renderDashboard=w;
+  }
+  init();
+})();
+</script>
 </body>
 </html>
