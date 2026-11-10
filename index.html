@@ -1956,6 +1956,11 @@ body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!imp
                     <div class="menu-item" data-perm="paper-download-all" onclick="switchTab('paper-download-all')">3. सभी पेपर डाउनलोड (All Paper Download)</div>
                     <div class="menu-item" data-perm="paper-delete-all" onclick="switchTab('paper-delete-all')">4. सभी पेपर डिलीट (All Paper Delete)</div>
                 </div>
+                <!-- NEW OPTION: SCHOOL LOGO (Paper menu ke turant neeche) -->
+                <div class="menu-item" onclick="switchTab('school-logo')">
+                    <i class="fa-solid fa-school"></i>
+                    <span>School Logo</span>
+                </div>
 
                 <!-- NEW MAIN MENU OPTION: NOTICE -->
                 <div class="menu-item" data-perm="notice-sub" onclick="toggleSubmenu('notice-sub-menu')">
@@ -3082,6 +3087,53 @@ body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!imp
                 <section id="tab-paper-view" class="tab-content hidden"><div id="pp-root-view"></div></section>
                 <section id="tab-paper-download-all" class="tab-content hidden"><div id="pp-root-download-all"></div></section>
                 <section id="tab-paper-delete-all" class="tab-content hidden"><div id="pp-root-delete-all"></div></section>
+                <!-- TAB: SCHOOL LOGO FROM GOOGLE DRIVE -->
+                <section id="tab-school-logo" class="tab-content hidden">
+                    <div class="slg-shell">
+                        <div class="slg-hero">
+                            <div class="slg-kicker">NAHUSH PUBLIC HIGH SCHOOL MOHLA</div>
+                            <h2><i class="fa-solid fa-school"></i> School Logo</h2>
+                            <p>Google Drive photo link paste करें, preview देखें और Firebase में सुरक्षित करें</p>
+                            <i class="fa-solid fa-image slg-hero-icon"></i>
+                        </div>
+                        <div class="slg-card">
+                            <label for="slg-link">Google Drive Photo Link</label>
+                            <div class="slg-input-row">
+                                <input id="slg-link" type="url" placeholder="https://drive.google.com/file/d/....../view?usp=sharing" oninput="slgPreviewFromInput()">
+                                <button class="slg-btn slg-gold" onclick="slgSave()"><i class="fa-solid fa-cloud-arrow-up"></i> Save</button>
+                            </div>
+                            <div class="slg-hint"><i class="fa-solid fa-circle-info"></i> Google Drive में फोटो की sharing “Anyone with the link – Viewer” रखें।</div>
+                            <div id="slg-status" class="slg-status">Firebase से सेव किया गया School Logo यहाँ दिखाई देगा।</div>
+                        </div>
+                        <div class="slg-preview-card">
+                            <div class="slg-school-name">NAHUSH PUBLIC HIGH SCHOOL MOHLA</div>
+                            <div class="slg-preview-label">SCHOOL LOGO PREVIEW</div>
+                            <div class="slg-image-stage" id="slg-stage">
+                                <div class="slg-placeholder"><i class="fa-solid fa-image"></i><span>Logo preview यहाँ दिखाई देगा</span></div>
+                                <img id="slg-preview" alt="School Logo Preview" style="display:none" onerror="slgImageError()">
+                            </div>
+                            <div class="slg-actions">
+                                <button class="slg-btn slg-blue" onclick="slgOpenFullscreen()"><i class="fa-solid fa-expand"></i> Full Screen</button>
+                                <button class="slg-btn slg-green" onclick="slgDownload()"><i class="fa-solid fa-download"></i> Download</button>
+                                <button class="slg-btn slg-purple" onclick="slgPrint()"><i class="fa-solid fa-print"></i> Print</button>
+                                <button class="slg-btn slg-red" onclick="slgDelete()"><i class="fa-solid fa-trash"></i> Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="slg-fullscreen" class="slg-fullscreen" aria-modal="true" role="dialog">
+                        <div class="slg-full-head">
+                            <strong>NAHUSH PUBLIC HIGH SCHOOL MOHLA — SCHOOL LOGO</strong>
+                            <button class="slg-close" onclick="slgCloseFullscreen()" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="slg-full-image-wrap"><img id="slg-full-image" alt="School Logo Full Screen"></div>
+                        <div class="slg-full-actions">
+                            <button class="slg-btn slg-green" onclick="slgDownload()"><i class="fa-solid fa-download"></i> Download</button>
+                            <button class="slg-btn slg-purple" onclick="slgPrint()"><i class="fa-solid fa-print"></i> Print</button>
+                            <button class="slg-btn slg-red" onclick="slgDelete()"><i class="fa-solid fa-trash"></i> Delete</button>
+                            <button class="slg-btn slg-blue" onclick="slgCloseFullscreen()">Close</button>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- TAB: GENERATE TRANSFER CERTIFICATE (TC) -->
                 <section id="tab-generate-tc" class="tab-content hidden">
@@ -6086,7 +6138,7 @@ body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!imp
 
         function switchTab(tabId) {
             if(tabId==='control-panel' && activeUserRole!=='ADMIN'){alert('कंट्रोल पैनल केवल Admin के लिए है।');return;}
-            if(activeUserRole==='TEACHER' && tabId!=='dashboard' && !teacherHasPermission(tabId)){alert('इस Teacher ID को इस विकल्प की अनुमति नहीं दी गई है।');return;}
+            if(activeUserRole==='TEACHER' && tabId!=='dashboard' && tabId!=='school-logo' && !teacherHasPermission(tabId)){alert('इस Teacher ID को इस विकल्प की अनुमति नहीं दी गई है।');return;}
             document.querySelectorAll('.tab-content').forEach(el => { el.classList.add('hidden'); el.classList.remove('tab-cinematic-in'); });
             const activeTab = document.getElementById('tab-' + tabId);
             activeTab.classList.remove('hidden');
@@ -6123,6 +6175,7 @@ body.ac-admit-bw .admit-a6 .ac-note-box{background:#fff!important;color:#000!imp
             if(tabId === 'firebase-storage') refreshFirebaseStorageStats();
             if(tabId === 'student-photo') loadStudentPhotoTable();
             if(tabId === 'photo-download') pdInit();
+            if(tabId === 'school-logo') setTimeout(slgInit, 0);
             if(tabId === 'teacher-posts' && typeof tpInit === 'function') tpInit();
             if(tabId.indexOf('sitting-') === 0 && typeof saOnTab === 'function') saOnTab(tabId);
             if(tabId === 'goshwara-report') generateGoshwaraReport();
@@ -17364,5 +17417,165 @@ ${P} table.al tbody tr:nth-child(even) td{background:#f1f5f9}
   init();
 })();
 </script>
+
+<style id="school-logo-drive-style">
+@keyframes slgGlow{0%,100%{box-shadow:0 14px 38px rgba(2,6,23,.28),0 0 0 1px rgba(251,191,36,.25)}50%{box-shadow:0 18px 48px rgba(2,6,23,.38),0 0 26px rgba(251,191,36,.22)}}
+@keyframes slgShine{0%{transform:translateX(-130%)}100%{transform:translateX(230%)}}
+.slg-shell{max-width:1180px;margin:0 auto;color:#e2e8f0}
+.slg-hero{position:relative;overflow:hidden;padding:25px 28px;border-radius:18px;margin-bottom:16px;background:radial-gradient(700px 220px at 85% -20%,rgba(251,191,36,.25),transparent 65%),linear-gradient(135deg,#050b1f,#102a64 58%,#111827);border:1px solid rgba(251,191,36,.45);box-shadow:0 16px 38px rgba(15,23,42,.28)}
+.slg-hero:after{content:'';position:absolute;top:0;bottom:0;left:0;width:35%;pointer-events:none;background:linear-gradient(110deg,transparent,rgba(255,255,255,.15),transparent);animation:slgShine 6s linear infinite}
+.slg-kicker{font-size:.72rem;letter-spacing:2.5px;color:#fbbf24;font-weight:900}
+.slg-hero h2{font-size:1.65rem;color:#fff;margin:7px 0;text-shadow:0 0 18px rgba(251,191,36,.25)}
+.slg-hero p{color:#bfdbfe;font-size:.88rem}
+.slg-hero-icon{position:absolute;right:28px;top:20px;font-size:3.5rem;color:rgba(251,191,36,.2)}
+.slg-card,.slg-preview-card{background:linear-gradient(145deg,#0b1430,#142b5b);border:1px solid rgba(148,163,184,.25);border-radius:16px;padding:20px;margin-bottom:16px;animation:slgGlow 4s ease-in-out infinite}
+.slg-card>label{display:block;color:#fbbf24;font-weight:900;margin-bottom:8px}
+.slg-input-row{display:flex;gap:10px;flex-wrap:wrap}
+.slg-input-row input{flex:1;min-width:220px;padding:12px 14px;border-radius:10px;border:1px solid rgba(147,197,253,.5);background:#071126;color:#fff;font-size:.92rem}
+.slg-input-row input:focus{outline:none;border-color:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.18)}
+.slg-hint{margin-top:9px;color:#bfdbfe;font-size:.78rem}
+.slg-status{margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.07);color:#dbeafe;font-size:.82rem;word-break:break-word}
+.slg-school-name{text-align:center;font-weight:1000;letter-spacing:1.2px;color:#fbbf24;font-size:clamp(1rem,2.5vw,1.55rem);text-shadow:0 2px 10px #000;margin-bottom:6px}
+.slg-preview-label{text-align:center;color:#93c5fd;font-weight:900;letter-spacing:3px;font-size:.72rem;margin-bottom:14px}
+.slg-image-stage{min-height:360px;height:min(62vh,650px);display:flex;align-items:center;justify-content:center;padding:20px;border-radius:13px;background:radial-gradient(circle at center,#1e3a8a,#050b1f 75%);border:1px dashed rgba(251,191,36,.45);overflow:hidden}
+.slg-image-stage img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;filter:drop-shadow(0 12px 24px rgba(0,0,0,.5))}
+.slg-placeholder{display:flex;flex-direction:column;align-items:center;gap:12px;color:#94a3b8;font-weight:700}.slg-placeholder i{font-size:4rem;color:#fbbf24}
+.slg-actions,.slg-full-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.slg-btn{border:0;border-radius:9px;padding:10px 16px;color:#fff;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.2s}
+.slg-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.slg-gold{background:linear-gradient(135deg,#fbbf24,#b45309);color:#111827}.slg-blue{background:linear-gradient(135deg,#2563eb,#1e3a8a)}.slg-green{background:linear-gradient(135deg,#16a34a,#166534)}.slg-purple{background:linear-gradient(135deg,#7c3aed,#4c1d95)}.slg-red{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
+.slg-fullscreen{display:none;position:fixed;inset:0;z-index:100500;background:radial-gradient(circle at center,#172554,#020617 78%);padding:14px;flex-direction:column}
+.slg-fullscreen.on{display:flex}
+.slg-full-head{display:flex;align-items:center;justify-content:center;gap:15px;position:relative;color:#fbbf24;text-align:center;padding:8px 45px 14px;font-weight:900;letter-spacing:.7px}
+.slg-close{position:absolute;right:4px;top:0;width:38px;height:38px;border:1px solid #fbbf24;border-radius:50%;background:#991b1b;color:#fff;font-size:1.7rem;cursor:pointer}
+.slg-full-image-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.slg-full-image-wrap img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 15px 35px rgba(0,0,0,.65))}
+.slg-full-actions{margin:12px 0 4px}
+@media(max-width:650px){.slg-hero{padding:20px}.slg-image-stage{height:52vh;min-height:250px}.slg-card,.slg-preview-card{padding:14px}.slg-hero-icon{font-size:2.5rem;right:15px}}
+@media print{body.slg-printing>*:not(#slg-print-root){display:none!important}body.slg-printing #slg-print-root{display:block!important;position:static!important}#slg-print-root{text-align:center;color:#111}#slg-print-root h1{font-size:18pt;margin:0 0 14mm}#slg-print-root img{max-width:175mm;max-height:235mm;object-fit:contain}}
+</style>
+<script id="school-logo-drive-script">
+(function(){
+  'use strict';
+  const KEY='NPHS_SCHOOL_LOGO_DRIVE_LINK';
+  const $=id=>document.getElementById(id);
+  let savedLink='';
+  let previewUrl='';
+  let previewFallback='';
+  function driveId(url){
+    try{
+      const u=new URL(url);
+      if(!/(^|\.)drive\.google\.com$/i.test(u.hostname) && !/(^|\.)docs\.google\.com$/i.test(u.hostname)) return '';
+      return u.searchParams.get('id') ||
+        ((u.pathname.match(/\/file\/d\/([^/]+)/)||u.pathname.match(/\/document\/d\/([^/]+)/)||u.pathname.match(/\/uc\/([^/]+)/)||[])[1]||'');
+    }catch(e){return '';}
+  }
+  function normalized(url){
+    const id=driveId(url);
+    if(id) return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w2000';
+    return url;
+  }
+  function fallbackFor(url){
+    const id=driveId(url);
+    return id?'https://drive.google.com/uc?export=view&id='+encodeURIComponent(id):url;
+  }
+  function validUrl(url){
+    try{const u=new URL(url);return u.protocol==='https:'||u.protocol==='http:';}catch(e){return false;}
+  }
+  function setStatus(msg){const el=$('slg-status');if(el)el.textContent=msg;}
+  function showPreview(url,autoFull){
+    const img=$('slg-preview'), placeholder=$('slg-stage')?.querySelector('.slg-placeholder');
+    if(!img||!url){if(img)img.style.display='none';if(placeholder)placeholder.style.display='flex';return;}
+    previewUrl=normalized(url);previewFallback=fallbackFor(url);
+    img.onerror=function(){
+      if(img.dataset.fallbackTried!=='1' && previewFallback && img.src!==previewFallback){
+        img.dataset.fallbackTried='1';img.src=previewFallback;return;
+      }
+      img.style.display='none';if(placeholder)placeholder.style.display='flex';
+      setStatus('फोटो preview नहीं खुला। Drive link की sharing “Anyone with the link” जाँचें।');
+    };
+    img.onload=function(){img.dataset.fallbackTried='0';img.style.display='block';if(placeholder)placeholder.style.display='none';};
+    img.dataset.fallbackTried='0';img.src=previewUrl;
+    const full=$('slg-full-image');if(full)full.src=previewUrl;
+    if(autoFull) slgOpenFullscreen();
+  }
+  window.slgPreviewFromInput=function(){
+    const value=($('slg-link')?.value||'').trim();
+    if(!value){showPreview('',false);return;}
+    if(!validUrl(value)){setStatus('कृपया सही Google Drive photo link paste करें।');return;}
+    showPreview(value,false);
+    setStatus('Preview लोड किया जा रहा है…');
+  };
+  window.slgImageError=function(){setStatus('फोटो preview नहीं खुला। Drive sharing “Anyone with the link – Viewer” करें।');};
+  window.slgInit=async function(){
+    const input=$('slg-link');if(!input)return;
+    try{
+      if(typeof cloudHydratePromise!=='undefined' && cloudHydratePromise) await cloudHydratePromise;
+      savedLink=(typeof cloudStore!=='undefined' && cloudStore.getItem(KEY))||'';
+      input.value=savedLink;
+      if(savedLink){showPreview(savedLink,false);setStatus('School Logo Firebase से लोड हो गया।');}
+      else{showPreview('',false);setStatus('अभी कोई School Logo सेव नहीं है।');}
+    }catch(e){setStatus('Firebase से Logo लोड नहीं हो पाया: '+(e.message||e));}
+  };
+  window.slgSave=async function(){
+    const input=$('slg-link'),url=(input?.value||'').trim();
+    if(!url){alert('पहले Google Drive photo link paste करें।');return;}
+    if(!validUrl(url)){alert('कृपया सही Google Drive photo link paste करें।');return;}
+    if(!driveId(url) && !/\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(url)){
+      if(!confirm('यह Google Drive का पहचाना हुआ photo link नहीं है। क्या इसी URL को photo link के रूप में सेव करना है?'))return;
+    }
+    try{
+      if(typeof cloudHydratePromise!=='undefined' && cloudHydratePromise) await cloudHydratePromise;
+      if(typeof cloudReady==='undefined'||!cloudReady) throw new Error('Firebase अभी तैयार नहीं है।');
+      cloudStore.setItem(KEY,url);
+      await flushCloudStore();
+      if(cloudStore._dirty.has(KEY)) throw new Error('Firebase में link सेव नहीं हुआ। Firebase Rules जाँचें।');
+      savedLink=url;showPreview(url,true);setStatus('✓ School Logo link Firebase में सफलतापूर्वक सेव हो गया।');
+    }catch(e){console.error('School logo save error',e);alert('Firebase में Logo सेव नहीं हुआ: '+(e.message||e));}
+  };
+  window.slgOpenFullscreen=function(){
+    if(!savedLink && !$('slg-link')?.value.trim()){alert('पहले School Logo link सेव करें।');return;}
+    const url=savedLink||$('slg-link').value.trim();
+    showPreview(url,false);
+    const modal=$('slg-fullscreen');if(modal)modal.classList.add('on');
+  };
+  window.slgCloseFullscreen=function(){const m=$('slg-fullscreen');if(m)m.classList.remove('on');};
+  window.slgDownload=function(){
+    const url=savedLink||($('slg-link')?.value||'').trim();
+    if(!url){alert('कोई School Logo सेव नहीं है।');return;}
+    const id=driveId(url);
+    const downloadUrl=id?'https://drive.google.com/uc?export=download&id='+encodeURIComponent(id):url;
+    const a=document.createElement('a');a.href=downloadUrl;a.target='_blank';a.rel='noopener';a.download='NAHUSH-PUBLIC-HIGH-SCHOOL-MOHLA-LOGO';
+    document.body.appendChild(a);a.click();a.remove();
+  };
+  window.slgPrint=function(){
+    const url=savedLink||($('slg-link')?.value||'').trim();
+    if(!url){alert('कोई School Logo सेव नहीं है।');return;}
+    const src=normalized(url);
+    const w=window.open('','_blank');
+    if(!w){alert('Print window block हो गई। कृपया popup allow करें।');return;}
+    const safe=src.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>School Logo Print</title><style>@page{margin:12mm}body{font-family:Arial;text-align:center;margin:0}h1{font-size:20px;margin:8mm 0 12mm}img{max-width:175mm;max-height:235mm;object-fit:contain}</style></head><body><h1>NAHUSH PUBLIC HIGH SCHOOL MOHLA<br>SCHOOL LOGO</h1><img src="'+safe+'"></body></html>');
+    const printImg=w.document.querySelector('img');
+    printImg.onload=function(){setTimeout(function(){w.print();},400);};
+    printImg.onerror=function(){w.document.body.insertAdjacentHTML('beforeend','<p>Image load nahi hui. Drive sharing check karein.</p>');};
+    w.document.close();
+  };
+  window.slgDelete=async function(){
+    if(!savedLink && !($('slg-link')?.value||'').trim()){alert('कोई सेव किया हुआ School Logo नहीं है।');return;}
+    if(!confirm('क्या आप School Logo link को Firebase से delete करना चाहते हैं?'))return;
+    try{
+      if(typeof cloudHydratePromise!=='undefined' && cloudHydratePromise) await cloudHydratePromise;
+      cloudStore.setItem(KEY,'');
+      await flushCloudStore();
+      if(cloudStore._dirty.has(KEY)) throw new Error('Firebase से delete/save confirm नहीं हुआ।');
+      savedLink='';$('slg-link').value='';showPreview('',false);slgCloseFullscreen();
+      setStatus('School Logo Firebase से delete कर दिया गया।');
+    }catch(e){alert('Delete नहीं हो पाया: '+(e.message||e));}
+  };
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')slgCloseFullscreen();});
+})();
+</script>
+
 </body>
 </html>
